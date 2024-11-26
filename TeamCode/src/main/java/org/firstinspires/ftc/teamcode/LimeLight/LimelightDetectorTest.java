@@ -43,25 +43,20 @@ public class LimelightDetectorTest extends LinearOpMode {
 
             LLResult result = limelight.getLatestResult();
 
+            telemetry.addLine("Looking");
+
             if (result != null) {
                 // Access general information
                 Pose3D botpose = result.getBotpose();
-                double captureLatency = result.getCaptureLatency();
-                double targetingLatency = result.getTargetingLatency();
-                double parseLatency = result.getParseLatency();
-                telemetry.addData("LL Latency", captureLatency + targetingLatency);
-                telemetry.addData("Parse Latency", parseLatency);
 
                 if (result.isValid()) {
                     telemetry.addData("tx", result.getTx());
                     telemetry.addData("ty", result.getTy());
 
-                    telemetry.addData("Botpose", botpose.toString());
-
                     // Access barcode results
                     List<LLResultTypes.DetectorResult> detectorResults = result.getDetectorResults();
                     for (LLResultTypes.DetectorResult dr : detectorResults) {
-                        if (dr.getClassName().equals("blue")) {
+                        if (dr.getClassName().equals("red")) {
                             List<List<Double>> targetCorners = dr.getTargetCorners();
 
                             double diagonalPixels = DistanceEstimator.getObjectDiagonalInPixels(targetCorners);

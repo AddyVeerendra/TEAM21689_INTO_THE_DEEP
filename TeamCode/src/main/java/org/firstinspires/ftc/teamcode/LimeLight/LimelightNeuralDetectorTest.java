@@ -26,7 +26,7 @@ public class LimelightNeuralDetectorTest extends LinearOpMode {
         while (opModeIsActive()) {
             if (limelight.isConnected() && !limelight.getDetectorResults().isEmpty()) {
                 limelight.getDetectorResults().forEach(dr -> {
-                    if ("blue".equals(dr.getClassName())) {
+                    if ("red".equals(dr.getClassName())) {
                         List<List<Double>> targetCorners = dr.getTargetCorners();
 
                         double diagonalPixels = DistanceEstimator.getObjectDiagonalInPixels(targetCorners);
