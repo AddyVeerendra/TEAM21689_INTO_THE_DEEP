@@ -6,7 +6,7 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.Limelight;
 import java.util.List;
 
 
-@TeleOp(name = "LimelightDetectorTest", group = "Sensor")
+@TeleOp(name = "LimelightNeuralDetectorTest", group = "Sensor")
 public class LimelightNeuralDetectorTest extends LinearOpMode {
 
     @Override
