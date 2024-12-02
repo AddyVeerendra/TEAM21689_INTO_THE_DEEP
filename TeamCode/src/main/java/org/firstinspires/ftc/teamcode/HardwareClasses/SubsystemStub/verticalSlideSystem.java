@@ -4,11 +4,11 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-public class horizontalSlideSystem {
+public class verticalSlideSystem {
     LinearSlide LeftHorizontalSlide;
     LinearSlide RightHorizontalSlide;
 
-    public horizontalSlideSystem(HardwareMap hardwareMap) {
+    public verticalSlideSystem(HardwareMap hardwareMap) {
         LeftHorizontalSlide = new LinearSlide(hardwareMap, new String[]{"leftSlideMotor"}, new DcMotorSimple.Direction[]{DcMotorSimple.Direction.FORWARD},
                 1000, 0, 40);
 
