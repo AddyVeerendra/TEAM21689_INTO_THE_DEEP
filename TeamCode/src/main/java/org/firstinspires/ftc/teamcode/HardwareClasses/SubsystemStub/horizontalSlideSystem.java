@@ -10,10 +10,10 @@ public class horizontalSlideSystem {
 
     public horizontalSlideSystem(HardwareMap hardwareMap) {
         LeftHorizontalSlide = new LinearSlide(hardwareMap, new String[]{"leftSlideMotor"}, new DcMotorSimple.Direction[]{DcMotorSimple.Direction.FORWARD},
-                1000, 0, 40);
+                1000, 0, 40); // Change as needed
 
         RightHorizontalSlide = new LinearSlide(hardwareMap, new String[]{"rightSlideMotor"}, new DcMotorSimple.Direction[]{DcMotorSimple.Direction.FORWARD},
-                1000, 0, 40);
+                1000, 0, 40); // Change as needed
     }
 
     public void MaxSlideExtension() {
@@ -21,9 +21,13 @@ public class horizontalSlideSystem {
         RightHorizontalSlide.moveSlidesToPositionInches(RightHorizontalSlide.getMaxExtensionInches());
     }
 
-    public void MinSlideExtension() {
+    public void RetractSlides() {
         LeftHorizontalSlide.moveSlidesToPositionInches(LeftHorizontalSlide.getMinExtensionInches());
         RightHorizontalSlide.moveSlidesToPositionInches(RightHorizontalSlide.getMinExtensionInches());
     }
 
+    public void moveSlidesToPositionInches(double targetInches) {
+        LeftHorizontalSlide.moveSlidesToPositionInches(targetInches);
+        RightHorizontalSlide.moveSlidesToPositionInches(targetInches);
+    }
 }

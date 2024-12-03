@@ -3,11 +3,11 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.PedroPathing.follower.Follower;
-import org.firstinspires.ftc.teamcode.PedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.PedroPathing.pathGeneration.BezierLine;
-import org.firstinspires.ftc.teamcode.PedroPathing.pathGeneration.Path;
-import org.firstinspires.ftc.teamcode.PedroPathing.pathGeneration.Point;
+import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 
 @TeleOp(name = "A TeleOp")
 public class TeleOpDrive extends OpMode {

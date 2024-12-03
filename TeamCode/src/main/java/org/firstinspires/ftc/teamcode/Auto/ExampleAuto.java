@@ -7,12 +7,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.HardwareClasses.RobotConstants;
-import org.firstinspires.ftc.teamcode.PedroPathing.follower.Follower;
-import org.firstinspires.ftc.teamcode.PedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.PedroPathing.pathGeneration.BezierLine;
-import org.firstinspires.ftc.teamcode.PedroPathing.pathGeneration.Path;
-import org.firstinspires.ftc.teamcode.PedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.PedroPathing.util.Timer;
+import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
+import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
 @Autonomous(name = "Auto Base", group = "Pedro Auto")
 public class ExampleAuto extends OpMode {
