@@ -33,8 +33,8 @@ public class CRServoTest extends LinearOpMode {
                 if (reversing) {
                     // If in reverse mode, check if 1 second has passed
                     if (System.currentTimeMillis() - reverseStartTime >= 1000) {
-                        continuousServo1.setPower(-1);  // Resume intaking
-                        continuousServo2.setPower(1);
+                        continuousServo1.setPower(-0.25);  // Resume intaking
+                        continuousServo2.setPower(0.25);
                         reversing = false;  // Reset the reversing flag
                     }
                 } else {
@@ -43,14 +43,14 @@ public class CRServoTest extends LinearOpMode {
                         continuousServo1.setPower(0);  // Stop intake
                         continuousServo2.setPower(0);
                     } else {
-                        continuousServo1.setPower(-1);  // Continue intaking
-                        continuousServo2.setPower(1);
+                        continuousServo1.setPower(-0.25);  // Continue intaking
+                        continuousServo2.setPower(0.25);
                     }
 
                     // If dpad_up is pressed, start reversing for 1 second
                     if (gamepad1.dpad_up) {
-                        continuousServo1.setPower(1);  // Reverse intake
-                        continuousServo2.setPower(-1);
+                        continuousServo1.setPower(0.25);  // Reverse intake
+                        continuousServo2.setPower(-0.25);
                         reverseStartTime = System.currentTimeMillis();
                         reversing = true;  // Set reversing flag
                     }
