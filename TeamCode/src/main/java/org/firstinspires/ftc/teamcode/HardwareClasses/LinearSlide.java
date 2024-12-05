@@ -34,6 +34,11 @@ public class LinearSlide {
         }
     }
 
+    // Get the maximum extension in inches
+    public double getMaxExtensionInches() {return maxExtensionInches;}
+    // Get the minimum extension in inches
+    public double getMinExtensionInches() {return minExtensionInches;}
+
     // Convert inches to motor ticks
     private double inchesToTicks(double inches) {
         return inches * ticksPerInch;

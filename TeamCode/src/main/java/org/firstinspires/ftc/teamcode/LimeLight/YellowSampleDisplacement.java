@@ -1,0 +1,74 @@
+package org.firstinspires.ftc.teamcode.LimeLight;
+
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+
+import java.util.List;
+
+@TeleOp(name = "YellowSampleDisplacement", group = "Sensor")
+public class YellowSampleDisplacement extends LinearOpMode {
+
+    private Limelight3A limelight;
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+
+
+        limelight = hardwareMap.get(Limelight3A.class, "Limelight");
+
+        telemetry.setMsTransmissionInterval(11);
+
+        limelight.pipelineSwitch(1);
+
+        limelight.start();
+
+        if (limelight.isConnected()) {
+            telemetry.addData(">", "Limelight Connected");
+        } else {
+            telemetry.addData(">", "Limelight Not Connected");
+        }
+        telemetry.addData(">", "Robot Ready.  Press Play.");
+
+        telemetry.update();
+
+        waitForStart();
+
+        while (opModeIsActive()) {
+
+            LLResult result = limelight.getLatestResult();
+
+            if (result != null) {
+                // Access general information
+                Pose3D botpose = result.getBotpose();
+                double captureLatency = result.getCaptureLatency();
+                double targetingLatency = result.getTargetingLatency();
+                double parseLatency = result.getParseLatency();
+                telemetry.addData("LL Latency", captureLatency + targetingLatency);
+                telemetry.addData("Parse Latency", parseLatency);
+
+                if (result.isValid()) {
+                    telemetry.addData("tx", result.getTx());
+                    telemetry.addData("ty", result.getTy());
+
+                    telemetry.addData("Botpose", botpose.toString());
+
+                    // Access barcode results
+                    List<LLResultTypes.DetectorResult> detectorResults = result.getDetectorResults();
+                    for (LLResultTypes.DetectorResult dr : detectorResults) {
+                        if (dr.getClassName().equals("yellow")) {
+                            double X_Displacement =  dr.getTargetXPixels();
+                            telemetry.addData("Displacement (Pixels)", X_Displacement);
+                        }
+                    }
+                }
+            }
+
+            telemetry.update();
+        }
+    }
+}

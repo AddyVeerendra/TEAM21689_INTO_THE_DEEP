@@ -10,13 +10,13 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.HardwareClasses.DepositGripper;
 import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Pivot;
-import org.firstinspires.ftc.teamcode.PedroPathing.follower.Follower;
-import org.firstinspires.ftc.teamcode.PedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.PedroPathing.pathGeneration.BezierCurve;
-import org.firstinspires.ftc.teamcode.PedroPathing.pathGeneration.BezierLine;
-import org.firstinspires.ftc.teamcode.PedroPathing.pathGeneration.Path;
-import org.firstinspires.ftc.teamcode.PedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.PedroPathing.util.Timer;
+import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
+import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
 @Autonomous(name = "AAAAA Auto BLUE")
 public class ScrimmageAuto extends OpMode {
