@@ -5,25 +5,36 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class verticalSlideSystem {
-    LinearSlide LeftHorizontalSlide;
-    LinearSlide RightHorizontalSlide;
+    LinearSlide LeftVerticalSlide;
+    LinearSlide RightVerticalSlide;
 
     public verticalSlideSystem(HardwareMap hardwareMap) {
-        LeftHorizontalSlide = new LinearSlide(hardwareMap, new String[]{"leftSlideMotor"}, new DcMotorSimple.Direction[]{DcMotorSimple.Direction.FORWARD},
-                1000, 0, 40);
+        LeftVerticalSlide = new LinearSlide(hardwareMap, new String[]{"leftSlideMotor"}, new DcMotorSimple.Direction[]{DcMotorSimple.Direction.FORWARD},
+                76.51, 0, 44);
 
-        RightHorizontalSlide = new LinearSlide(hardwareMap, new String[]{"rightSlideMotor"}, new DcMotorSimple.Direction[]{DcMotorSimple.Direction.FORWARD},
-                1000, 0, 40);
+        RightVerticalSlide = new LinearSlide(hardwareMap, new String[]{"rightSlideMotor"}, new DcMotorSimple.Direction[]{DcMotorSimple.Direction.FORWARD},
+                1000, 0, 44);
     }
 
+
     public void MaxSlideExtension() {
-        LeftHorizontalSlide.moveSlidesToPositionInches(LeftHorizontalSlide.getMaxExtensionInches());
-        RightHorizontalSlide.moveSlidesToPositionInches(RightHorizontalSlide.getMaxExtensionInches());
+        LeftVerticalSlide.moveSlidesToPositionInches(LeftVerticalSlide.getMaxExtensionInches());
+        RightVerticalSlide.moveSlidesToPositionInches(RightVerticalSlide.getMaxExtensionInches());
+    }
+
+    public void HighBasketExtension() {
+        LeftVerticalSlide.moveSlidesToPositionInches(LeftVerticalSlide.getMaxExtensionInches());
+        RightVerticalSlide.moveSlidesToPositionInches(RightVerticalSlide.getMaxExtensionInches());
+    }
+
+    public void LowBasketExtension() {
+        LeftVerticalSlide.moveSlidesToPositionInches(LeftVerticalSlide.getMaxExtensionInches());
+        RightVerticalSlide.moveSlidesToPositionInches(RightVerticalSlide.getMaxExtensionInches());
     }
 
     public void MinSlideExtension() {
-        LeftHorizontalSlide.moveSlidesToPositionInches(LeftHorizontalSlide.getMinExtensionInches());
-        RightHorizontalSlide.moveSlidesToPositionInches(RightHorizontalSlide.getMinExtensionInches());
+        LeftVerticalSlide.moveSlidesToPositionInches(LeftVerticalSlide.getMinExtensionInches());
+        RightVerticalSlide.moveSlidesToPositionInches(RightVerticalSlide.getMinExtensionInches());
     }
 
 }
