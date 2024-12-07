@@ -1,61 +1,14 @@
 /*
-import cv2
-import numpy as np
-
-# Constants
-YELLOW_MASK_THRESHOLD = 57
-BLUE_MASK_THRESHOLD = 150
-RED_MASK_THRESHOLD = 198
-CONTOUR_LINE_THICKNESS = 2
-
-# Colors
-RED = (0, 0, 255)  # OpenCV uses BGR
-BLUE = (255, 0, 0)
-YELLOW = (0, 255, 255)
-
-# Camera Calibration Parameters (CHANGE FOR LIMELIGHT)
-cameraMatrix = np.array([
-    [822.317, 0, 319.495],
-    [0, 822.317, 242.502],
-    [0, 0, 1]
-], dtype=np.float64)
-
-distCoeffs = np.array([0, 0, 0, 0, 0], dtype=np.float64)
-
-# Morphological operation elements
-erodeElement = cv2.getStructuringElement(cv2.MORPH_RECT, (4, 4))
-dilateElement = cv2.getStructuringElement(cv2.MORPH_RECT, (4, 4))
-
-def morphMask(input_mask):
-    output = cv2.erode(input_mask, erodeElement)
-    output = cv2.erode(output, erodeElement)
-    output = cv2.dilate(output, dilateElement)
-    output = cv2.dilate(output, dilateElement)
-    return output
-
-def drawRotatedRect(img, rect, color):
-    box = cv2.boxPoints(rect)
-    box = np.int0(box)
-    cv2.drawContours(img, [box], 0, color, CONTOUR_LINE_THICKNESS)
-
-def drawTagText(img, rect, text, color):
-    font = cv2.FONT_HERSHEY_PLAIN
-    cv2.putText(img, text,
-                (int(rect[0][0] - 50), int(rect[0][1] + 25)),
-                font, 1, color, 1, cv2.LINE_AA)
-
-def drawAxis(img, rvec, tvec):
-    axisLength = 50
-    imgpts, _ = cv2.projectPoints(np.float32([[0,0,0], [axisLength,0,0], [0,axisLength,0], [0,0,-axisLength]]),
-                                  rvec, tvec, cameraMatrix, distCoeffs)
-    imgpts = imgpts.astype(int)
-    img = cv2.line(img, tuple(imgpts[0].ravel()), tuple(imgpts[1].ravel()), (0,0,255), 3)
-    img = cv2.line(img, tuple(imgpts[0].ravel()), tuple(imgpts[2].ravel()), (0,255,0), 3)
-    img = cv2.line(img, tuple(imgpts[0].ravel()), tuple(imgpts[3].ravel()), (255,0,0), 3)
-    return img
-
 def analyzeContour(contour, img, color):
     rect = cv2.minAreaRect(contour)
+    width, height = rect[1]
+
+    # Filter based on aspect ratio
+    aspect_ratio = max(width, height) / (min(width, height) + 1e-5)  # Avoid division by zero
+    if aspect_ratio > 5.0 or aspect_ratio < 0.2:  # Reject extreme aspect ratios
+        return None, None, None
+
+    # Draw and tag the rectangle
     drawRotatedRect(img, rect, getColorScalar(color))
 
     angle = rect[2]
@@ -75,13 +28,6 @@ def analyzeContour(contour, img, color):
         img = drawAxis(img, rvec, tvec)
 
     return angle, rvec, tvec if success else None
-
-def getColorScalar(color):
-    return {
-        "Blue": BLUE,
-        "Yellow": YELLOW,
-        "Red": RED
-    }.get(color, RED)
 
 def runPipeline(image, llrobot):
     # Resize image for faster processing
@@ -115,9 +61,10 @@ def runPipeline(image, llrobot):
 
     analyzed_stones = []
 
-    # Analyze contours
+    # Analyze contours with filtering
     for contour in contours_blue + contours_red + contours_yellow:
-        if cv2.contourArea(contour) > 100:  # Filter small contours
+        area = cv2.contourArea(contour)
+        if area > 100:  # Filter small contours
             color = "Blue" if contour in contours_blue else "Red" if contour in contours_red else "Yellow"
             angle, rvec, tvec = analyzeContour(contour, resized, color)
             if tvec is not None:

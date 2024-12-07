@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.LimeLight;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -16,9 +15,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 @TeleOp(name = "Megatag2Relocalizer", group = "Sensor")
 public class Megatag2Relocalizer extends LinearOpMode {
 
-    private Limelight3A limelight;
     IMU imu;
-
+    private Limelight3A limelight;
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -52,23 +50,21 @@ public class Megatag2Relocalizer extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
+            telemetry.addLine("Looking!");
+
             imu = hardwareMap.get(IMU.class, "imu");
 
             YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
 
             limelight.updateRobotOrientation(orientation.getYaw(AngleUnit.DEGREES));
 
-            LLStatus status = limelight.getStatus();
-
-            telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
-                    status.getTemp(), status.getCpu(), (int) status.getFps());
-
             LLResult result = limelight.getLatestResult();
 
             if (result != null) {
                 if (result.isValid()) {
                     Pose3D botpose = result.getBotpose_MT2();
-                    telemetry.addData("MT2 Location:", "(" + botpose.getPosition().x + ", " + botpose.getPosition().y + ")");
+                    telemetry.addData("Botpose", botpose.toString());
+                    telemetry.update();
                 }
             }
         }
