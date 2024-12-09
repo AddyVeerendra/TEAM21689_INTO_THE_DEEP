@@ -59,15 +59,16 @@ public class IntakeClaw extends LinearOpMode {
                 sequenceToggle = !sequenceToggle;
                 if (sequenceToggle) {
                     // Sequence 1
-                    intakeClaw.setPosition(0.0);
-                    sleep(300);
+                    intakeClaw.setPosition(1.0);
+                    sleep(150);
+                    intakeRotate.setPosition(0);
                     intakeSlidesLeft.setPosition(0.3);
-                    intakePivot.setPosition(0.75);
+                    intakePivot.setPosition(0.65);
                 } else {
                     // Sequence 2
                     intakeSlidesLeft.setPosition(0.7);
                     intakePivot.setPosition(0.0);
-                    intakeClaw.setPosition(0.3);
+                    intakeClaw.setPosition(0.75);
                 }
                 dpadRightPressed = true;
             } else if (!gamepad1.dpad_right) {
