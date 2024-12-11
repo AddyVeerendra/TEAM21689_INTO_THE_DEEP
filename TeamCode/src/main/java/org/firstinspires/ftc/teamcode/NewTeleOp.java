@@ -56,9 +56,9 @@ public class NewTeleOp extends LinearOpMode {
         // While the Op Mode is running, check proximity and detect color
         while (opModeIsActive()) {
             // Mecanum drive control
-            double y = -gamepad1.left_stick_y; // Invert Y axis
-            double x = gamepad1.left_stick_x * 1.1; // Adjust for strafing power
-            double rx = gamepad1.right_stick_x;
+            double y = -gamepad2.left_stick_y; // Invert Y axis
+            double x = gamepad2.left_stick_x * 1.1; // Adjust for strafing power
+            double rx = gamepad2.right_stick_x;
 
             // Calculate motor powers
             double frontLeftPower = y + x + rx;
@@ -79,7 +79,7 @@ public class NewTeleOp extends LinearOpMode {
             rightBack.setPower(backRightPower);
 
             // Right bumper toggles claw open/closed
-            if (gamepad1.right_bumper && !rightBumperPressed) {
+            if (gamepad1.right_bumper && !rightBumperPressed) { // CHANGE TO OUTTAKE
                 clawOpen = !clawOpen;
                 if (clawOpen) {
                     intakeAssembly.CloseClaw();
