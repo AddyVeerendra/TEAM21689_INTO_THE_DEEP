@@ -18,23 +18,23 @@ public class IntakeAssembly {
     }
 
     public void OpenClaw() {
-        intakeClaw.setPosition(1);
-    }
-
-    public void CloseClaw() {
         intakeClaw.setPosition(0.75);
     }
 
+    public void CloseClaw() {
+        intakeClaw.setPosition(0.95);
+    }
+
     public void RotateClaw0() {
-        intakeClaw.setPosition(0);
+        intakeRotate.setPosition(0);
     }
 
     public void RotateClaw45() {
-        intakeClaw.setPosition(0.15);
+        intakeRotate.setPosition(0.15);
     }
 
     public void RotateClaw90() {
-        intakeClaw.setPosition(0.3);
+        intakeRotate.setPosition(0.3);
     }
 
     public void PivotClawDown() {
@@ -42,7 +42,7 @@ public class IntakeAssembly {
     }
 
     public void PivotClawUp() {
-        intakePivot.setPosition(0.65);
+        intakePivot.setPosition(0.82);
     }
 
     public void PivotClawMid() {
@@ -50,14 +50,14 @@ public class IntakeAssembly {
     }
 
     public void ExtendSlidesFull() {
-        intakeClaw.setPosition(0.7);
+        intakeSlidesLeft.setPosition(0.7);
     }
 
     public void RetractSlidesFull() {
-        intakeClaw.setPosition(0.3);
+        intakeSlidesLeft.setPosition(0.3);
     }
 
     public void ExtendSlidesToPos(double pos) {
-        intakeClaw.setPosition(pos);
+        intakeSlidesLeft.setPosition(pos);
     }
 }

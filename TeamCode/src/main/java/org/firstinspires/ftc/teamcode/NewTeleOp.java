@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.teamcode.HardwareClasses.DepositAssembly;
 import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssembly;
 import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 
@@ -17,17 +18,20 @@ public class NewTeleOp extends LinearOpMode {
     private DcMotor rightBack;
 
     private IntakeAssembly intakeAssembly;
+    private DepositAssembly depositAssembly;
     private LinearSlide linearSlides;
 
     // Toggle states
     private boolean clawOpen = false;
     private boolean clawRotated = false;
-    private boolean sequenceToggle = false;
+    private boolean intakeSequenceToggle = false;
+    private boolean depositSampleToggle = false;
 
     // Track button states
     private boolean rightBumperPressed = false;
     private boolean yPressed = false;
     private boolean aPressed = false;
+    private boolean dpadLeftPressed = false;
 
     @Override
     public void runOpMode() {
@@ -38,13 +42,22 @@ public class NewTeleOp extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
 
+        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         // Set motor directions
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
         String[] motorNames = {"slideMotorLeft", "slideMotorRight"};
-        DcMotorSimple.Direction[] directions = {DcMotorSimple.Direction.REVERSE, DcMotorSimple.Direction.FORWARD};
-        LinearSlide linearSlide = new LinearSlide(hardwareMap, motorNames, directions, 81.5625, 0, 37.5); // Example ticksPerInch and limits
+        DcMotorSimple.Direction[] directions = {DcMotorSimple.Direction.FORWARD, DcMotorSimple.Direction.REVERSE};
+        linearSlides = new LinearSlide(hardwareMap, motorNames, directions, 81.5625, 0, 37.5); // Example ticksPerInch and limits
+
+        intakeAssembly = new IntakeAssembly(hardwareMap);
+
+        depositAssembly = new DepositAssembly(hardwareMap);
 
         while (opModeInInit() && !isStopRequested()) {
 
@@ -82,8 +95,10 @@ public class NewTeleOp extends LinearOpMode {
             if (gamepad1.right_bumper && !rightBumperPressed) { // CHANGE TO OUTTAKE
                 clawOpen = !clawOpen;
                 if (clawOpen) {
-                    intakeAssembly.CloseClaw();
+                    depositAssembly.OpenOuttakeClaw();
                 } else {
+                    depositAssembly.CloseOuttakeClaw();
+                    sleep(150);
                     intakeAssembly.OpenClaw();
                 }
                 rightBumperPressed = true;
@@ -94,7 +109,7 @@ public class NewTeleOp extends LinearOpMode {
             // Left bumper toggles claw rotation
             if (gamepad1.y && !yPressed) {
                 clawRotated = !clawRotated;
-                if (clawOpen) {
+                if (clawRotated) {
                     intakeAssembly.RotateClaw0();
                 } else {
                     intakeAssembly.RotateClaw90();
@@ -110,14 +125,15 @@ public class NewTeleOp extends LinearOpMode {
 
             // D-pad right toggles between sequences
             if (gamepad1.a && !aPressed) {
-                sequenceToggle = !sequenceToggle;
-                if (sequenceToggle) {
+                intakeSequenceToggle = !intakeSequenceToggle;
+                if (intakeSequenceToggle) {
                     // Sequence 1
                     intakeAssembly.CloseClaw();
                     sleep(150);
-                    intakeAssembly.RotateClaw0();
-                    intakeAssembly.RetractSlidesFull();
                     intakeAssembly.PivotClawUp();
+                    sleep(400);
+                    intakeAssembly.RotateClaw0();
+                    intakeAssembly.ExtendSlidesToPos(0.39);
                 } else {
                     // Sequence 2
                     intakeAssembly.ExtendSlidesFull();
@@ -128,6 +144,26 @@ public class NewTeleOp extends LinearOpMode {
             } else if (!gamepad1.a) {
                 aPressed = false;
             }
+
+            if (gamepad1.dpad_left && !dpadLeftPressed) {
+                depositSampleToggle = !depositSampleToggle;
+                if (depositSampleToggle) {
+                    // Sequence 1
+                    depositAssembly.OpenOuttakeClaw();
+                    sleep(150);
+                    linearSlides.moveSlidesToPositionInches(0);
+                    depositAssembly.TransferSample();
+                } else {
+                    // Sequence 2
+                    linearSlides.moveSlidesToPositionInches(35);
+                    depositAssembly.ScoreSample();
+                }
+                dpadLeftPressed = true;
+            } else if (!gamepad1.dpad_left) {
+                dpadLeftPressed = false;
+            }
+
+            linearSlides.update();
         }
     }
 }
