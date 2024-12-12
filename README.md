@@ -36,7 +36,7 @@ The OpModes are located in the `org.firstinspires.ftc.teamcode` package. They ar
 *   `Autonomous`: OpModes for autonomous (pre-programmed) periods.
 
 
-# <<<PEDRO PATHING README>>>
+# PEDRO PATHING README
 ## NOTICE
 
 This repository contains the public FTC SDK for the INTO THE DEEP (2024-2025) competition season.
