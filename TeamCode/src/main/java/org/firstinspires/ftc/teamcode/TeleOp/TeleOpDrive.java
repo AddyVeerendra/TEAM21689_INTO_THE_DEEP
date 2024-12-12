@@ -54,12 +54,13 @@ public class TeleOpDrive extends OpMode {
     public void updateDrive() {
         // --- Speed Changer Logic ---
         boolean slowerDriving = gamepad1.right_bumper;
-        double stickScale = slowerDriving ? 0.5 : 1.0;
+        double stickScale = slowerDriving ? 0.4 : 1.0;
+        double slowerTurning = 0.8;
 
         follower.setTeleOpMovementVectors(
                 -gamepad1.left_stick_y * stickScale,
                 -gamepad1.left_stick_x * stickScale,
-                -gamepad1.right_stick_x * stickScale
+                -gamepad1.right_stick_x * stickScale*slowerTurning
         );
     }
 
