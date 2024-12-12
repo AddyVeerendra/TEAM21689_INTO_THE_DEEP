@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static java.lang.Double.max;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -72,6 +74,7 @@ public class NewTeleOp extends LinearOpMode {
             double y = -gamepad2.left_stick_y; // Invert Y axis
             double x = gamepad2.left_stick_x * 1.1; // Adjust for strafing power
             double rx = gamepad2.right_stick_x;
+            double stick_scale =  max(0.4f, gamepad2.left_trigger);
 
             // Calculate motor powers
             double frontLeftPower = y + x + rx;
@@ -86,10 +89,10 @@ public class NewTeleOp extends LinearOpMode {
             backRightPower = Math.max(-1, Math.min(1, backRightPower));
 
             // Set the motor powers
-            leftFront.setPower(frontLeftPower);
-            leftBack.setPower(backLeftPower);
-            rightFront.setPower(frontRightPower);
-            rightBack.setPower(backRightPower);
+            leftFront.setPower(frontLeftPower*stick_scale);
+            leftBack.setPower(backLeftPower*stick_scale);
+            rightFront.setPower(frontRightPower*stick_scale);
+            rightBack.setPower(backRightPower*stick_scale);
 
             // Right bumper toggles claw open/closed
             if (gamepad1.right_bumper && !rightBumperPressed) { // CHANGE TO OUTTAKE
