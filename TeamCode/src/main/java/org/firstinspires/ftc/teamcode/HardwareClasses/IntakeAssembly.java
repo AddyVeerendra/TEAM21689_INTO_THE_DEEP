@@ -37,12 +37,16 @@ public class IntakeAssembly {
         intakeRotate.setPosition(0.3);
     }
 
+    public double RotateClawPos() {
+        return intakeRotate.getPosition();
+    }
+
     public void PivotClawDown() {
         intakePivot.setPosition(0.0);
     }
 
     public void PivotClawUp() {
-        intakePivot.setPosition(0.82);
+        intakePivot.setPosition(0.87);
     }
 
     public void PivotClawMid() {

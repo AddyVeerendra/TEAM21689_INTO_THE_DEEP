@@ -23,7 +23,7 @@ public class NewTeleOp extends LinearOpMode {
 
     // Toggle states
     private boolean clawOpen = false;
-    private boolean clawRotated = false;
+    private boolean clawRotated = true;
     private boolean intakeSequenceToggle = false;
     private boolean depositSampleToggle = false;
 
@@ -68,10 +68,13 @@ public class NewTeleOp extends LinearOpMode {
 
         // While the Op Mode is running, check proximity and detect color
         while (opModeIsActive()) {
+            // Calculate speed multiplier based on left trigger
+            double speedMultiplier = 1 - (0.7 * gamepad2.left_trigger); // Map 0 to 1 (full speed) to 1 to 0.2
+
             // Mecanum drive control
-            double y = -gamepad2.left_stick_y; // Invert Y axis
-            double x = gamepad2.left_stick_x * 1.1; // Adjust for strafing power
-            double rx = gamepad2.right_stick_x;
+            double y = -gamepad2.left_stick_y * speedMultiplier; // Forward/backward
+            double x = gamepad2.left_stick_x * 1.1 * speedMultiplier; // Strafing
+            double rx = gamepad2.right_stick_x * speedMultiplier; // Rotation
 
             // Calculate motor powers
             double frontLeftPower = y + x + rx;
@@ -79,32 +82,32 @@ public class NewTeleOp extends LinearOpMode {
             double frontRightPower = y - x - rx;
             double backRightPower = y + x - rx;
 
-            // Clip the motor powers to ensure they are within the range [-1, 1]
+            // Clip motor powers to ensure they're within [-1, 1]
             frontLeftPower = Math.max(-1, Math.min(1, frontLeftPower));
             backLeftPower = Math.max(-1, Math.min(1, backLeftPower));
             frontRightPower = Math.max(-1, Math.min(1, frontRightPower));
             backRightPower = Math.max(-1, Math.min(1, backRightPower));
 
-            // Set the motor powers
+            // Set motor powers
             leftFront.setPower(frontLeftPower);
             leftBack.setPower(backLeftPower);
             rightFront.setPower(frontRightPower);
             rightBack.setPower(backRightPower);
 
-            // Right bumper toggles claw open/closed
-            if (gamepad1.right_bumper && !rightBumperPressed) { // CHANGE TO OUTTAKE
-                clawOpen = !clawOpen;
-                if (clawOpen) {
-                    depositAssembly.OpenOuttakeClaw();
-                } else {
-                    depositAssembly.CloseOuttakeClaw();
-                    sleep(150);
-                    intakeAssembly.OpenClaw();
-                }
-                rightBumperPressed = true;
-            } else if (!gamepad1.right_bumper) {
-                rightBumperPressed = false;
-            }
+//            // Right bumper toggles claw open/closed
+//            if (gamepad1.right_bumper && !rightBumperPressed) { // CHANGE TO OUTTAKE
+//                clawOpen = !clawOpen;
+//                if (clawOpen) {
+//                    depositAssembly.OpenOuttakeClaw();
+//                } else {
+//                    depositAssembly.CloseOuttakeClaw();
+//                    sleep(150);
+//                    intakeAssembly.OpenClaw();
+//                }
+//                rightBumperPressed = true;
+//            } else if (!gamepad1.right_bumper) {
+//                rightBumperPressed = false;
+//            }
 
             // Left bumper toggles claw rotation
             if (gamepad1.y && !yPressed) {
@@ -129,11 +132,16 @@ public class NewTeleOp extends LinearOpMode {
                 if (intakeSequenceToggle) {
                     // Sequence 1
                     intakeAssembly.CloseClaw();
+                    depositAssembly.OpenOuttakeClaw();
                     sleep(150);
+                    intakeAssembly.RotateClaw0();
                     intakeAssembly.PivotClawUp();
                     sleep(400);
-                    intakeAssembly.RotateClaw0();
                     intakeAssembly.ExtendSlidesToPos(0.39);
+                    sleep(600);
+                    depositAssembly.CloseOuttakeClaw();
+                    sleep(150);
+                    intakeAssembly.OpenClaw();
                 } else {
                     // Sequence 2
                     intakeAssembly.ExtendSlidesFull();

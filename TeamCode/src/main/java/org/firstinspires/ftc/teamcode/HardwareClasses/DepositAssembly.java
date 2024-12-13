@@ -31,6 +31,12 @@ public class DepositAssembly {
         outtakeClawPivot.setPosition(1);
     }
 
+    public void ScoreSpecimen() {
+        outtakePivotLeft.setPosition(0.4);
+        outtakePivotRight.setPosition(0.4);
+        outtakeClawPivot.setPosition(1);
+    }
+
     public void InitSampleAuto() {
         outtakePivotLeft.setPosition(0.7);
         outtakePivotRight.setPosition(0.7);
