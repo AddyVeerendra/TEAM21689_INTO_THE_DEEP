@@ -24,8 +24,8 @@ public class NewTeleOp extends LinearOpMode {
     // Toggle states
     private boolean clawOpen = false;
     private boolean clawRotated = true;
-    private boolean intakeSequenceToggle = false;
-    private boolean depositSampleToggle = false;
+    private boolean intakeSequenceToggle = true;
+    private boolean depositSampleToggle = true;
 
     // Track button states
     private boolean rightBumperPressed = false;
@@ -58,6 +58,15 @@ public class NewTeleOp extends LinearOpMode {
         intakeAssembly = new IntakeAssembly(hardwareMap);
 
         depositAssembly = new DepositAssembly(hardwareMap);
+
+        depositAssembly.OpenOuttakeClaw();
+        linearSlides.moveSlidesToPositionInches(0);
+        depositAssembly.TransferSample();
+        sleep(500);
+        intakeAssembly.RotateClaw0();
+        intakeAssembly.PivotClawUp();
+        intakeAssembly.ExtendSlidesToPos(0.40);
+        intakeAssembly.OpenClaw();
 
         while (opModeInInit() && !isStopRequested()) {
 
@@ -137,13 +146,16 @@ public class NewTeleOp extends LinearOpMode {
                     intakeAssembly.RotateClaw0();
                     intakeAssembly.PivotClawUp();
                     sleep(400);
-                    intakeAssembly.ExtendSlidesToPos(0.39);
+                    intakeAssembly.ExtendSlidesToPos(0.40);
                     sleep(600);
                     depositAssembly.CloseOuttakeClaw();
+                    intakeAssembly.LockIntake();
                     sleep(150);
                     intakeAssembly.OpenClaw();
                 } else {
                     // Sequence 2
+                    intakeAssembly.UnlockIntake();
+                    sleep(150);
                     intakeAssembly.ExtendSlidesFull();
                     intakeAssembly.PivotClawMid();
                     intakeAssembly.OpenClaw();

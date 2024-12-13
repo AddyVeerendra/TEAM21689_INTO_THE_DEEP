@@ -26,26 +26,32 @@ public class DepositAssembly {
     }
 
     public void ScoreSample() {
-        outtakePivotLeft.setPosition(0.9);
-        outtakePivotRight.setPosition(0.9);
+        outtakePivotLeft.setPosition(0.0);
+        outtakePivotRight.setPosition(0.0);
+        outtakeClawPivot.setPosition(1);
+    }
+
+    public void GrabSpecimen() {
+        outtakePivotLeft.setPosition(0.0);
+        outtakePivotRight.setPosition(0.0);
         outtakeClawPivot.setPosition(1);
     }
 
     public void ScoreSpecimen() {
-        outtakePivotLeft.setPosition(0.4);
-        outtakePivotRight.setPosition(0.4);
+        outtakePivotLeft.setPosition(0.58);
+        outtakePivotRight.setPosition(0.58);
         outtakeClawPivot.setPosition(1);
     }
 
     public void InitSampleAuto() {
-        outtakePivotLeft.setPosition(0.7);
-        outtakePivotRight.setPosition(0.7);
+        outtakePivotLeft.setPosition(0.3);
+        outtakePivotRight.setPosition(0.3);
         outtakeClawPivot.setPosition(1);
     }
 
     public void TransferSample() {
-        outtakePivotLeft.setPosition(0.4);
-        outtakePivotRight.setPosition(0.4);
+        outtakePivotLeft.setPosition(0.58);
+        outtakePivotRight.setPosition(0.58);
         outtakeClawPivot.setPosition(0.87);
         OpenOuttakeClaw();
     }

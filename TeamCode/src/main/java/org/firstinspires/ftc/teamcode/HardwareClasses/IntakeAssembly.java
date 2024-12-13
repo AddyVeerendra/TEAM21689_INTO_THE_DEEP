@@ -8,6 +8,8 @@ public class IntakeAssembly {
     private Servo intakeRotate;
     private Servo intakeClaw;
     private Servo intakeSlidesLeft;
+    private Servo intakeLock;
+
 
     public IntakeAssembly(HardwareMap hardwareMap) {
         intakePivot = hardwareMap.get(Servo.class, "intakePivot");
@@ -15,6 +17,15 @@ public class IntakeAssembly {
         intakeRotate = hardwareMap.get(Servo.class, "intakeRotate");
         intakeClaw = hardwareMap.get(Servo.class, "intakeClaw");
         intakeSlidesLeft = hardwareMap.get(Servo.class, "intakeSlidesLeft");
+        intakeLock = hardwareMap.get(Servo.class, "intakeLock");
+    }
+
+    public void LockIntake() {
+        intakeLock.setPosition(0.16);
+    }
+
+    public void UnlockIntake() {
+        intakeLock.setPosition(0.0);
     }
 
     public void OpenClaw() {
@@ -37,8 +48,8 @@ public class IntakeAssembly {
         intakeRotate.setPosition(0.3);
     }
 
-    public double RotateClawPos() {
-        return intakeRotate.getPosition();
+    public void RotateClawToPos(double pos) {
+        intakeRotate.setPosition(pos);
     }
 
     public void PivotClawDown() {
