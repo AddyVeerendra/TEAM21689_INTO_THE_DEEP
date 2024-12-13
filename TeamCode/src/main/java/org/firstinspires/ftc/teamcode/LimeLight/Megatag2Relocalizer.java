@@ -64,7 +64,7 @@ public class Megatag2Relocalizer {
                 conversionFactor = MM_TO_INCHES;
                 break;
             default:
-                conversionFactor = 1.0; // Assuming the unit is already in inches
+                conversionFactor = 1.0;
         }
 
         double xInches = position.x * conversionFactor;
