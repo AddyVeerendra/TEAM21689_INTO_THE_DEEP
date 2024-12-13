@@ -49,19 +49,4 @@ public class ColorSampleDisplacement {
         return null;
     }
 
-    public double getLatency() {
-        LLResult result = getLatestResult();
-        if (result != null) {
-            return result.getCaptureLatency() + result.getTargetingLatency();
-        }
-        return Double.NaN;
-    }
-
-    public double getParseLatency() {
-        LLResult result = getLatestResult();
-        if (result != null) {
-            return result.getParseLatency();
-        }
-        return Double.NaN;
-    }
 }
