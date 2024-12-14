@@ -89,7 +89,7 @@ public class Scrimmage2Auto extends OpMode {
             case 0:
                 toChamber = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(0, -36, Point.CARTESIAN)));
+                        new Point(6, -36, Point.CARTESIAN)));
                 toChamber.setConstantHeadingInterpolation(Math.toRadians(90));
                 follower.followPath(toChamber, true);
                 linearSlides.moveSlidesToPositionInches(19);
@@ -155,7 +155,7 @@ public class Scrimmage2Auto extends OpMode {
             case 4:
                 toSpike1Give = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(28, -45, Point.CARTESIAN)));
+                        new Point(40, -45, Point.CARTESIAN)));
                 toSpike1Give.setConstantHeadingInterpolation(Math.toRadians(-45));
                 follower.followPath(toSpike1Give, true);
                 setPathState(5);
@@ -172,6 +172,7 @@ public class Scrimmage2Auto extends OpMode {
                     intakeAssembly.OpenClaw();
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                        intakeAssembly.ExtendSlidesToPos(0.5);
                         setPathState(6);
                     }
                 }
@@ -180,7 +181,7 @@ public class Scrimmage2Auto extends OpMode {
             case 6:
                 toSpike2Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -45, Point.CARTESIAN)));
+                        new Point(40, -46, Point.CARTESIAN)));
                 toSpike2Grab.setConstantHeadingInterpolation(Math.toRadians(45));
                 follower.followPath(toSpike2Grab, true);
                 setPathState(7);
@@ -188,6 +189,11 @@ public class Scrimmage2Auto extends OpMode {
                 break;
 
             case 7:
+                if (follower.isBusy()) {
+                    if (follower.getCurrentTValue() > 0.8) {
+                        intakeAssembly.ExtendSlidesFull();
+                    }
+                }
                 if (!follower.isBusy()) {
                     if (times == 0) {
                         setPathState(7);
@@ -197,6 +203,7 @@ public class Scrimmage2Auto extends OpMode {
                     intakeAssembly.CloseClaw();
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                        intakeAssembly.ExtendSlidesToPos(0.5);
                         setPathState(8);
                     }
                 }
@@ -231,8 +238,8 @@ public class Scrimmage2Auto extends OpMode {
             case 10:
                 toSpike3Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(52, -43, Point.CARTESIAN)));
-                toSpike3Grab.setConstantHeadingInterpolation(Math.toRadians(45));
+                        new Point(53, -43.5, Point.CARTESIAN)));
+                toSpike3Grab.setConstantHeadingInterpolation(Math.toRadians(50));
                 follower.followPath(toSpike3Grab, true);
                 setPathState(11);
                 times = 0;
@@ -241,7 +248,7 @@ public class Scrimmage2Auto extends OpMode {
             case 11:
                 if (follower.isBusy()) {
                     if (follower.getCurrentTValue() > 0.8) {
-                        intakeAssembly.ExtendSlidesToPos(0.5);
+                        intakeAssembly.ExtendSlidesToPos(0.51);
                     }
                 }
                 if (!follower.isBusy()) {
@@ -253,7 +260,9 @@ public class Scrimmage2Auto extends OpMode {
                     intakeAssembly.CloseClaw();
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                        intakeAssembly.ExtendSlidesToPos(0.4);
+                        intakeAssembly.ExtendSlidesToPos(0.35);
+                    }
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                         setPathState(12);
                     }
                 }
@@ -262,7 +271,7 @@ public class Scrimmage2Auto extends OpMode {
             case 12:
                 toSpike3Give = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(52, -45, Point.CARTESIAN)));
+                        new Point(40, -45, Point.CARTESIAN)));
                 toSpike3Give.setConstantHeadingInterpolation(Math.toRadians(-45));
                 follower.followPath(toSpike3Give, true);
                 setPathState(13);
@@ -284,6 +293,66 @@ public class Scrimmage2Auto extends OpMode {
                     intakeAssembly.OpenClaw();
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                        intakeAssembly.ExtendSlidesToPos(0.35);
+                        intakeAssembly.RotateClaw0();
+                        intakeAssembly.PivotClawUp();
+                        setPathState(14);
+                    }
+                }
+                break;
+
+            case 14:
+                toHumanPlayer = new Path(new BezierLine(
+                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+                        new Point(36, -61, Point.CARTESIAN)));
+                toHumanPlayer.setConstantHeadingInterpolation(Math.toRadians(90));
+                follower.followPath(toHumanPlayer, true);
+                setPathState(15);
+                times = 0;
+                break;
+
+            case 15:
+                if (!follower.isBusy()) {
+                    if (times == 0) {
+                        setPathState(15);
+                        times = 1;
+                    }
+
+                    depositAssembly.CloseOuttakeClaw();
+
+                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                        depositAssembly.ScoreSpecimen();
+                        linearSlides.moveSlidesToPositionInches(19);
+                        setPathState(16);
+                    }
+                }
+                break;
+
+            case 16:
+                toChamber = new Path(new BezierLine(
+                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+                        new Point(7, -36, Point.CARTESIAN)));
+                toChamber.setConstantHeadingInterpolation(Math.toRadians(90));
+                follower.followPath(toChamber, true);
+                setPathState(17);
+                times = 0;
+                break;
+
+            case 17:
+                if (!follower.isBusy()) {
+                    if (times == 0) {
+                        setPathState(17);
+                        times = 1;
+                    }
+
+                    linearSlides.moveSlidesToPositionInches(24);
+
+                    if (pathTimer.getElapsedTimeSeconds() > 0.75) {
+                        depositAssembly.OpenOuttakeClaw();
+                    }
+
+                    if (pathTimer.getElapsedTimeSeconds() > 1) {
+                        linearSlides.moveSlidesToPositionInches(18);
                         setPathState(-1);
                     }
                 }
