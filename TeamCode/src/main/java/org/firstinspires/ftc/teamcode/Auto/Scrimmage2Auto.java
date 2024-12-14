@@ -34,6 +34,7 @@ public class Scrimmage2Auto extends OpMode {
     private int times;
     // Initialize telemetry and any other subsystems and variables
     private Telemetry telemetryA;
+    private int cycles = 0;
 
     @Override
     public void init() {
@@ -181,7 +182,7 @@ public class Scrimmage2Auto extends OpMode {
             case 6:
                 toSpike2Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -46, Point.CARTESIAN)));
+                        new Point(41, -46, Point.CARTESIAN)));
                 toSpike2Grab.setConstantHeadingInterpolation(Math.toRadians(45));
                 follower.followPath(toSpike2Grab, true);
                 setPathState(7);
@@ -238,7 +239,7 @@ public class Scrimmage2Auto extends OpMode {
             case 10:
                 toSpike3Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(53, -43.5, Point.CARTESIAN)));
+                        new Point(54, -43.5, Point.CARTESIAN)));
                 toSpike3Grab.setConstantHeadingInterpolation(Math.toRadians(50));
                 follower.followPath(toSpike3Grab, true);
                 setPathState(11);
@@ -312,6 +313,12 @@ public class Scrimmage2Auto extends OpMode {
                 break;
 
             case 15:
+                if (follower.isBusy()) {
+                    if (follower.getCurrentTValue() > 0.1) {
+                        depositAssembly.GrabSpecimen();
+                        linearSlides.moveSlidesToPositionInches(0);
+                    }
+                }
                 if (!follower.isBusy()) {
                     if (times == 0) {
                         setPathState(15);
@@ -331,7 +338,7 @@ public class Scrimmage2Auto extends OpMode {
             case 16:
                 toChamber = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(7, -36, Point.CARTESIAN)));
+                        new Point(7+cycles, -36, Point.CARTESIAN)));
                 toChamber.setConstantHeadingInterpolation(Math.toRadians(90));
                 follower.followPath(toChamber, true);
                 setPathState(17);
@@ -353,7 +360,12 @@ public class Scrimmage2Auto extends OpMode {
 
                     if (pathTimer.getElapsedTimeSeconds() > 1) {
                         linearSlides.moveSlidesToPositionInches(18);
-                        setPathState(-1);
+                        cycles++;
+                        if (cycles >= 4) {
+                            setPathState(-1);
+                        } else {
+                            setPathState(14);
+                        }
                     }
                 }
                 break;
