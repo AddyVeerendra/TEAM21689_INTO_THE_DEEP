@@ -92,10 +92,10 @@ public class NewTeleOp extends LinearOpMode {
             double backRightPower = y + x - rx;
 
             // Clip motor powers to ensure they're within [-1, 1]
-            frontLeftPower = Math.max(-1, Math.min(1, frontLeftPower));
-            backLeftPower = Math.max(-1, Math.min(1, backLeftPower));
-            frontRightPower = Math.max(-1, Math.min(1, frontRightPower));
-            backRightPower = Math.max(-1, Math.min(1, backRightPower));
+            frontLeftPower = Math.max(-0.7, Math.min(0.7, frontLeftPower));
+            backLeftPower = Math.max(-0.7, Math.min(0.7, backLeftPower));
+            frontRightPower = Math.max(-0.7, Math.min(0.7, frontRightPower));
+            backRightPower = Math.max(-0.7, Math.min(0.7, backRightPower));
 
             // Set motor powers
             leftFront.setPower(frontLeftPower);
@@ -135,19 +135,28 @@ public class NewTeleOp extends LinearOpMode {
                 intakeAssembly.PivotClawDown();
             }
 
+            if (gamepad1.left_trigger > 0.9) {
+                intakeAssembly.UnlockIntake();
+            }
+
+            if (gamepad2.right_bumper) {
+                depositAssembly.OpenOuttakeClaw();
+            }
+
             // D-pad right toggles between sequences
             if (gamepad1.a && !aPressed) {
                 intakeSequenceToggle = !intakeSequenceToggle;
                 if (intakeSequenceToggle) {
                     // Sequence 1
+                    stopDrive();
                     intakeAssembly.CloseClaw();
                     depositAssembly.OpenOuttakeClaw();
                     sleep(150);
                     intakeAssembly.RotateClaw0();
                     intakeAssembly.PivotClawUp();
                     sleep(400);
-                    intakeAssembly.ExtendSlidesToPos(0.40);
-                    sleep(600);
+                    intakeAssembly.ExtendSlidesToPos(0.39);
+                    sleep(650);
                     depositAssembly.CloseOuttakeClaw();
                     intakeAssembly.LockIntake();
                     sleep(150);
@@ -185,5 +194,12 @@ public class NewTeleOp extends LinearOpMode {
 
             linearSlides.update();
         }
+    }
+
+    public void stopDrive() {
+        leftFront.setPower(0);
+        leftBack.setPower(0);
+        rightFront.setPower(0);
+        rightBack.setPower(0);
     }
 }
