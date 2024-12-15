@@ -13,8 +13,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Megatag2Relocalizer {
 
-    private IMU imu;
-    private Limelight3A limelight;
+    private final IMU imu;
+    private final Limelight3A limelight;
     private static final double METERS_TO_INCHES = 39.3701;
     private static final double MM_TO_INCHES = 0.0393701;
     private static final double CM_TO_INCHES = 0.393701;
@@ -47,6 +47,15 @@ public class Megatag2Relocalizer {
             return convertPoseToInches(botpose);
         }
         return null;
+    }
+
+    public int getAprilTagID() {
+        LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            int aprilTagId = result.getFiducialResults().get(0).getFiducialId();
+            return aprilTagId;
+        }
+        return -1;
     }
 
     private Pose3D convertPoseToInches(Pose3D pose) {

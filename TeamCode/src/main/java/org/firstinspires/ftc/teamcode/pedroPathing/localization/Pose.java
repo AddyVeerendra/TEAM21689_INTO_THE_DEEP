@@ -181,6 +181,20 @@ public class Pose {
     }
 
     /**
+     * Adds vision measurement to current pose.
+     *
+     * @param pose the input Pose
+     * @param confidence confidence of the vision measurement
+     */
+    public void addVisionMeasurement(Pose pose, double confidence){
+        double invConf = Math.round(1/ confidence);
+        double x = ((getX() * invConf) + pose.getX()) / (1 + invConf);
+        double y = ((getY() * invConf) + pose.getY()) / (1 + invConf);
+        setX(x);
+        setY(y);
+    }
+
+    /**
      * This returns if a Pose is within a specified accuracy of this Pose in terms of x position,
      * y position, and heading.
      *
