@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -9,8 +9,8 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.DepositAssembly;
 import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssembly;
 import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 
-@TeleOp (name = "NEWEST V2 Robot TeleOp")
-public class NewTeleOp extends LinearOpMode {
+@TeleOp (name = "Scrimmage V2 Robot TeleOp")
+public class NewTeleOpScrimmage extends LinearOpMode {
 
     private DcMotor leftFront;
     private DcMotor leftBack;
