@@ -26,33 +26,33 @@ public class DepositAssembly {
     }
 
     public void ScoreSample() {
+        outtakePivotLeft.setPosition(0.08);
+        outtakePivotRight.setPosition(0.08);
+        outtakeClawPivot.setPosition(0.9);
+    }
+
+    public void GrabSpecimen() {
         outtakePivotLeft.setPosition(0.0);
         outtakePivotRight.setPosition(0.0);
         outtakeClawPivot.setPosition(1);
     }
 
-    public void GrabSpecimen() {
-        outtakePivotLeft.setPosition(0.01);
-        outtakePivotRight.setPosition(0.01);
-        outtakeClawPivot.setPosition(1);
-    }
-
     public void ScoreSpecimen() {
-        outtakePivotLeft.setPosition(0.58);
-        outtakePivotRight.setPosition(0.58);
-        outtakeClawPivot.setPosition(1);
+        outtakePivotLeft.setPosition(0.65);
+        outtakePivotRight.setPosition(0.65);
+        outtakeClawPivot.setPosition(0.9);
     }
 
     public void InitSampleAuto() {
-        outtakePivotLeft.setPosition(0.3);
-        outtakePivotRight.setPosition(0.3);
+        outtakePivotLeft.setPosition(0.33);
+        outtakePivotRight.setPosition(0.33);
         outtakeClawPivot.setPosition(1);
     }
 
     public void TransferSample() {
-        outtakePivotLeft.setPosition(0.58);
-        outtakePivotRight.setPosition(0.58);
-        outtakeClawPivot.setPosition(0.87);
+        outtakePivotLeft.setPosition(0.60);
+        outtakePivotRight.setPosition(0.60);
+        outtakeClawPivot.setPosition(0.83);
         OpenOuttakeClaw();
     }
 }
