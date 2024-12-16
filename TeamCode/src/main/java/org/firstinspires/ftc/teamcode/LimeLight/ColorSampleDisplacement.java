@@ -34,7 +34,7 @@ public class ColorSampleDisplacement {
             List<LLResultTypes.DetectorResult> detectorResults = result.getDetectorResults();
             for (LLResultTypes.DetectorResult dr : detectorResults) {
                 if (dr.getClassName().equals(targetColor)) {
-                    return dr.getTargetXPixels();
+                    return dr.getTargetXDegrees();
                 }
             }
         }

@@ -106,4 +106,13 @@ public class LinearSlide {
         }
         return totalTicks / motors.size() / ticksPerInch; // Convert average ticks to inches
     }
+
+    public void zeroSlides(double zeroInches) {
+
+        // Convert the target position from inches to motor ticks
+        double targetTicks = inchesToTicks(zeroInches);
+
+        // Move each motor to the calculated target position in ticks
+        moveSlidesToPosition(targetTicks);
+    }
 }
