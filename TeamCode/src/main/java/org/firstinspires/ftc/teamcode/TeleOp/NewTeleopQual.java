@@ -35,7 +35,7 @@ public class NewTeleopQual extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        // Initialize Drive Motors
+        // Initialize Drive motors
         leftFront = hardwareMap.get(DcMotor.class, "leftFront");
         leftBack = hardwareMap.get(DcMotor.class, "leftBack");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
