@@ -33,6 +33,134 @@ public class NewTeleopQual extends LinearOpMode {
     private boolean aPressed = false;
     private boolean dpadLeftPressed = false;
 
+    @Override
+    public void runOpMode() {
+        // Initialize Drive Motors
+        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
+        leftBack = hardwareMap.get(DcMotor.class, "leftBack");
+        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+
+        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        String[] motorNames = {"slideMotorLeft", "slideMotorRight"};
+        DcMotorSimple.Direction[] directions = {DcMotorSimple.Direction.FORWARD, DcMotorSimple.Direction.REVERSE};
+        linearSlides = new LinearSlide(hardwareMap, motorNames, directions, 81.5625, 0, 37.5);
+
+        intakeAssembly = new IntakeAssembly(hardwareMap);
+        depositAssembly = new DepositAssembly(hardwareMap);
+
+        // Initial positions
+        depositAssembly.OpenOuttakeClaw();
+        linearSlides.moveSlidesToPositionInches(0);
+        depositAssembly.TransferSample();
+        intakeAssembly.RotateClaw0();
+        intakeAssembly.PivotClawUp();
+        intakeAssembly.ExtendSlidesToPos(0.40);
+        intakeAssembly.OpenClaw();
+
+        while (opModeInInit() && !isStopRequested()) {
+            // Waiting for start
+        }
+
+        waitForStart();
+
+        while (opModeIsActive()) {
+            // Drive control
+            double speedMultiplier = 1 - (0.7 * gamepad2.left_trigger);
+            double y = -gamepad2.left_stick_y * speedMultiplier;
+            double x = gamepad2.left_stick_x * 1.1 * speedMultiplier;
+            double rx = gamepad2.right_stick_x * speedMultiplier;
+
+            double frontLeftPower = clipPower(y + x + rx);
+            double backLeftPower = clipPower(y - x + rx);
+            double frontRightPower = clipPower(y - x - rx);
+            double backRightPower = clipPower(y + x - rx);
+
+            leftFront.setPower(frontLeftPower);
+            leftBack.setPower(backLeftPower);
+            rightFront.setPower(frontRightPower);
+            rightBack.setPower(backRightPower);
+
+            // Claw rotation toggle on Y
+            if (gamepad1.y && !yPressed) {
+                clawRotated = !clawRotated;
+                if (clawRotated) {
+                    intakeAssembly.RotateClaw0();
+                } else {
+                    intakeAssembly.RotateClaw90();
+                }
+                yPressed = true;
+            } else if (!gamepad1.y) {
+                yPressed = false;
+            }
+
+            if (gamepad1.right_bumper && !rightBumperPressed) {
+                clawOpen = !clawOpen;
+                if (clawOpen) {
+                    depositAssembly.OpenOuttakeClaw();
+                    intakeAssembly.CloseClaw();
+                } else {
+                    depositAssembly.CloseOuttakeClaw();
+                    intakeAssembly.OpenClaw();
+                }
+                rightBumperPressed = true;
+            } else if (!gamepad1.right_bumper) {
+                rightBumperPressed = false;
+            }
+
+            // Pivot claw down on X
+            if (gamepad1.x) {
+                intakeAssembly.PivotClawDown();
+            }
+
+            // Unlock intake on left trigger fully pressed
+            if (gamepad1.left_trigger > 0.9) {
+                intakeAssembly.UnlockIntake();
+            }
+
+            // Open outtake claw on gamepad2 right bumper
+            if (gamepad2.right_bumper) {
+                depositAssembly.OpenOuttakeClaw();
+            }
+
+            // Intake sequence toggle on A
+            if (gamepad1.a && !aPressed) {
+                intakeSequenceToggle = !intakeSequenceToggle;
+                startIntakeSequence(intakeSequenceToggle);
+                aPressed = true;
+            } else if (!gamepad1.a) {
+                aPressed = false;
+            }
+
+            // Deposit sample toggle on dpad_left
+            if (gamepad1.dpad_left && !dpadLeftPressed) {
+                depositSampleToggle = !depositSampleToggle;
+                startDepositSequence(depositSampleToggle);
+                dpadLeftPressed = true;
+            } else if (!gamepad1.dpad_left) {
+                dpadLeftPressed = false;
+            }
+
+            // Update FSMs
+            updateIntakeSequence();
+            updateDepositSequence();
+
+            // Update linear slides
+            linearSlides.update();
+        }
+    }
+
+    private double clipPower(double power) {
+        return Math.max(-0.7, Math.min(0.7, power));
+    }
+
     // --- Intake Sequence FSM ---
     private enum IntakeSequenceState {
         IDLE,
@@ -80,7 +208,6 @@ public class NewTeleopQual extends LinearOpMode {
 
             // -------- Sequence 1 (intakeSequenceToggle == true) --------
             case START_1:
-                stopDrive();
                 intakeAssembly.CloseClaw();
                 depositAssembly.OpenOuttakeClaw();
                 intakeState = IntakeSequenceState.WAIT_CLOSE_CLAW;
@@ -230,126 +357,5 @@ public class NewTeleopQual extends LinearOpMode {
                 depositState = DepositSequenceState.IDLE;
                 break;
         }
-    }
-
-    @Override
-    public void runOpMode() {
-        // Initialize Drive Motors
-        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
-        leftBack = hardwareMap.get(DcMotor.class, "leftBack");
-        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
-        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
-
-        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        String[] motorNames = {"slideMotorLeft", "slideMotorRight"};
-        DcMotorSimple.Direction[] directions = {DcMotorSimple.Direction.FORWARD, DcMotorSimple.Direction.REVERSE};
-        linearSlides = new LinearSlide(hardwareMap, motorNames, directions, 81.5625, 0, 37.5);
-
-        intakeAssembly = new IntakeAssembly(hardwareMap);
-        depositAssembly = new DepositAssembly(hardwareMap);
-
-        // Initial positions
-        depositAssembly.OpenOuttakeClaw();
-        linearSlides.moveSlidesToPositionInches(0);
-        depositAssembly.TransferSample();
-        intakeAssembly.RotateClaw0();
-        intakeAssembly.PivotClawUp();
-        intakeAssembly.ExtendSlidesToPos(0.40);
-        intakeAssembly.OpenClaw();
-
-        while (opModeInInit() && !isStopRequested()) {
-            // Waiting for start
-        }
-
-        waitForStart();
-
-        while (opModeIsActive()) {
-            // Drive control
-            double speedMultiplier = 1 - (0.7 * gamepad2.left_trigger);
-            double y = -gamepad2.left_stick_y * speedMultiplier;
-            double x = gamepad2.left_stick_x * 1.1 * speedMultiplier;
-            double rx = gamepad2.right_stick_x * speedMultiplier;
-
-            double frontLeftPower = clipPower(y + x + rx);
-            double backLeftPower = clipPower(y - x + rx);
-            double frontRightPower = clipPower(y - x - rx);
-            double backRightPower = clipPower(y + x - rx);
-
-            leftFront.setPower(frontLeftPower);
-            leftBack.setPower(backLeftPower);
-            rightFront.setPower(frontRightPower);
-            rightBack.setPower(backRightPower);
-
-            // Claw rotation toggle on Y
-            if (gamepad1.y && !yPressed) {
-                clawRotated = !clawRotated;
-                if (clawRotated) {
-                    intakeAssembly.RotateClaw0();
-                } else {
-                    intakeAssembly.RotateClaw90();
-                }
-                yPressed = true;
-            } else if (!gamepad1.y) {
-                yPressed = false;
-            }
-
-            // Pivot claw down on X
-            if (gamepad1.x) {
-                intakeAssembly.PivotClawDown();
-            }
-
-            // Unlock intake on left trigger fully pressed
-            if (gamepad1.left_trigger > 0.9) {
-                intakeAssembly.UnlockIntake();
-            }
-
-            // Open outtake claw on gamepad2 right bumper
-            if (gamepad2.right_bumper) {
-                depositAssembly.OpenOuttakeClaw();
-            }
-
-            // Intake sequence toggle on A
-            if (gamepad1.a && !aPressed) {
-                intakeSequenceToggle = !intakeSequenceToggle;
-                startIntakeSequence(intakeSequenceToggle);
-                aPressed = true;
-            } else if (!gamepad1.a) {
-                aPressed = false;
-            }
-
-            // Deposit sample toggle on dpad_left
-            if (gamepad1.dpad_left && !dpadLeftPressed) {
-                depositSampleToggle = !depositSampleToggle;
-                startDepositSequence(depositSampleToggle);
-                dpadLeftPressed = true;
-            } else if (!gamepad1.dpad_left) {
-                dpadLeftPressed = false;
-            }
-
-            // Update FSMs
-            updateIntakeSequence();
-            updateDepositSequence();
-
-            // Update linear slides
-            linearSlides.update();
-        }
-    }
-
-    private double clipPower(double power) {
-        return Math.max(-0.7, Math.min(0.7, power));
-    }
-
-    public void stopDrive() {
-        leftFront.setPower(0);
-        leftBack.setPower(0);
-        rightFront.setPower(0);
-        rightBack.setPower(0);
     }
 }
