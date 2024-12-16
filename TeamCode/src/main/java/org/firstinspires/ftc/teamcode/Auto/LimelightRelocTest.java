@@ -7,46 +7,38 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.LimeLight.Megatag2Relocalizer;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
 import java.util.Arrays;
 import java.util.List;
 
+public class LimelightRelocTest {
 
-@TeleOp
-public class LimelightRelocTest extends LinearOpMode {
-
-    Megatag2Relocalizer relocalizer = new Megatag2Relocalizer(hardwareMap);
-
+    private Megatag2Relocalizer relocalizer;
     private Follower follower;
-    private Path forwards, backwards;
-    private Timer pathTimer;
-    private int pathState;
-
     private List<Integer> validAprilTags = Arrays.asList(12, 13, 14, 15, 16);
-    @Override
-    public void runOpMode() throws InterruptedException {
-        telemetry.setMsTransmissionInterval(11);
 
-        waitForStart();
+    public LimelightRelocTest(Megatag2Relocalizer relocalizer, Follower follower) {
+        this.relocalizer = relocalizer;
+        this.follower = follower;
+    }
 
-        while (opModeIsActive()) {
-            //Pose3D botPose = relocalizer.getBotPose();
-            Pose pose = follower.getPose();
-            int aprilTagId = relocalizer.getAprilTagID();
+    public Pose relocalize() {
+        Pose pose = follower.getPose();
+        int aprilTagId = relocalizer.getAprilTagID();
 
-            if (aprilTagId == -1) {
-                telemetry.addData("April Tag ID", "No April Tag Detected");
-            }
-
-            else if (validAprilTags.contains(aprilTagId)) {
-                Pose3D limelightPose = relocalizer.getBotPose();
-                telemetry.addData("April Tag ID", aprilTagId);
-                telemetry.addData("Bot Pose", pose);
-                telemetry.addData("Limelight Pose", limelightPose);
+        if (aprilTagId == -1) {
+            return null; // No April Tag Detected
+        } else if (validAprilTags.contains(aprilTagId)) {
+            Pose3D limelightPose = relocalizer.getBotPose();
+            if (limelightPose != null) {
+                // Update the robot's pose using the Limelight's detected pose
+                return new Pose(
+                        limelightPose.getPosition().x,
+                        limelightPose.getPosition().y,
+                        limelightPose.getOrientation().getYaw()
+                );
             }
         }
-        telemetry.update();
+        return null; // No valid pose detected
     }
 }
