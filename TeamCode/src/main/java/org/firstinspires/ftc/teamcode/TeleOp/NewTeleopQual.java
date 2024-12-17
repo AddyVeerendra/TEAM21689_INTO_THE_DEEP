@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.DepositAssembly;
 import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssembly;
 import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 
-@TeleOp(name = "QUALIFIER V2 Robot TeleOp")
+@TeleOp(name = "QUALIFIER V2 Robot Teleop")
 public class NewTeleopQual extends LinearOpMode {
 
     private DcMotor leftFront;
