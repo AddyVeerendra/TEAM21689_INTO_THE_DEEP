@@ -8,6 +8,7 @@ public class DepositAssembly {
     private Servo outtakePivotRight;
     private Servo outtakeClaw;
     private Servo outtakeClawPivot;
+    private Servo outtakeClawRotate;
 
     public DepositAssembly(HardwareMap hardwareMap) {
         outtakePivotLeft = hardwareMap.get(Servo.class, "outtakePivotLeft");
@@ -15,6 +16,15 @@ public class DepositAssembly {
         outtakePivotRight = hardwareMap.get(Servo.class, "outtakePivotRight");
         outtakeClaw = hardwareMap.get(Servo.class, "outtakeClaw");
         outtakeClawPivot = hardwareMap.get(Servo.class, "outtakeClawPivot");
+        outtakeClawRotate = hardwareMap.get(Servo.class, "outtakeClawRotate");
+    }
+
+    public void RotateOuttakeClaw0() {
+        outtakeClawRotate.setPosition(0.3);
+    }
+
+    public void RotateOuttakeClaw180() {
+        outtakeClawRotate.setPosition(0.9);
     }
 
     public void CloseOuttakeClaw() {
@@ -26,33 +36,31 @@ public class DepositAssembly {
     }
 
     public void ScoreSample() {
-        outtakePivotLeft.setPosition(0.08);
-        outtakePivotRight.setPosition(0.08);
+        outtakePivotLeft.setPosition(0.15);
+        outtakePivotRight.setPosition(0.15);
         outtakeClawPivot.setPosition(0.9);
+        RotateOuttakeClaw0();
     }
 
     public void GrabSpecimen() {
         outtakePivotLeft.setPosition(0.0);
         outtakePivotRight.setPosition(0.0);
         outtakeClawPivot.setPosition(1);
+        RotateOuttakeClaw180();
     }
 
     public void ScoreSpecimen() {
         outtakePivotLeft.setPosition(0.65);
         outtakePivotRight.setPosition(0.65);
         outtakeClawPivot.setPosition(0.9);
-    }
-
-    public void InitSampleAuto() {
-        outtakePivotLeft.setPosition(0.33);
-        outtakePivotRight.setPosition(0.33);
-        outtakeClawPivot.setPosition(1);
+        RotateOuttakeClaw0();
     }
 
     public void TransferSample() {
-        outtakePivotLeft.setPosition(0.60);
-        outtakePivotRight.setPosition(0.60);
-        outtakeClawPivot.setPosition(0.83);
+        outtakePivotLeft.setPosition(0.7);
+        outtakePivotRight.setPosition(0.70);
+        outtakeClawPivot.setPosition(1);
         OpenOuttakeClaw();
+        RotateOuttakeClaw0();
     }
 }

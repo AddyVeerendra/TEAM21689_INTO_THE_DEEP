@@ -57,7 +57,7 @@ public class IntakeAssembly {
     }
 
     public void PivotClawUp() {
-        intakePivot.setPosition(0.87);
+        intakePivot.setPosition(0.85);
     }
 
     public void PivotClawMid() {
