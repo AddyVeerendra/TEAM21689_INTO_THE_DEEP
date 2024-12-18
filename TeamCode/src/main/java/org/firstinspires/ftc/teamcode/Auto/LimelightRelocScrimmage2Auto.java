@@ -21,27 +21,25 @@ import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
-@Autonomous(name = "Scrimmage 2 Auto Blue")
+@Autonomous(name = "Limelight Reloc Scrimmage 2 Auto Blue")
 public class LimelightRelocScrimmage2Auto extends OpMode {
 
     private IntakeAssembly intakeAssembly;
     private DepositAssembly depositAssembly;
     private LinearSlide linearSlides;
-    // Initialize path following stuff
     private Follower follower;
     private Path toChamber, toSpike1Grab, toSpike1Give, toSpike2Grab, toSpike2Give, toSpike3Grab, toSpike3Give, toHumanPlayer, toPark;
     private Timer pathTimer;
     private int pathState;
     private int times;
-    // Initialize telemetry and any other subsystems and variables
     private Telemetry telemetryA;
     private int cycles = 0;
 
     private Megatag2Relocalizer megatag2Relocalizer;
+    private LimelightRelocTest limelightRelocTest;
 
     @Override
     public void init() {
-        // Initialize path stuff with hardwareMap
         follower = new Follower(hardwareMap);
         follower.setStartingPose(new Pose(12, -63.5, Math.toRadians(90)));
         follower.setMaxPower(0.8);
@@ -50,10 +48,9 @@ public class LimelightRelocScrimmage2Auto extends OpMode {
 
         String[] motorNames = {"slideMotorLeft", "slideMotorRight"};
         DcMotorSimple.Direction[] directions = {DcMotorSimple.Direction.FORWARD, DcMotorSimple.Direction.REVERSE};
-        linearSlides = new LinearSlide(hardwareMap, motorNames, directions, 81.5625, 0, 37.5); // Example ticksPerInch and limits
+        linearSlides = new LinearSlide(hardwareMap, motorNames, directions, 81.5625, 0, 37.5);
 
         intakeAssembly = new IntakeAssembly(hardwareMap);
-
         depositAssembly = new DepositAssembly(hardwareMap);
 
         intakeAssembly.OpenClaw();
@@ -63,16 +60,21 @@ public class LimelightRelocScrimmage2Auto extends OpMode {
         depositAssembly.CloseOuttakeClaw();
         depositAssembly.ScoreSpecimen();
 
-        // Initialize telemetry
-        telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+        megatag2Relocalizer = new Megatag2Relocalizer(hardwareMap);
+        limelightRelocTest = new LimelightRelocTest(megatag2Relocalizer, follower);
 
+        telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetryA.addData("Status:", "initialized");
+        if (megatag2Relocalizer != null && megatag2Relocalizer.getBotPose() != null && megatag2Relocalizer.isLimelightConnected()) {
+            telemetryA.addData("Limelight Status", "Connected");
+        } else {
+            telemetryA.addData("Limelight Status", "Not Connected");
+        }
         telemetryA.update();
     }
 
     @Override
     public void init_loop() {
-
     }
 
     @Override
@@ -87,15 +89,18 @@ public class LimelightRelocScrimmage2Auto extends OpMode {
         linearSlides.update();
         telemetryA.addData("Path State", pathState);
         telemetryA.addData("Current Pose", follower.getPose());
-        // ADJUST PARAMETERS ON THE LIMELIGHT INTERFACE
-        if (megatag2Relocalizer != null && megatag2Relocalizer.getBotPose() != null) {
-            telemetryA.addData("April Tag ID", megatag2Relocalizer.getAprilTagID());
-            telemetryA.addData("Limelight Pose", megatag2Relocalizer.getBotPose());
+
+        Pose newPose = limelightRelocTest.relocalize();
+        if (newPose != null) {
+            follower.setCurrentPoseWithOffset(newPose);
+            telemetryA.addData("New Pose", newPose);
         } else {
-            telemetryA.addLine("No April Tag Detected");
+            telemetryA.addLine("No valid pose detected");
         }
+
         telemetryA.update();
     }
+
     public void autoPathUpdate() {
         switch (pathState) {
             case 0:
