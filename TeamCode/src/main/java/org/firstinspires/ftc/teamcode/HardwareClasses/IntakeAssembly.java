@@ -21,7 +21,7 @@ public class IntakeAssembly {
     }
 
     public void LockIntake() {
-        intakeLock.setPosition(0.16);
+        intakeLock.setPosition(0.26);
     }
 
     public void UnlockIntake() {

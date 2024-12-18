@@ -101,6 +101,15 @@ public class NewTeleopQual extends LinearOpMode {
                 yPressed = false;
             }
 
+            if (gamepad1.dpad_up) {
+                depositAssembly.Hang();
+                intakeAssembly.ExtendSlidesToPos(0.32);
+                linearSlides.moveSlidesToPositionInches(13);
+            } else if (gamepad1.dpad_down) {
+                linearSlides.moveSlidesToPositionInches(0);
+                //intakeAssembly.LockIntake();
+            }
+
             if (gamepad1.right_bumper && !rightBumperPressed) {
                 clawOpen = !clawOpen;
                 if (clawOpen) {
