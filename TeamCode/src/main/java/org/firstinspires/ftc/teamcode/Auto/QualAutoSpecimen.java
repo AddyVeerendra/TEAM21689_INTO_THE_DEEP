@@ -23,6 +23,9 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 @Autonomous(name = "Qual 1 Auto Specimen")
 public class QualAutoSpecimen extends OpMode {
 
+    public static final int TO_SPIKE_TWO = 5;
+    public static final int BACK_TO_HUMAN_PLAYER_FROM_SPIKE_1 = 4;
+    public static final int WAIT_FOLLOWER_TO_NOT_BE_BUSY = 6;
     private IntakeAssembly intakeAssembly;
     private DepositAssembly depositAssembly;
     private LinearSlide linearSlides;
@@ -83,6 +86,7 @@ public class QualAutoSpecimen extends OpMode {
         autoPathUpdate();
         follower.telemetryDebug(telemetryA);
         linearSlides.update();
+        telemetryA.addData("Path State", pathState);
     }
 
     public void autoPathUpdate() {
@@ -90,10 +94,10 @@ public class QualAutoSpecimen extends OpMode {
             case 0:
                 toChamber = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(6, -36, Point.CARTESIAN)));
+                        new Point(6, -38, Point.CARTESIAN)));
                 toChamber.setConstantHeadingInterpolation(Math.toRadians(90));
                 follower.followPath(toChamber, true);
-                linearSlides.moveSlidesToPositionInches(14);
+                linearSlides.moveSlidesToPositionInches(17);
                 setPathState(1);
                 times = 0;
                 break;
@@ -105,10 +109,10 @@ public class QualAutoSpecimen extends OpMode {
                         times = 1;
                     }
 
-                    linearSlides.setKP(0.0025);
-                    linearSlides.moveSlidesToPositionInches(9);
+                    linearSlides.setKP(0.009);
+                    linearSlides.moveSlidesToPositionInches(7);
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0.75) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1) {
                         linearSlides.setKP(0.005);
                         depositAssembly.OpenOuttakeClaw();
                         linearSlides.moveSlidesToPositionInches(6);
@@ -120,10 +124,10 @@ public class QualAutoSpecimen extends OpMode {
             case 2:
                 toSpike1Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(30, -50, Point.CARTESIAN),
-                        new Point(40, -12, Point.CARTESIAN)));
+                        new Point(40, -50, Point.CARTESIAN),
+                        new Point(39, -12, Point.CARTESIAN)));
                 toSpike1Grab.setConstantHeadingInterpolation(Math.toRadians(90));
-                follower.followPath(toSpike1Grab, false);
+                follower.followPath(toSpike1Grab, true);
                 setPathState(3);
                 times = 0;
                 break;
@@ -141,57 +145,67 @@ public class QualAutoSpecimen extends OpMode {
                 break;
 
             case 4:
+                telemetryA.addData("In BACK_TO_HUMAN_PLAYER_FROM", "true");
+                telemetryA.update();
                 toSpike1Give = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(46, -12, Point.CARTESIAN),
-                        new Point(44, -55, Point.CARTESIAN)));
+                        new Point(45, -12, Point.CARTESIAN),
+                        new Point(45, -55, Point.CARTESIAN)));
                 toSpike1Give.setConstantHeadingInterpolation(Math.toRadians(90));
-                follower.followPath(toSpike1Give, false);
+                follower.followPath(toSpike1Give, true);
                 setPathState(5);
                 times = 0;
                 break;
 
             case 5:
-                toSpike2Grab = new Path(new BezierLine(
-                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -12, Point.CARTESIAN)));
-                toSpike2Grab.setConstantHeadingInterpolation(Math.toRadians(90));
-                follower.followPath(toSpike2Grab, false);
-                setPathState(6);
-                times = 0;
-                break;
-
-            case 6:
                 if (!follower.isBusy()) {
-                    setPathState(7);
+                    setPathState(6);
                 }
                 break;
 
+            case 6:
+                telemetryA.addData("In TO_SPIKE_TWO", "true");
+                telemetryA.update();
+                toSpike2Grab = new Path(new BezierLine(
+                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+                        new Point(48, -12, Point.CARTESIAN)));
+                toSpike2Grab.setConstantHeadingInterpolation(Math.toRadians(90));
+                follower.followPath(toSpike2Grab, true);
+                telemetryA.addData("Path State", pathState);
+                telemetryA.update();
+                setPathState(7);
+                times = 0;
+                break;
+
             case 7:
+                telemetryA.addData("In WAIT_FOLLOWER_TO_NOT_BE_BUSY", "true");
+                telemetryA.update();
+                if (!follower.isBusy()) {
+                    if (times == 0) {
+                        setPathState(WAIT_FOLLOWER_TO_NOT_BE_BUSY);
+                        times = 1;
+                    }
+
+                    setPathState(8);
+                }
+                break;
+
+            case 8:
+                telemetryA.addData("In 7", "true");
+                telemetryA.update();
                 toSpike2Give = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(62, -12, Point.CARTESIAN),
-                        new Point(48, -55, Point.CARTESIAN)));
+                        new Point(56, -12, Point.CARTESIAN),
+                        new Point(45, -55, Point.CARTESIAN)));
                 toSpike2Give.setConstantHeadingInterpolation(Math.toRadians(90));
-                follower.followPath(toSpike2Give, false);
-                setPathState(-1);
+                follower.followPath(toSpike2Give, true);
+                setPathState(9);
                 times = 0;
                 break;
 
             case 9:
                 if (!follower.isBusy()) {
-                    if (times == 0) {
-                        setPathState(9);
-                        times = 1;
-                    }
-                    intakeAssembly.PivotClawDown();
-                    intakeAssembly.OpenClaw();
-
-                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                        intakeAssembly.PivotClawDown();
-                        intakeAssembly.ExtendSlidesToPos(0.4);
-                        setPathState(10);
-                    }
+                    requestOpModeStop();
                 }
                 break;
 
