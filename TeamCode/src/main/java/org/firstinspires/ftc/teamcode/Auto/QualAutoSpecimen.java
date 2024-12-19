@@ -29,6 +29,7 @@ public class QualAutoSpecimen extends OpMode {
     private IntakeAssembly intakeAssembly;
     private DepositAssembly depositAssembly;
     private LinearSlide linearSlides;
+    private DistanceSensor distanceSensor;
     // Initialize path following stuff
     private Follower follower;
     private Path toChamber, toSpike1Grab, toSpike1Give, toSpike2Grab, toSpike2Give, toSpike3Grab, toSpike3Give, toHumanPlayer, toPark;
@@ -55,6 +56,8 @@ public class QualAutoSpecimen extends OpMode {
         intakeAssembly = new IntakeAssembly(hardwareMap);
 
         depositAssembly = new DepositAssembly(hardwareMap);
+
+        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceFront");
 
         intakeAssembly.OpenClaw();
         intakeAssembly.PivotClawUp();
@@ -104,19 +107,29 @@ public class QualAutoSpecimen extends OpMode {
 
             case 1:
                 if (!follower.isBusy()) {
-                    if (times == 0) {
-                        setPathState(1);
-                        times = 1;
-                    }
+                    double distance = distanceSensor.getDistance(DistanceUnit.INCH);
 
-                    linearSlides.setKP(0.009);
-                    linearSlides.moveSlidesToPositionInches(7);
-
-                    if (pathTimer.getElapsedTimeSeconds() > 1) {
-                        linearSlides.setKP(0.005);
-                        depositAssembly.OpenOuttakeClaw();
-                        linearSlides.moveSlidesToPositionInches(6);
-                        setPathState(2);
+                    if (distance > 3.5) {
+                        // Move forward slowly
+                        follower.setTeleOpMovementVectors(0.3, 0, 0); // Adjust the speed as needed
+                    } else if (distance < 2.5) {
+                        // Move backward slowly
+                        follower.setTeleOpMovementVectors(-0.3, 0, 0); // Adjust the speed as needed
+                    } else {
+                        follower.breakFollowing();
+                        if (times == 0) {
+                            setPathState(1);
+                            times = 1;
+                        }
+                        linearSlides.setKP(0.003);
+                        linearSlides.moveSlidesToPositionInches(7);
+    
+                        if (pathTimer.getElapsedTimeSeconds() > 1) {
+                            linearSlides.setKP(0.005);
+                            depositAssembly.OpenOuttakeClaw();
+                            linearSlides.moveSlidesToPositionInches(6);
+                            setPathState(2);
+                        }
                     }
                 }
                 break;
@@ -124,8 +137,10 @@ public class QualAutoSpecimen extends OpMode {
             case 2:
                 toSpike1Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -50, Point.CARTESIAN),
-                        new Point(39, -12, Point.CARTESIAN)));
+                        new Point(72, -72, Point.CARTESIAN),
+                        new Point(7, -19, Point.CARTESIAN),
+                        new Point(52, 36, Point.CARTESIAN),
+                        new Point(48, -60, Point.CARTESIAN)));
                 toSpike1Grab.setConstantHeadingInterpolation(Math.toRadians(90));
                 follower.followPath(toSpike1Grab, true);
                 setPathState(3);
