@@ -24,7 +24,7 @@ public class DepositAssembly {
     }
 
     public void RotateOuttakeClaw180() {
-        outtakeClawRotate.setPosition(0.9);
+        outtakeClawRotate.setPosition(1);
     }
 
     public void CloseOuttakeClaw() {
@@ -43,9 +43,9 @@ public class DepositAssembly {
     }
 
     public void GrabSpecimen() {
-        outtakePivotLeft.setPosition(0.0);
-        outtakePivotRight.setPosition(0.0);
-        outtakeClawPivot.setPosition(1);
+        outtakePivotLeft.setPosition(0.02);
+        outtakePivotRight.setPosition(0.02);
+        outtakeClawPivot.setPosition(0.9);
         RotateOuttakeClaw180();
     }
 
@@ -67,8 +67,7 @@ public class DepositAssembly {
     public void Hang() {
         outtakePivotLeft.setPosition(0.5);
         outtakePivotRight.setPosition(0.5);
-        outtakeClawPivot.setPosition(1);
-        OpenOuttakeClaw();
+        outtakeClawPivot.setPosition(0.4);
         RotateOuttakeClaw0();
     }
 }

@@ -107,7 +107,7 @@ public class NewTeleopQual extends LinearOpMode {
                 linearSlides.moveSlidesToPositionInches(13);
             } else if (gamepad1.dpad_down) {
                 linearSlides.moveSlidesToPositionInches(0);
-                //intakeAssembly.LockIntake();
+                intakeAssembly.LockIntake();
             }
 
             if (gamepad1.right_bumper && !rightBumperPressed) {

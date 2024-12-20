@@ -5,13 +5,13 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.HardwareClasses.DepositAssembly;
-import org.firstinspires.ftc.teamcode.HardwareClasses.DepositGripper;
 import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssembly;
 import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
-import org.firstinspires.ftc.teamcode.HardwareClasses.Pivot;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
@@ -29,10 +29,11 @@ public class QualAutoSpecimen extends OpMode {
     private IntakeAssembly intakeAssembly;
     private DepositAssembly depositAssembly;
     private LinearSlide linearSlides;
-    private DistanceSensor distanceSensor;
+    private DistanceSensor distanceSensorFront;
+    private DistanceSensor distanceSensorBack;
     // Initialize path following stuff
     private Follower follower;
-    private Path toChamber, toSpike1Grab, toSpike1Give, toSpike2Grab, toSpike2Give, toSpike3Grab, toSpike3Give, toHumanPlayer, toPark;
+    private Path toChamber, toSpike1Grab, toSpike1Give, toSpike2Grab, toSpike2Give, toSpike3Grab, toSpike3Give, toHumanPlayer1, toHumanPlayer2, toPark;
     private Timer pathTimer;
     private int pathState;
     private int times;
@@ -57,14 +58,15 @@ public class QualAutoSpecimen extends OpMode {
 
         depositAssembly = new DepositAssembly(hardwareMap);
 
-        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceFront");
+        distanceSensorFront = hardwareMap.get(DistanceSensor.class, "distanceFront");
+        distanceSensorBack = hardwareMap.get(DistanceSensor.class, "distanceBack");
 
         intakeAssembly.OpenClaw();
         intakeAssembly.PivotClawUp();
         intakeAssembly.RotateClaw0();
         intakeAssembly.RetractSlidesFull();
         depositAssembly.CloseOuttakeClaw();
-        depositAssembly.ScoreSpecimen();
+        depositAssembly.Hang();
 
         // Initialize telemetry
         telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -99,21 +101,24 @@ public class QualAutoSpecimen extends OpMode {
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(6, -38, Point.CARTESIAN)));
                 toChamber.setConstantHeadingInterpolation(Math.toRadians(90));
-                follower.followPath(toChamber, true);
-                linearSlides.moveSlidesToPositionInches(17);
+                follower.followPath(toChamber, false);
+                linearSlides.moveSlidesToPositionInches(15);
+                depositAssembly.ScoreSpecimen();
                 setPathState(1);
                 times = 0;
                 break;
 
             case 1:
                 if (!follower.isBusy()) {
-                    double distance = distanceSensor.getDistance(DistanceUnit.INCH);
+                    double distance = distanceSensorFront.getDistance(DistanceUnit.INCH);
 
-                    if (distance > 3.5) {
+                    if (distance > 11) {
                         // Move forward slowly
+                        follower.startTeleopDrive();
                         follower.setTeleOpMovementVectors(0.3, 0, 0); // Adjust the speed as needed
-                    } else if (distance < 2.5) {
+                    } else if (distance < 10.5) {
                         // Move backward slowly
+                        follower.startTeleopDrive();
                         follower.setTeleOpMovementVectors(-0.3, 0, 0); // Adjust the speed as needed
                     } else {
                         follower.breakFollowing();
@@ -123,8 +128,8 @@ public class QualAutoSpecimen extends OpMode {
                         }
                         linearSlides.setKP(0.003);
                         linearSlides.moveSlidesToPositionInches(7);
-    
-                        if (pathTimer.getElapsedTimeSeconds() > 1) {
+
+                        if (pathTimer.getElapsedTimeSeconds() > 0.75) {
                             linearSlides.setKP(0.005);
                             depositAssembly.OpenOuttakeClaw();
                             linearSlides.moveSlidesToPositionInches(6);
@@ -135,12 +140,11 @@ public class QualAutoSpecimen extends OpMode {
                 break;
 
             case 2:
+                follower.setMaxPower(1);
                 toSpike1Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(72, -72, Point.CARTESIAN),
-                        new Point(7, -19, Point.CARTESIAN),
-                        new Point(52, 36, Point.CARTESIAN),
-                        new Point(48, -60, Point.CARTESIAN)));
+                        new Point(45, -60, Point.CARTESIAN),
+                        new Point(36, -12, Point.CARTESIAN)));
                 toSpike1Grab.setConstantHeadingInterpolation(Math.toRadians(90));
                 follower.followPath(toSpike1Grab, true);
                 setPathState(3);
@@ -151,7 +155,7 @@ public class QualAutoSpecimen extends OpMode {
                 if (follower.isBusy()) {
                     if (follower.getCurrentTValue() > 0.5) {
                         depositAssembly.GrabSpecimen();
-                        linearSlides.moveSlidesToPositionInches(0);
+                        linearSlides.moveSlidesToPositionInches(4.5);
                     }
                 }
                 if (!follower.isBusy()) {
@@ -164,8 +168,8 @@ public class QualAutoSpecimen extends OpMode {
                 telemetryA.update();
                 toSpike1Give = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(45, -12, Point.CARTESIAN),
-                        new Point(45, -55, Point.CARTESIAN)));
+                        new Point(50, -12, Point.CARTESIAN),
+                        new Point(46, -55, Point.CARTESIAN)));
                 toSpike1Give.setConstantHeadingInterpolation(Math.toRadians(90));
                 follower.followPath(toSpike1Give, true);
                 setPathState(5);
@@ -197,7 +201,7 @@ public class QualAutoSpecimen extends OpMode {
                 telemetryA.update();
                 if (!follower.isBusy()) {
                     if (times == 0) {
-                        setPathState(WAIT_FOLLOWER_TO_NOT_BE_BUSY);
+                        setPathState(7);
                         times = 1;
                     }
 
@@ -210,8 +214,8 @@ public class QualAutoSpecimen extends OpMode {
                 telemetryA.update();
                 toSpike2Give = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(56, -12, Point.CARTESIAN),
-                        new Point(45, -55, Point.CARTESIAN)));
+                        new Point(62, -12, Point.CARTESIAN),
+                        new Point(58, -55, Point.CARTESIAN)));
                 toSpike2Give.setConstantHeadingInterpolation(Math.toRadians(90));
                 follower.followPath(toSpike2Give, true);
                 setPathState(9);
@@ -220,119 +224,129 @@ public class QualAutoSpecimen extends OpMode {
 
             case 9:
                 if (!follower.isBusy()) {
-                    requestOpModeStop();
+                    setPathState(10);
                 }
                 break;
 
             case 10:
-                toSpike3Grab = new Path(new BezierLine(
+                follower.setMaxPower(0.7);
+                toHumanPlayer1 = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(49, -28, Point.CARTESIAN)));
-                toSpike3Grab.setConstantHeadingInterpolation(Math.toRadians(0));
-                follower.followPath(toSpike3Grab, true);
+                        new Point(36, -40, Point.CARTESIAN)));
+                toHumanPlayer1.setConstantHeadingInterpolation(Math.toRadians(90));
+                follower.followPath(toHumanPlayer1, true);
                 setPathState(11);
                 times = 0;
                 break;
 
             case 11:
-                if (follower.isBusy()) {
-                    if (follower.getCurrentTValue() > 0.4) {
-                        intakeAssembly.ExtendSlidesToPos(0.5);
-                    }
-                }
                 if (!follower.isBusy()) {
                     if (times == 0) {
                         setPathState(11);
                         times = 1;
                     }
 
-                    intakeAssembly.CloseClaw();
-
-                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                        intakeAssembly.PivotClawMid();
-                        intakeAssembly.ExtendSlidesToPos(0.35);
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                         setPathState(12);
                     }
                 }
                 break;
 
             case 12:
-                toSpike3Give = new Path(new BezierLine(
+                toHumanPlayer2 = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -45, Point.CARTESIAN)));
-                toSpike3Give.setConstantHeadingInterpolation(Math.toRadians(-45));
-                follower.followPath(toSpike3Give, true);
+                        new Point(36, -55, Point.CARTESIAN)));
+                toHumanPlayer2.setConstantHeadingInterpolation(Math.toRadians(90));
+                follower.followPath(toHumanPlayer2, true);
                 setPathState(13);
                 times = 0;
                 break;
 
             case 13:
-                if (follower.isBusy()) {
-                    if (follower.getCurrentTValue() > 0.8) {
-                        intakeAssembly.ExtendSlidesToPos(0.5);
-                    }
-                }
                 if (!follower.isBusy()) {
-                    if (times == 0) {
-                        setPathState(13);
-                        times = 1;
-                    }
+                    double distance = distanceSensorBack.getDistance(DistanceUnit.INCH);
 
-                    intakeAssembly.PivotClawDown();
-                    intakeAssembly.OpenClaw();
+                    if (distance > 4) {
+                        // Move forward slowly
+                        follower.startTeleopDrive();
+                        follower.setTeleOpMovementVectors(-0.3, 0, 0); // Adjust the speed as needed
+                    } else if (distance < 3.5) {
+                        // Move backward slowly
+                        follower.startTeleopDrive();
+                        follower.setTeleOpMovementVectors(0.3, 0, 0); // Adjust the speed as needed
+                    } else {
+                        follower.breakFollowing();
+                        if (times == 0) {
+                            setPathState(13);
+                            times = 1;
+                        }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                        intakeAssembly.ExtendSlidesToPos(0.35);
-                        intakeAssembly.RotateClaw0();
-                        intakeAssembly.PivotClawUp();
-                        setPathState(14);
+                        depositAssembly.CloseOuttakeClaw();
+
+                        if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                            depositAssembly.ScoreSpecimen();
+                            linearSlides.moveSlidesToPositionInches(15);
+                            setPathState(14);
+                        }
                     }
                 }
                 break;
 
             case 14:
-                toHumanPlayer = new Path(new BezierCurve(
+                toChamber = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(30, -40, Point.CARTESIAN),
-                        new Point(38, -57, Point.CARTESIAN)));
-                toHumanPlayer.setConstantHeadingInterpolation(Math.toRadians(90));
-                follower.followPath(toHumanPlayer, true);
+                        new Point(30, -50, Point.CARTESIAN),
+                        new Point(7 + cycles, -38, Point.CARTESIAN)));
+                toChamber.setConstantHeadingInterpolation(Math.toRadians(90));
+                follower.followPath(toChamber, false);
                 setPathState(15);
                 times = 0;
                 break;
 
             case 15:
-                if (follower.isBusy()) {
-                    if (follower.getCurrentTValue() > 0.1) {
-                        depositAssembly.GrabSpecimen();
-                        linearSlides.moveSlidesToPositionInches(0);
-                    }
-                }
                 if (!follower.isBusy()) {
-                    if (cycles == 2) {
-                        requestOpModeStop();
-                    }
-                    if (times == 0) {
-                        setPathState(15);
-                        times = 1;
-                    }
+                    double distance = distanceSensorFront.getDistance(DistanceUnit.INCH);
 
-                    depositAssembly.CloseOuttakeClaw();
+                    if (distance > 11) {
+                        // Move forward slowly
+                        follower.startTeleopDrive();
+                        follower.setTeleOpMovementVectors(0.3, 0, 0); // Adjust the speed as needed
+                    } else if (distance < 10.5) {
+                        // Move backward slowly
+                        follower.startTeleopDrive();
+                        follower.setTeleOpMovementVectors(-0.3, 0, 0); // Adjust the speed as needed
+                    } else {
+                        follower.breakFollowing();
+                        if (times == 0) {
+                            setPathState(15);
+                            times = 1;
+                        }
+                        linearSlides.setKP(0.003);
+                        linearSlides.moveSlidesToPositionInches(7);
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                        depositAssembly.ScoreSpecimen();
-                        linearSlides.moveSlidesToPositionInches(19);
-                        setPathState(16);
+                        if (pathTimer.getElapsedTimeSeconds() > 0.75) {
+                            linearSlides.setKP(0.005);
+                            depositAssembly.OpenOuttakeClaw();
+                            linearSlides.moveSlidesToPositionInches(4.5);
+                            if (cycles < 2) {
+                                setPathState(16);
+                            } else {
+                                depositAssembly.Hang();
+                                linearSlides.moveSlidesToPositionInches(0);
+                                setPathState(18);
+                            }
+                        }
                     }
                 }
                 break;
 
             case 16:
-                toChamber = new Path(new BezierLine(
+                toHumanPlayer1 = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(5+(cycles * 0.5), -35, Point.CARTESIAN)));
-                toChamber.setConstantHeadingInterpolation(Math.toRadians(90));
-                follower.followPath(toChamber, true);
+                        new Point(36, -40, Point.CARTESIAN)));
+                toHumanPlayer1.setConstantHeadingInterpolation(Math.toRadians(90));
+                follower.followPath(toHumanPlayer1, true);
+                depositAssembly.GrabSpecimen();
                 setPathState(17);
                 times = 0;
                 break;
@@ -344,15 +358,51 @@ public class QualAutoSpecimen extends OpMode {
                         times = 1;
                     }
 
-                    linearSlides.moveSlidesToPositionInches(27);
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        setPathState(18);
+                    }
+                }
+                break;
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0.75) {
-                        depositAssembly.OpenOuttakeClaw();
-                        linearSlides.moveSlidesToPositionInches(18);
-                        cycles++;
-                        if (cycles >= 4) {
-                            setPathState(-1);
-                        } else {
+            case 18:
+                toHumanPlayer2 = new Path(new BezierLine(
+                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+                        new Point(36, -56.5, Point.CARTESIAN)));
+                toHumanPlayer2.setConstantHeadingInterpolation(Math.toRadians(90));
+                follower.followPath(toHumanPlayer2, true);
+                setPathState(19);
+                times = 0;
+                break;
+
+            case 19:
+                if (!follower.isBusy()) {
+                    if (cycles == 2) {
+                        requestOpModeStop();
+                    }
+
+                    double distance = distanceSensorBack.getDistance(DistanceUnit.INCH);
+
+                    if (distance > 4) {
+                        // Move forward slowly
+                        follower.startTeleopDrive();
+                        follower.setTeleOpMovementVectors(-0.3, 0, 0); // Adjust the speed as needed
+                    } else if (distance < 3.5) {
+                        // Move backward slowly
+                        follower.startTeleopDrive();
+                        follower.setTeleOpMovementVectors(0.3, 0, 0); // Adjust the speed as needed
+                    } else {
+                        follower.breakFollowing();
+                        if (times == 0) {
+                            setPathState(19);
+                            times = 1;
+                        }
+
+                        depositAssembly.CloseOuttakeClaw();
+
+                        if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                            depositAssembly.ScoreSpecimen();
+                            linearSlides.moveSlidesToPositionInches(15);
+                            cycles++;
                             setPathState(14);
                         }
                     }
