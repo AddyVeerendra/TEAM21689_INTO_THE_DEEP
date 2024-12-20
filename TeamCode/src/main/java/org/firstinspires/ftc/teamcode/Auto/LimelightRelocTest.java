@@ -30,9 +30,9 @@ public class LimelightRelocTest {
             if (limelightPose != null) {
                 // Update the robot's pose using the Limelight's detected pose
                 return new Pose(
-                        limelightPose.getPosition().x,
-                        limelightPose.getPosition().y,
-                        limelightPose.getOrientation().getYaw()
+                        (limelightPose.getPosition().x) * -1,
+                        (limelightPose.getPosition().y) * -1,
+                        follower.getTotalHeading()
                 );
             }
         }

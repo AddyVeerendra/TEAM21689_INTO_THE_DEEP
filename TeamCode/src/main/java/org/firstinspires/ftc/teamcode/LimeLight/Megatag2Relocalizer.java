@@ -49,6 +49,18 @@ public class Megatag2Relocalizer {
         return null;
     }
 
+    public Pose3D getBotPoseTest() {
+        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+        limelight.updateRobotOrientation(orientation.getYaw(AngleUnit.DEGREES));
+
+        LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            Pose3D botpose = result.getBotpose_MT2();
+            return botpose;
+        }
+        return null;
+    }
+
     public int getAprilTagID() {
         LLResult result = limelight.getLatestResult();
         if (result != null && result.isValid()) {
@@ -81,5 +93,17 @@ public class Megatag2Relocalizer {
         double zInches = position.z * conversionFactor;
 
         return new Pose3D(new Position(DistanceUnit.INCH, xInches, yInches, zInches, position.acquisitionTime), pose.getOrientation());
+    }
+
+    double getXValue(Pose3D pose) {
+        return pose.getPosition().x;
+    }
+
+    double getYValue(Pose3D pose) {
+        return pose.getPosition().y;
+    }
+
+    DistanceUnit getDistanceUnit(Pose3D pose) {
+        return pose.getPosition().unit;
     }
 }

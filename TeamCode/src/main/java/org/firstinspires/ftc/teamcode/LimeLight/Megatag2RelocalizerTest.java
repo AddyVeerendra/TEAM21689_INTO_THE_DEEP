@@ -27,9 +27,12 @@ public class Megatag2RelocalizerTest extends LinearOpMode {
         while (opModeIsActive()) {
             telemetry.addLine("Looking!");
 
-            Pose3D botpose = relocalizer.getBotPose();
+            Pose3D botpose = relocalizer.getBotPoseTest();
             if (botpose != null) {
                 telemetry.addData("Botpose", botpose.toString());
+                telemetry.addData("X", relocalizer.getXValue(botpose));
+                telemetry.addData("Y", relocalizer.getYValue(botpose));
+                telemetry.addData("Unit", relocalizer.getDistanceUnit(botpose));
             }
             telemetry.update();
         }
