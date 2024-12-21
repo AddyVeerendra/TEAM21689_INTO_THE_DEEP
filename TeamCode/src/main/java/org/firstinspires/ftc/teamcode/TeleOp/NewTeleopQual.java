@@ -32,6 +32,7 @@ public class NewTeleopQual extends LinearOpMode {
     private boolean yPressed = false;
     private boolean aPressed = false;
     private boolean dpadLeftPressed = false;
+    public boolean lockDpad = false;
 
     @Override
     public void runOpMode() {
@@ -51,18 +52,18 @@ public class NewTeleopQual extends LinearOpMode {
 
         String[] motorNames = {"slideMotorLeft", "slideMotorRight"};
         DcMotorSimple.Direction[] directions = {DcMotorSimple.Direction.FORWARD, DcMotorSimple.Direction.REVERSE};
-        linearSlides = new LinearSlide(hardwareMap, motorNames, directions, 81.5625, 0, 37.5);
+        linearSlides = new LinearSlide(hardwareMap, motorNames, directions, 81.5625, -37.5, 37.5);
 
         intakeAssembly = new IntakeAssembly(hardwareMap);
         depositAssembly = new DepositAssembly(hardwareMap);
 
         // Initial positions
+        intakeAssembly.UnlockIntake();
+        intakeAssembly.ExtendSlidesToPos(0.40);
         depositAssembly.OpenOuttakeClaw();
-        linearSlides.moveSlidesToPositionInches(0);
-        depositAssembly.TransferSample();
+        depositAssembly.Hang();
         intakeAssembly.RotateClaw0();
         intakeAssembly.PivotClawUp();
-        intakeAssembly.ExtendSlidesToPos(0.40);
         intakeAssembly.OpenClaw();
 
         while (opModeInInit() && !isStopRequested()) {
@@ -70,6 +71,7 @@ public class NewTeleopQual extends LinearOpMode {
         }
 
         waitForStart();
+        depositAssembly.TransferSample();
 
         while (opModeIsActive()) {
             // Drive control
@@ -88,6 +90,13 @@ public class NewTeleopQual extends LinearOpMode {
             rightFront.setPower(frontRightPower);
             rightBack.setPower(backRightPower);
 
+            if (gamepad1.options) {
+                linearSlides.moveSlidesToPositionInches(-20);
+            } else if (gamepad1.share) {
+                linearSlides.zeroSlides();
+                linearSlides.moveSlidesToPositionInches(0);
+            }
+
             // Claw rotation toggle on Y
             if (gamepad1.y && !yPressed) {
                 clawRotated = !clawRotated;
@@ -103,10 +112,11 @@ public class NewTeleopQual extends LinearOpMode {
 
             if (gamepad1.dpad_up) {
                 depositAssembly.Hang();
-                intakeAssembly.ExtendSlidesToPos(0.32);
-                linearSlides.moveSlidesToPositionInches(13);
+                intakeAssembly.UnlockIntake();
+                intakeAssembly.ExtendSlidesToPos(0.30);
+                linearSlides.moveSlidesToPositionInches(28);
             } else if (gamepad1.dpad_down) {
-                linearSlides.moveSlidesToPositionInches(0);
+                linearSlides.moveSlidesToPositionInches(18);
                 intakeAssembly.LockIntake();
             }
 
@@ -149,7 +159,7 @@ public class NewTeleopQual extends LinearOpMode {
             }
 
             // Deposit sample toggle on dpad_left
-            if (gamepad1.dpad_left && !dpadLeftPressed) {
+            if (gamepad1.dpad_left && !dpadLeftPressed && !lockDpad) {
                 depositSampleToggle = !depositSampleToggle;
                 startDepositSequence(depositSampleToggle);
                 dpadLeftPressed = true;
@@ -217,6 +227,7 @@ public class NewTeleopQual extends LinearOpMode {
 
             // -------- Sequence 1 (intakeSequenceToggle == true) --------
             case START_1:
+                lockDpad = true;
                 intakeAssembly.CloseClaw();
                 depositAssembly.OpenOuttakeClaw();
                 intakeState = IntakeSequenceState.WAIT_CLOSE_CLAW;
@@ -258,6 +269,7 @@ public class NewTeleopQual extends LinearOpMode {
 
             case DONE_1:
                 // Sequence 1 done
+                lockDpad = false;
                 intakeState = IntakeSequenceState.IDLE;
                 break;
 
@@ -356,7 +368,7 @@ public class NewTeleopQual extends LinearOpMode {
                 break;
 
             case EXTEND_SLIDES_SCORE:
-                linearSlides.moveSlidesToPositionInches(35);
+                linearSlides.moveSlidesToPositionInches(32);
                 depositAssembly.ScoreSample();
                 depositState = DepositSequenceState.DONE_FALSE;
                 break;
