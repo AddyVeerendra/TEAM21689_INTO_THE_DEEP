@@ -106,6 +106,7 @@ public class NewTeleopQual extends LinearOpMode {
             double frontRightPower = clipPower(y - x - rx);
             double backRightPower = clipPower(y + x - rx);
 
+            /*
             if (gamepad2.left_bumper) {
                 if (frontWheelTurn) {
                     frontWheelTurn = false;
@@ -115,6 +116,7 @@ public class NewTeleopQual extends LinearOpMode {
                     frontWheelTurn = true;
                 }
             }
+            */
 
             leftFront.setPower(frontLeftPower);
             leftBack.setPower(backLeftPower);
@@ -191,6 +193,8 @@ public class NewTeleopQual extends LinearOpMode {
                 dpadLeftPressed = false;
             }
 
+            /*
+
             if (gamepad2.a) {
                 leftBack.setPower(0);
                 leftFront.setPower(0);
@@ -210,9 +214,7 @@ public class NewTeleopQual extends LinearOpMode {
                 rightBack.setPower(0);
             }
 
-            if (gamepad2.x) {
-
-            }
+            */
 
             // Pickup sample from wall
             /*
