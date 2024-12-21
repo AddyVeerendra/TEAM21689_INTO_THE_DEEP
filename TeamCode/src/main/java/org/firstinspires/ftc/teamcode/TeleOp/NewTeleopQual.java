@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
+import com.fasterxml.jackson.databind.deser.impl.CreatorCandidate;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.teamcode.HardwareClasses.DepositAssembly;
 import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssembly;
@@ -27,11 +30,20 @@ public class NewTeleopQual extends LinearOpMode {
     private boolean intakeSequenceToggle = true;
     private boolean depositSampleToggle = true;
 
+    private IMU imu;
+
     // Button State Tracking
     private boolean rightBumperPressed = false;
     private boolean yPressed = false;
     private boolean aPressed = false;
     private boolean dpadLeftPressed = false;
+
+    IMU.Parameters parameters = new IMU.Parameters(
+            new RevHubOrientationOnRobot(
+                    RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+                    RevHubOrientationOnRobot.UsbFacingDirection.UP
+            )
+    );
 
     @Override
     public void runOpMode() {
@@ -41,6 +53,10 @@ public class NewTeleopQual extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
 
+        imu = hardwareMap.get(IMU.class, "imu");
+
+        imu.initialize(parameters);
+
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -48,6 +64,8 @@ public class NewTeleopQual extends LinearOpMode {
 
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        imu.resetYaw();
 
         String[] motorNames = {"slideMotorLeft", "slideMotorRight"};
         DcMotorSimple.Direction[] directions = {DcMotorSimple.Direction.FORWARD, DcMotorSimple.Direction.REVERSE};
@@ -107,6 +125,7 @@ public class NewTeleopQual extends LinearOpMode {
                 linearSlides.moveSlidesToPositionInches(13);
             } else if (gamepad1.dpad_down) {
                 linearSlides.moveSlidesToPositionInches(0);
+                depositAssembly.TransferSample();
                 intakeAssembly.LockIntake();
             }
 
@@ -156,6 +175,48 @@ public class NewTeleopQual extends LinearOpMode {
             } else if (!gamepad1.dpad_left) {
                 dpadLeftPressed = false;
             }
+
+            if (gamepad2.a) {
+                leftBack.setPower(0);
+                leftFront.setPower(0);
+                rightBack.setPower(0);
+                rightFront.setPower(0);
+
+                while(imu.getRobotYawPitchRollAngles().getYaw() < 45){
+                    leftFront.setPower(0.5);
+                    leftBack.setPower(0.5);
+                    rightFront.setPower(-0.5);
+                    rightBack.setPower(-0.5);
+                }
+
+                leftFront.setPower(0);
+                leftBack.setPower(0);
+                rightFront.setPower(0);
+                rightBack.setPower(0);
+            }
+
+            if (gamepad2.x) {
+
+            }
+
+            // Pickup sample from wall
+            /*
+            if (... && !...UpPressed) {
+                linearSlides.moveSlidesToPositionInches(length to grab sample from wall);
+            } else if (...) {
+                linearSlides.moveSlidesToPositionInches(13);
+                depositAssembly.ScoreSpecimen();
+            }
+
+            if (...) {
+                linearSlides.moveSlidesToPositionInches(4.5);
+                depositAssembly.ScoreSpecimen();
+            }
+            */
+
+
+
+
 
             // Update FSMs
             updateIntakeSequence();
