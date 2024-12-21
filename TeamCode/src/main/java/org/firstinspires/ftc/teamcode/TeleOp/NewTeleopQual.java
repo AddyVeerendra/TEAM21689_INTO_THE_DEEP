@@ -38,6 +38,11 @@ public class NewTeleopQual extends LinearOpMode {
     private boolean aPressed = false;
     private boolean dpadLeftPressed = false;
 
+    private boolean frontWheelTurn = false;
+
+    private float frontWheelRadius = 2.0f;
+
+    private float backWheelRadius = 3.0f;
     IMU.Parameters parameters = new IMU.Parameters(
             new RevHubOrientationOnRobot(
                     RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
@@ -100,6 +105,16 @@ public class NewTeleopQual extends LinearOpMode {
             double backLeftPower = clipPower(y - x + rx);
             double frontRightPower = clipPower(y - x - rx);
             double backRightPower = clipPower(y + x - rx);
+
+            if (gamepad2.left_bumper) {
+                if (frontWheelTurn) {
+                    frontWheelTurn = false;
+                } else {
+                    frontLeftPower *= (frontWheelRadius / backWheelRadius);
+                    frontRightPower *= (frontWheelRadius / backWheelRadius);
+                    frontWheelTurn = true;
+                }
+            }
 
             leftFront.setPower(frontLeftPower);
             leftBack.setPower(backLeftPower);
