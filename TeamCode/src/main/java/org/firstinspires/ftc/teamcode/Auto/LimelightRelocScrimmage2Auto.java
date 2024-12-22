@@ -65,7 +65,7 @@ public class LimelightRelocScrimmage2Auto extends OpMode {
 
         telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetryA.addData("Status:", "initialized");
-        if (megatag2Relocalizer != null && megatag2Relocalizer.getBotPose() != null && megatag2Relocalizer.isLimelightConnected()) {
+        if (megatag2Relocalizer != null && megatag2Relocalizer.isLimelightConnected()) {
             telemetryA.addData("Limelight Status", "Connected");
         } else {
             telemetryA.addData("Limelight Status", "Not Connected");

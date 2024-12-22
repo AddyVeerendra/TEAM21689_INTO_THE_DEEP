@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.LimeLight.Megatag2Relocalizer;
+import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 
 
 @TeleOp(name = "Megatag2RelocalizerTest", group = "Sensor")
@@ -12,6 +14,8 @@ public class Megatag2RelocalizerTest extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         Megatag2Relocalizer relocalizer = new Megatag2Relocalizer(hardwareMap);
+        Follower follower = new Follower(hardwareMap);
+        follower.setStartingPose(new Pose(12, -63.5, Math.toRadians(90)));
 
         telemetry.setMsTransmissionInterval(11);
 
@@ -27,7 +31,7 @@ public class Megatag2RelocalizerTest extends LinearOpMode {
         while (opModeIsActive()) {
             telemetry.addLine("Looking!");
 
-            Pose3D botpose = relocalizer.getBotPoseTest();
+            Pose3D botpose = relocalizer.getBotPoseTest(follower.getPose().getHeading());
             if (botpose != null) {
                 telemetry.addData("Botpose", botpose.toString());
                 telemetry.addData("X", relocalizer.getXValue(botpose));

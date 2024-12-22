@@ -21,18 +21,19 @@ public class LimelightRelocTest {
 
     public Pose relocalize() {
         Pose pose = follower.getPose();
+        double heading = pose.getHeading();
         int aprilTagId = relocalizer.getAprilTagID();
 
         if (aprilTagId == -1) {
             return null; // No April Tag Detected
         } else if (validAprilTags.contains(aprilTagId)) {
-            Pose3D limelightPose = relocalizer.getBotPose();
+            Pose3D limelightPose = relocalizer.getBotPose(heading);
             if (limelightPose != null) {
                 // Update the robot's pose using the Limelight's detected pose
                 return new Pose(
                         (limelightPose.getPosition().x) * -1,
                         (limelightPose.getPosition().y) * -1,
-                        follower.getTotalHeading()
+                        pose.getHeading()
                 );
             }
         }

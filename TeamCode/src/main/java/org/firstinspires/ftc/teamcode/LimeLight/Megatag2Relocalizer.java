@@ -2,33 +2,21 @@ package org.firstinspires.ftc.teamcode.LimeLight;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Megatag2Relocalizer {
 
-    private final IMU imu;
     private final Limelight3A limelight;
     private static final double METERS_TO_INCHES = 39.3701;
     private static final double MM_TO_INCHES = 0.0393701;
     private static final double CM_TO_INCHES = 0.393701;
 
     public Megatag2Relocalizer(HardwareMap hardwareMap) {
-        imu = hardwareMap.get(IMU.class, "imu");
         limelight = hardwareMap.get(Limelight3A.class, "Limelight");
 
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.FORWARD;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.UP;
-
-        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
-
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
         limelight.pipelineSwitch(7);
         limelight.start();
     }
@@ -37,9 +25,8 @@ public class Megatag2Relocalizer {
         return limelight.isConnected();
     }
 
-    public Pose3D getBotPose() {
-        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
-        limelight.updateRobotOrientation(orientation.getYaw(AngleUnit.DEGREES));
+    public Pose3D getBotPose(double heading) {
+        limelight.updateRobotOrientation(heading);
 
         LLResult result = limelight.getLatestResult();
         if (result != null && result.isValid()) {
@@ -49,9 +36,8 @@ public class Megatag2Relocalizer {
         return null;
     }
 
-    public Pose3D getBotPoseTest() {
-        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
-        limelight.updateRobotOrientation(orientation.getYaw(AngleUnit.DEGREES));
+    public Pose3D getBotPoseTest(double heading) {
+        limelight.updateRobotOrientation(Math.toDegrees(heading));
 
         LLResult result = limelight.getLatestResult();
         if (result != null && result.isValid()) {
