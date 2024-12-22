@@ -16,6 +16,7 @@ public class LinearSlide {
     private final double ticksPerInch; // Conversion factor from inches to motor ticks
     private double lastSetSlidePos = 0;
     private boolean slideMotorsBusy = false;
+    private double kP = 0.005;
 
     // Constructor that accepts motor names, directions, and extension limits
     public LinearSlide(HardwareMap hardwareMap, String[] motorNames, DcMotorSimple.Direction[] directions,
@@ -31,6 +32,13 @@ public class LinearSlide {
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             motors.add(motor);
+        }
+    }
+
+    public void zeroSlides() {
+        for (DcMotorEx motor : motors) { // Loop through the existing motors list
+            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
     }
 
@@ -64,7 +72,7 @@ public class LinearSlide {
             double error = targetTicks - motor.getCurrentPosition();
 
             if (Math.abs(error) > 20) { // Ensure error threshold is handled correctly
-                double power = error * 0.005;
+                double power = error * kP;
                 motor.setPower(Range.clip(power, -1, 1)); // Adjust power direction
                 slideMotorsBusy = true;
             } else {
@@ -79,7 +87,7 @@ public class LinearSlide {
         if (!slideMotorsBusy) {
             for (DcMotorEx motor : motors) {
                 double error = lastSetSlidePos - motor.getCurrentPosition();
-                motor.setPower(Range.clip((error * 0.005), -0.5, 0.5));
+                motor.setPower(Range.clip((error * kP), -0.5, 0.5));
             }
         }
     }
@@ -96,6 +104,10 @@ public class LinearSlide {
     // Checks if any motor is busy
     public boolean isSlideMotorsBusy() {
         return slideMotorsBusy;
+    }
+
+    public void setKP(double set) {
+        kP = set;
     }
 
     // Get the average position of all motors (in inches)

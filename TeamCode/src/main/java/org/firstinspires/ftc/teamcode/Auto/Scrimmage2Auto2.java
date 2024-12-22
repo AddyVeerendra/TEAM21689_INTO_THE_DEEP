@@ -20,8 +20,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
-@Autonomous(name = "Scrimmage 2 Auto Blue")
-public class Scrimmage2Auto extends OpMode {
+@Autonomous(name = "Scrimmage 2 Auto Red")
+public class Scrimmage2Auto2 extends OpMode {
 
     private IntakeAssembly intakeAssembly;
     private DepositAssembly depositAssembly;
@@ -40,8 +40,8 @@ public class Scrimmage2Auto extends OpMode {
     public void init() {
         // Initialize path stuff with hardwareMap
         follower = new Follower(hardwareMap);
-        follower.setStartingPose(new Pose(12, -63.5, Math.toRadians(90)));
-        follower.setMaxPower(0.7);
+        follower.setStartingPose(new Pose(-12, 63.5, Math.toRadians(-90)));
+        follower.setMaxPower(0.8);
         pathTimer = new Timer();
         pathState = 0;
 
@@ -90,8 +90,8 @@ public class Scrimmage2Auto extends OpMode {
             case 0:
                 toChamber = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(6, -36, Point.CARTESIAN)));
-                toChamber.setConstantHeadingInterpolation(Math.toRadians(90));
+                        new Point(-6, 36, Point.CARTESIAN)));
+                toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toChamber, true);
                 linearSlides.moveSlidesToPositionInches(19);
                 setPathState(1);
@@ -118,8 +118,8 @@ public class Scrimmage2Auto extends OpMode {
             case 2:
                 toSpike1Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(26.5, -44.5, Point.CARTESIAN)));
-                toSpike1Grab.setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(45));
+                        new Point(-26.5, 44.5, Point.CARTESIAN)));
+                toSpike1Grab.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-45));
                 follower.followPath(toSpike1Grab, true);
                 setPathState(3);
                 times = 0;
@@ -145,7 +145,7 @@ public class Scrimmage2Auto extends OpMode {
                     intakeAssembly.CloseClaw();
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                        intakeAssembly.PivotClawMid();
+                        intakeAssembly.PivotClawUp();
                         setPathState(4);
                     }
                 }
@@ -154,8 +154,8 @@ public class Scrimmage2Auto extends OpMode {
             case 4:
                 toSpike1Give = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -45, Point.CARTESIAN)));
-                toSpike1Give.setConstantHeadingInterpolation(Math.toRadians(-45));
+                        new Point(-40, 45, Point.CARTESIAN)));
+                toSpike1Give.setConstantHeadingInterpolation(Math.toRadians(45));
                 follower.followPath(toSpike1Give, true);
                 setPathState(5);
                 times = 0;
@@ -171,8 +171,8 @@ public class Scrimmage2Auto extends OpMode {
                     intakeAssembly.OpenClaw();
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                        intakeAssembly.ExtendSlidesToPos(0.5);
                         intakeAssembly.PivotClawDown();
+                        intakeAssembly.ExtendSlidesToPos(0.5);
                         intakeAssembly.RotateClaw90();
                         setPathState(6);
                     }
@@ -182,8 +182,8 @@ public class Scrimmage2Auto extends OpMode {
             case 6:
                 toSpike2Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(38, -28, Point.CARTESIAN)));
-                toSpike2Grab.setConstantHeadingInterpolation(Math.toRadians(0));
+                        new Point(-39, 29, Point.CARTESIAN)));
+                toSpike2Grab.setConstantHeadingInterpolation(Math.toRadians(180));
                 follower.followPath(toSpike2Grab, true);
                 setPathState(7);
                 times = 0;
@@ -204,7 +204,7 @@ public class Scrimmage2Auto extends OpMode {
                     intakeAssembly.CloseClaw();
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                        intakeAssembly.PivotClawMid();
+                        intakeAssembly.PivotClawUp();
                         intakeAssembly.ExtendSlidesToPos(0.5);
                         setPathState(8);
                     }
@@ -214,8 +214,8 @@ public class Scrimmage2Auto extends OpMode {
             case 8:
                 toSpike2Give = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -45, Point.CARTESIAN)));
-                toSpike2Give.setConstantHeadingInterpolation(Math.toRadians(-45));
+                        new Point(-40, 45, Point.CARTESIAN)));
+                toSpike2Give.setConstantHeadingInterpolation(Math.toRadians(45));
                 follower.followPath(toSpike2Give, true);
                 setPathState(9);
                 times = 0;
@@ -227,7 +227,7 @@ public class Scrimmage2Auto extends OpMode {
                         setPathState(9);
                         times = 1;
                     }
-                    intakeAssembly.PivotClawDown();
+
                     intakeAssembly.OpenClaw();
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.25) {
@@ -241,8 +241,8 @@ public class Scrimmage2Auto extends OpMode {
             case 10:
                 toSpike3Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(49, -28, Point.CARTESIAN)));
-                toSpike3Grab.setConstantHeadingInterpolation(Math.toRadians(0));
+                        new Point(-50, 29, Point.CARTESIAN)));
+                toSpike3Grab.setConstantHeadingInterpolation(Math.toRadians(180));
                 follower.followPath(toSpike3Grab, true);
                 setPathState(11);
                 times = 0;
@@ -263,7 +263,7 @@ public class Scrimmage2Auto extends OpMode {
                     intakeAssembly.CloseClaw();
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                        intakeAssembly.PivotClawMid();
+                        intakeAssembly.PivotClawUp();
                         intakeAssembly.ExtendSlidesToPos(0.35);
                         setPathState(12);
                     }
@@ -273,8 +273,8 @@ public class Scrimmage2Auto extends OpMode {
             case 12:
                 toSpike3Give = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -45, Point.CARTESIAN)));
-                toSpike3Give.setConstantHeadingInterpolation(Math.toRadians(-45));
+                        new Point(-40, 45, Point.CARTESIAN)));
+                toSpike3Give.setConstantHeadingInterpolation(Math.toRadians(45));
                 follower.followPath(toSpike3Give, true);
                 setPathState(13);
                 times = 0;
@@ -292,7 +292,6 @@ public class Scrimmage2Auto extends OpMode {
                         times = 1;
                     }
 
-                    intakeAssembly.PivotClawDown();
                     intakeAssembly.OpenClaw();
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.25) {
@@ -305,11 +304,10 @@ public class Scrimmage2Auto extends OpMode {
                 break;
 
             case 14:
-                toHumanPlayer = new Path(new BezierCurve(
+                toHumanPlayer = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(30, -40, Point.CARTESIAN),
-                        new Point(38, -57, Point.CARTESIAN)));
-                toHumanPlayer.setConstantHeadingInterpolation(Math.toRadians(90));
+                        new Point(-38, 56+cycles, Point.CARTESIAN)));
+                toHumanPlayer.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toHumanPlayer, true);
                 setPathState(15);
                 times = 0;
@@ -344,8 +342,8 @@ public class Scrimmage2Auto extends OpMode {
             case 16:
                 toChamber = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(5+(cycles * 0.5), -35, Point.CARTESIAN)));
-                toChamber.setConstantHeadingInterpolation(Math.toRadians(90));
+                        new Point(-5-(cycles * 0.5), 36.6, Point.CARTESIAN)));
+                toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toChamber, true);
                 setPathState(17);
                 times = 0;

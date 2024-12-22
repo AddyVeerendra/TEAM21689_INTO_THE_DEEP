@@ -8,6 +8,7 @@ public class DepositAssembly {
     private Servo outtakePivotRight;
     private Servo outtakeClaw;
     private Servo outtakeClawPivot;
+    private Servo outtakeClawRotate;
 
     public DepositAssembly(HardwareMap hardwareMap) {
         outtakePivotLeft = hardwareMap.get(Servo.class, "outtakePivotLeft");
@@ -15,6 +16,15 @@ public class DepositAssembly {
         outtakePivotRight = hardwareMap.get(Servo.class, "outtakePivotRight");
         outtakeClaw = hardwareMap.get(Servo.class, "outtakeClaw");
         outtakeClawPivot = hardwareMap.get(Servo.class, "outtakeClawPivot");
+        outtakeClawRotate = hardwareMap.get(Servo.class, "outtakeClawRotate");
+    }
+
+    public void RotateOuttakeClaw0() {
+        outtakeClawRotate.setPosition(0.3);
+    }
+
+    public void RotateOuttakeClaw180() {
+        outtakeClawRotate.setPosition(1);
     }
 
     public void CloseOuttakeClaw() {
@@ -26,33 +36,38 @@ public class DepositAssembly {
     }
 
     public void ScoreSample() {
-        outtakePivotLeft.setPosition(0.0);
-        outtakePivotRight.setPosition(0.0);
-        outtakeClawPivot.setPosition(1);
+        outtakePivotLeft.setPosition(0.15);
+        outtakePivotRight.setPosition(0.15);
+        outtakeClawPivot.setPosition(0.9);
+        RotateOuttakeClaw0();
     }
 
     public void GrabSpecimen() {
-        outtakePivotLeft.setPosition(0.01);
-        outtakePivotRight.setPosition(0.01);
-        outtakeClawPivot.setPosition(1);
+        outtakePivotLeft.setPosition(0.02);
+        outtakePivotRight.setPosition(0.02);
+        outtakeClawPivot.setPosition(0.9);
+        RotateOuttakeClaw180();
     }
 
     public void ScoreSpecimen() {
-        outtakePivotLeft.setPosition(0.58);
-        outtakePivotRight.setPosition(0.58);
-        outtakeClawPivot.setPosition(1);
-    }
-
-    public void InitSampleAuto() {
-        outtakePivotLeft.setPosition(0.3);
-        outtakePivotRight.setPosition(0.3);
-        outtakeClawPivot.setPosition(1);
+        outtakePivotLeft.setPosition(0.65);
+        outtakePivotRight.setPosition(0.65);
+        outtakeClawPivot.setPosition(0.88);
+        RotateOuttakeClaw0();
     }
 
     public void TransferSample() {
-        outtakePivotLeft.setPosition(0.58);
-        outtakePivotRight.setPosition(0.58);
-        outtakeClawPivot.setPosition(0.87);
+        outtakePivotLeft.setPosition(0.69);
+        outtakePivotRight.setPosition(0.69);
+        outtakeClawPivot.setPosition(1);
         OpenOuttakeClaw();
+        RotateOuttakeClaw0();
+    }
+
+    public void Hang() {
+        outtakePivotLeft.setPosition(0.5);
+        outtakePivotRight.setPosition(0.5);
+        outtakeClawPivot.setPosition(0.4);
+        RotateOuttakeClaw0();
     }
 }

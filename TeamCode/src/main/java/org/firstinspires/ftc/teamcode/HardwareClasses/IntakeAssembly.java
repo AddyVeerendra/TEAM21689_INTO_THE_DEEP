@@ -21,7 +21,7 @@ public class IntakeAssembly {
     }
 
     public void LockIntake() {
-        intakeLock.setPosition(0.16);
+        intakeLock.setPosition(0.26);
     }
 
     public void UnlockIntake() {
@@ -57,7 +57,7 @@ public class IntakeAssembly {
     }
 
     public void PivotClawUp() {
-        intakePivot.setPosition(0.87);
+        intakePivot.setPosition(0.85);
     }
 
     public void PivotClawMid() {
