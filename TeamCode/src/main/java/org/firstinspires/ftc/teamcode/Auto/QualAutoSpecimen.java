@@ -46,7 +46,7 @@ public class QualAutoSpecimen extends OpMode {
     public void init() {
         // Initialize path stuff with hardwareMap
         follower = new Follower(hardwareMap);
-        follower.setStartingPose(new Pose(12, -63.5, Math.toRadians(90)));
+        follower.setStartingPose(new Pose(12, -61.5, Math.toRadians(90)));
         follower.setMaxPower(0.7);
         pathTimer = new Timer();
         pathState = 0;
@@ -119,11 +119,11 @@ public class QualAutoSpecimen extends OpMode {
 
                     double distance = distanceSensorFront.getDistance(DistanceUnit.INCH);
 
-                    if (distance > 10 && distanceTimes == 0 && pathTimer.getElapsedTimeSeconds() < 2) {
+                    if (distance > 10.5 && distanceTimes == 0 && pathTimer.getElapsedTimeSeconds() < 1.5) {
                         // Move forward slowly
                         follower.startTeleopDrive();
                         follower.setTeleOpMovementVectors(0.3, 0, 0); // Adjust the speed as needed
-                    } else if (distance < 9.5 && distanceTimes == 0 && pathTimer.getElapsedTimeSeconds() < 2) {
+                    } else if (distance < 10 && distanceTimes == 0 && pathTimer.getElapsedTimeSeconds() < 1.5) {
                         // Move backward slowly
                         follower.startTeleopDrive();
                         follower.setTeleOpMovementVectors(-0.3, 0, 0); // Adjust the speed as needed
@@ -164,7 +164,7 @@ public class QualAutoSpecimen extends OpMode {
                 if (follower.isBusy()) {
                     if (follower.getCurrentTValue() > 0.5) {
                         depositAssembly.GrabSpecimen();
-                        linearSlides.moveSlidesToPositionInches(2.5);
+                        linearSlides.moveSlidesToPositionInches(2);
                     }
                 }
                 if (!follower.isBusy()) {
@@ -280,11 +280,11 @@ public class QualAutoSpecimen extends OpMode {
 
                     double distance = distanceSensorBack.getDistance(DistanceUnit.INCH);
 
-                    if (distance > 8 && distanceTimes == 0 && pathTimer.getElapsedTimeSeconds() < 2) {
+                    if (distance > 7 && distanceTimes == 0 && pathTimer.getElapsedTimeSeconds() < 1.5) {
                         // Move forward slowly
                         follower.startTeleopDrive();
                         follower.setTeleOpMovementVectors(-0.3, 0, 0); // Adjust the speed as needed
-                    } else if (distance < 7.5 && distanceTimes == 0 && pathTimer.getElapsedTimeSeconds() < 2) {
+                    } else if (distance < 6.5 && distanceTimes == 0 && pathTimer.getElapsedTimeSeconds() < 1.5) {
                         // Move backward slowly
                         follower.startTeleopDrive();
                         follower.setTeleOpMovementVectors(0.3, 0, 0); // Adjust the speed as needed
@@ -298,7 +298,7 @@ public class QualAutoSpecimen extends OpMode {
 
                         depositAssembly.CloseOuttakeClaw();
 
-                        if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                        if (pathTimer.getElapsedTimeSeconds() > 0.35) {
                             depositAssembly.ScoreSpecimen();
                             linearSlides.moveSlidesToPositionInches(16);
                             setPathState(14);
@@ -333,11 +333,11 @@ public class QualAutoSpecimen extends OpMode {
 
                     double distance = distanceSensorFront.getDistance(DistanceUnit.INCH);
 
-                    if (distance > 10 && distanceTimes == 0 && pathTimer.getElapsedTimeSeconds() < 2) {
+                    if (distance > 10 && distanceTimes == 0 && pathTimer.getElapsedTimeSeconds() < 1.5) {
                         // Move forward slowly
                         follower.startTeleopDrive();
                         follower.setTeleOpMovementVectors(0.3, 0, 0); // Adjust the speed as needed
-                    } else if (distance < 9.5 && distanceTimes == 0 && pathTimer.getElapsedTimeSeconds() < 2) {
+                    } else if (distance < 9.5 && distanceTimes == 0 && pathTimer.getElapsedTimeSeconds() < 1.5) {
                         // Move backward slowly
                         follower.startTeleopDrive();
                         follower.setTeleOpMovementVectors(-0.3, 0, 0); // Adjust the speed as needed
@@ -354,7 +354,7 @@ public class QualAutoSpecimen extends OpMode {
                         if (pathTimer.getElapsedTimeSeconds() > 0.75) {
                             linearSlides.setKP(0.005);
                             depositAssembly.OpenOuttakeClaw();
-                            linearSlides.moveSlidesToPositionInches(2.5);
+                            linearSlides.moveSlidesToPositionInches(2);
                             if (cycles < 2) {
                                 setPathState(16);
                             } else {
@@ -415,11 +415,11 @@ public class QualAutoSpecimen extends OpMode {
 
                     double distance = distanceSensorBack.getDistance(DistanceUnit.INCH);
 
-                    if (distance > 8 && distanceTimes == 0 && pathTimer.getElapsedTimeSeconds() < 2) {
+                    if (distance > 7 && distanceTimes == 0 && pathTimer.getElapsedTimeSeconds() < 1.5) {
                         // Move forward slowly
                         follower.startTeleopDrive();
                         follower.setTeleOpMovementVectors(-0.3, 0, 0); // Adjust the speed as needed
-                    } else if (distance < 7.5 && distanceTimes == 0 && pathTimer.getElapsedTimeSeconds() < 2) {
+                    } else if (distance < 6.5 && distanceTimes == 0 && pathTimer.getElapsedTimeSeconds() < 1.5) {
                         // Move backward slowly
                         follower.startTeleopDrive();
                         follower.setTeleOpMovementVectors(0.3, 0, 0); // Adjust the speed as needed
@@ -433,7 +433,7 @@ public class QualAutoSpecimen extends OpMode {
 
                         depositAssembly.CloseOuttakeClaw();
 
-                        if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                        if (pathTimer.getElapsedTimeSeconds() > 0.35) {
                             linearSlides.moveSlidesToPositionInches(16);
                             cycles++;
                             distanceTimes = 0;

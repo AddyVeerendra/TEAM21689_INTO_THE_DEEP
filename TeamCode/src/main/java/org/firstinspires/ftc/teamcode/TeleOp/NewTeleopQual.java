@@ -368,7 +368,7 @@ public class NewTeleopQual extends LinearOpMode {
                 break;
 
             case EXTEND_SLIDES_SCORE:
-                linearSlides.moveSlidesToPositionInches(32);
+                linearSlides.moveSlidesToPositionInches(30);
                 depositAssembly.ScoreSample();
                 depositState = DepositSequenceState.DONE_FALSE;
                 break;
