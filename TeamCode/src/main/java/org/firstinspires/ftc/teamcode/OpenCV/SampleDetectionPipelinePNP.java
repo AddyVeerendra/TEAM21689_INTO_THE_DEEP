@@ -86,7 +86,7 @@ public class SampleDetectionPipelinePNP extends OpenCvPipeline
         YCrCb,
         MASKS,
         MASKS_NR,
-        CONTOURS
+        CONTOURS;
     }
 
     Stage[] stages = Stage.values();
@@ -100,10 +100,10 @@ public class SampleDetectionPipelinePNP extends OpenCvPipeline
         // Replace these values with your actual camera calibration parameters
 
         // Focal lengths (fx, fy) and principal point (cx, cy)
-        double fx = 822.317; // Replace with your camera's focal length in pixels
-        double fy = 822.317;
-        double cx = 319.495; // Replace with your camera's principal point x-coordinate (usually image width / 2)
-        double cy = 242.502; // Replace with your camera's principal point y-coordinate (usually image height / 2)
+        double fx = 800; // Replace with your camera's focal length in pixels
+        double fy = 800;
+        double cx = 320; // Replace with your camera's principal point x-coordinate (usually image width / 2)
+        double cy = 240; // Replace with your camera's principal point y-coordinate (usually image height / 2)
 
         cameraMatrix.put(0, 0,
                 fx, 0, cx,
@@ -187,25 +187,22 @@ public class SampleDetectionPipelinePNP extends OpenCvPipeline
         return clientStoneList;
     }
 
-    void findContours(Mat input) {
-        // Downscale the input image to reduce computational load
-        Mat resizedInput = new Mat();
-        Imgproc.resize(input, resizedInput, new Size((double) input.width() / 2, input.height() / 2));
+    void findContours(Mat input)
+    {
+        // Convert the input image to YCrCb color space
+        Imgproc.cvtColor(input, ycrcbMat, Imgproc.COLOR_RGB2YCrCb);
 
-        // Convert the resized input image to YCrCb color space
-        Imgproc.cvtColor(resizedInput, ycrcbMat, Imgproc.COLOR_RGB2YCrCb);
-
-        // Extract the Cb and Cr channels for blue and red detection
+        // Extract the Cb channel for blue detection
         Core.extractChannel(ycrcbMat, cbMat, 2); // Cb channel index is 2
+
+        // Extract the Cr channel for red detection
         Core.extractChannel(ycrcbMat, crMat, 1); // Cr channel index is 1
 
-        // Apply Gaussian blur to reduce noise
-        Imgproc.GaussianBlur(cbMat, cbMat, new Size(5, 5), 0);
-        Imgproc.GaussianBlur(crMat, crMat, new Size(5, 5), 0);
+        // Threshold the Cb channel to form a mask for blue
+        Imgproc.threshold(cbMat, blueThresholdMat, BLUE_MASK_THRESHOLD, 255, Imgproc.THRESH_BINARY);
 
-        // Adaptive thresholding for blue and red masks
-        Imgproc.adaptiveThreshold(cbMat, blueThresholdMat, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 2);
-        Imgproc.adaptiveThreshold(crMat, redThresholdMat, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 2);
+        // Threshold the Cr channel to form a mask for red
+        Imgproc.threshold(crMat, redThresholdMat, RED_MASK_THRESHOLD, 255, Imgproc.THRESH_BINARY);
 
         // Threshold the Cb channel to form a mask for yellow
         Imgproc.threshold(cbMat, yellowThresholdMat, YELLOW_MASK_THRESHOLD, 255, Imgproc.THRESH_BINARY_INV);
@@ -215,37 +212,30 @@ public class SampleDetectionPipelinePNP extends OpenCvPipeline
         morphMask(redThresholdMat, morphedRedThreshold);
         morphMask(yellowThresholdMat, morphedYellowThreshold);
 
-        // Find contours in the masks with hierarchy
+        // Find contours in the masks
         ArrayList<MatOfPoint> blueContoursList = new ArrayList<>();
-        Mat hierarchyBlue = new Mat();
-        Imgproc.findContours(morphedBlueThreshold, blueContoursList, hierarchyBlue, Imgproc.RETR_CCOMP, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(morphedBlueThreshold, blueContoursList, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
 
         ArrayList<MatOfPoint> redContoursList = new ArrayList<>();
-        Mat hierarchyRed = new Mat();
-        Imgproc.findContours(morphedRedThreshold, redContoursList, hierarchyRed, Imgproc.RETR_CCOMP, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(morphedRedThreshold, redContoursList, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
 
         ArrayList<MatOfPoint> yellowContoursList = new ArrayList<>();
-        Mat hierarchyYellow = new Mat();
-        Imgproc.findContours(morphedYellowThreshold, yellowContoursList, hierarchyYellow, Imgproc.RETR_CCOMP, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(morphedYellowThreshold, yellowContoursList, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
 
-        // Analyze the contours with hierarchy
-        analyzeContoursWithHierarchy(blueContoursList, hierarchyBlue, resizedInput, "Blue");
-        analyzeContoursWithHierarchy(redContoursList, hierarchyRed, resizedInput, "Red");
-        analyzeContoursWithHierarchy(yellowContoursList, hierarchyYellow, resizedInput, "Yellow");
+        // Now analyze the contours
+        for(MatOfPoint contour : blueContoursList)
+        {
+            analyzeContour(contour, input, "Blue");
+        }
 
-        // Release the resized input Mat
-        resizedInput.release();
-    }
+        for(MatOfPoint contour : redContoursList)
+        {
+            analyzeContour(contour, input, "Red");
+        }
 
-    void analyzeContoursWithHierarchy(ArrayList<MatOfPoint> contours, Mat hierarchy, Mat input, String color) {
-        for (int i = 0; i < contours.size(); i++) {
-            if (Imgproc.contourArea(contours.get(i)) > 100) { // Filter small contours
-                int[] hierarchyData = new int[4];
-                hierarchy.get(0, i, hierarchyData);
-                if (hierarchyData[3] == -1) { // Only consider outermost contours
-                    analyzeContour(contours.get(i), input, color);
-                }
-            }
+        for(MatOfPoint contour : yellowContoursList)
+        {
+            analyzeContour(contour, input, "Yellow");
         }
     }
 

@@ -3,54 +3,47 @@ package org.firstinspires.ftc.teamcode.OpenCV;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import java.util.List;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvWebcam;
 
-@TeleOp
+@TeleOp(name = "SampleDetectionPNPTest", group = "Sensor")
 public class SampleDetectionPNPTest extends LinearOpMode {
-    // Declare variables for the webcam and the OpenCV pipeline
-    private CameraManagerSamplePNP cameraManager;
+    private OpenCvWebcam camera;
+    private SamplePNP_Pipeline pipeline = new SamplePNP_Pipeline();
 
-    /**
-     * The main method for the op mode. This method sets up and runs the OpenCV pipeline.
-     */
     @Override
     public void runOpMode() {
-        cameraManager = new CameraManagerSamplePNP(hardwareMap);
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        camera.setPipeline(pipeline);
 
-        // Initialize camera and set the pipeline to use SampleDetectionPipeline
-        cameraManager.initializeCamera();
+        camera.setMillisecondsPermissionTimeout(5000);
+        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                camera.startStreaming(800, 448, OpenCvCameraRotation.UPRIGHT);
+            }
 
-        // Notify that the op mode is waiting for the start signal
+            @Override
+            public void onError(int errorCode) {
+                telemetry.addData("Camera Error", errorCode);
+                telemetry.update();
+            }
+        });
+
         telemetry.addLine("Waiting for start");
         telemetry.update();
 
-        // Wait for the start signal
         waitForStart();
 
-        // Run the op mode while it is active
         while (opModeIsActive()) {
-            // Get the detected objects from the pipeline
-            List<SampleDetectionPipelinePNP.AnalyzedStone> detectedStones = cameraManager.pipelinePNP().getDetectedStones();
-
-            // Display the number of detected objects
-            telemetry.addData("Detected Stones", detectedStones.size());
-
-            // Loop through each detected stone and display its data
-            for (SampleDetectionPipelinePNP.AnalyzedStone stone : detectedStones) {
-                telemetry.addData("Color", stone.color);
-                telemetry.addData("Angle", stone.angle);
-                telemetry.addData("Translation (x, y, z)",
-                        "%.2f, %.2f, %.2f",
-                        stone.tvec.get(0, 0)[0],
-                        stone.tvec.get(1, 0)[0],
-                        stone.tvec.get(2, 0)[0]
-                );
-            }
-
-            // Update the telemetry display
+            telemetry.addData("Frame Count", camera.getFrameCount());
+            telemetry.addData("FPS", String.format("%.2f", camera.getFps()));
             telemetry.update();
 
-            // Sleep briefly to avoid overwhelming the system
             sleep(100);
         }
     }

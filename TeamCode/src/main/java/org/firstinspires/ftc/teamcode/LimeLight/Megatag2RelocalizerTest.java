@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.LimeLight;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-import org.firstinspires.ftc.teamcode.LimeLight.Megatag2Relocalizer;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 
@@ -29,11 +28,14 @@ public class Megatag2RelocalizerTest extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
+            
+            follower.update();
             telemetry.addLine("Looking!");
 
-            Pose3D botpose = relocalizer.getBotPoseTest(follower.getPose().getHeading());
+            Pose3D botpose = relocalizer.getBotPose(follower.getPose().getHeading());
             if (botpose != null) {
-                telemetry.addData("Botpose", botpose.toString());
+                telemetry.addData("Limelight Pose", botpose.toString());
+                telemetry.addData("Follower Pose", follower.getPose().toString());
                 telemetry.addData("X", relocalizer.getXValue(botpose));
                 telemetry.addData("Y", relocalizer.getYValue(botpose));
                 telemetry.addData("Unit", relocalizer.getDistanceUnit(botpose));

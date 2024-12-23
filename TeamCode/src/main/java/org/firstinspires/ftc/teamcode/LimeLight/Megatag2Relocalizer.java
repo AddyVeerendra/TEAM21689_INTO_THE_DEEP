@@ -78,7 +78,7 @@ public class Megatag2Relocalizer {
         double yInches = position.y * conversionFactor;
         double zInches = position.z * conversionFactor;
 
-        return new Pose3D(new Position(DistanceUnit.INCH, xInches, yInches, zInches, position.acquisitionTime), pose.getOrientation());
+        return new Pose3D(new Position(DistanceUnit.INCH, -1 * xInches, -1 * yInches, zInches, position.acquisitionTime), pose.getOrientation());
     }
 
     double getXValue(Pose3D pose) {
