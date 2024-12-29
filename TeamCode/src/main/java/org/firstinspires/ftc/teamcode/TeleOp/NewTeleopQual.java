@@ -26,6 +26,7 @@ public class NewTeleopQual extends LinearOpMode {
     private boolean clawRotated = true;
     private boolean intakeSequenceToggle = true;
     private boolean depositSampleToggle = true;
+    private boolean depositSpecimenToggle = true;
 
     // Button State Tracking
     private boolean rightBumperPressed = false;
@@ -33,6 +34,7 @@ public class NewTeleopQual extends LinearOpMode {
     private boolean aPressed = false;
     private boolean dpadLeftPressed = false;
     public boolean lockDpad = false;
+    private boolean dpadRightPressed = false;
 
     @Override
     public void runOpMode() {
@@ -165,6 +167,14 @@ public class NewTeleopQual extends LinearOpMode {
                 dpadLeftPressed = true;
             } else if (!gamepad1.dpad_left) {
                 dpadLeftPressed = false;
+            }
+
+            if (gamepad1.dpad_right && !dpadRightPressed) {
+                depositSpecimenToggle = !depositSpecimenToggle;
+                startSpecimenDepositSequence(depositSpecimenToggle);
+                dpadRightPressed = true;
+            } else if (!gamepad1.dpad_right) {
+                dpadRightPressed = false;
             }
 
             // Update FSMs
@@ -336,6 +346,15 @@ public class NewTeleopQual extends LinearOpMode {
     private double depositStateStartTime;
 
     private void startDepositSequence(boolean sequenceOne) {
+        if (sequenceOne) {
+            depositState = DepositSequenceState.OPEN_OUTTAKE;
+        } else {
+            depositState = DepositSequenceState.EXTEND_SLIDES_SCORE;
+        }
+        depositStateStartTime = getRuntime();
+    }
+
+    private void startSpecimenDepositSequence(boolean sequenceOne) {
         if (sequenceOne) {
             depositState = DepositSequenceState.OPEN_OUTTAKE;
         } else {
