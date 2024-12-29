@@ -7,17 +7,19 @@ public class IntakeAssembly {
     private Servo intakePivot;
     private Servo intakeRotate;
     private Servo intakeClaw;
-    private Servo intakeSlidesLeft;
+    //private Servo intakeSlidesLeft;
     private Servo intakeLock;
 
+    private Pivot intakeSlides;
 
     public IntakeAssembly(HardwareMap hardwareMap) {
         intakePivot = hardwareMap.get(Servo.class, "intakePivot");
         intakePivot.setDirection(Servo.Direction.REVERSE);
         intakeRotate = hardwareMap.get(Servo.class, "intakeRotate");
         intakeClaw = hardwareMap.get(Servo.class, "intakeClaw");
-        intakeSlidesLeft = hardwareMap.get(Servo.class, "intakeSlidesLeft");
+        //intakeSlidesLeft = hardwareMap.get(Servo.class, "intakeSlidesLeft");
         intakeLock = hardwareMap.get(Servo.class, "intakeLock");
+        intakeSlides = new Pivot(hardwareMap);
     }
 
     public void LockIntake() {
@@ -29,7 +31,7 @@ public class IntakeAssembly {
     }
 
     public void OpenClaw() {
-        intakeClaw.setPosition(0.75);
+        intakeClaw.setPosition(0.66);
     }
 
     public void CloseClaw() {
@@ -65,14 +67,18 @@ public class IntakeAssembly {
     }
 
     public void ExtendSlidesFull() {
-        intakeSlidesLeft.setPosition(0.7);
+        intakeSlides.movePivotToAngle(85);
     }
 
     public void RetractSlidesFull() {
-        intakeSlidesLeft.setPosition(0.3);
+        intakeSlides.movePivotToAngle(0);
     }
 
     public void ExtendSlidesToPos(double pos) {
-        intakeSlidesLeft.setPosition(pos);
+        intakeSlides.movePivotToAngle(pos);
+    }
+
+    public void update() {
+        intakeSlides.update();
     }
 }

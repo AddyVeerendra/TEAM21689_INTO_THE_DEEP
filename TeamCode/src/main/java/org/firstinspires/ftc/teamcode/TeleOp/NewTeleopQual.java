@@ -59,7 +59,7 @@ public class NewTeleopQual extends LinearOpMode {
 
         // Initial positions
         intakeAssembly.UnlockIntake();
-        intakeAssembly.ExtendSlidesToPos(0.40);
+        intakeAssembly.ExtendSlidesToPos(17);
         depositAssembly.OpenOuttakeClaw();
         depositAssembly.Hang();
         intakeAssembly.RotateClaw0();
@@ -67,7 +67,7 @@ public class NewTeleopQual extends LinearOpMode {
         intakeAssembly.OpenClaw();
 
         while (opModeInInit() && !isStopRequested()) {
-            // Waiting for start
+            intakeAssembly.update();
         }
 
         waitForStart();
@@ -113,7 +113,7 @@ public class NewTeleopQual extends LinearOpMode {
             if (gamepad1.dpad_up) {
                 depositAssembly.Hang();
                 intakeAssembly.UnlockIntake();
-                intakeAssembly.ExtendSlidesToPos(0.30);
+                intakeAssembly.RetractSlidesFull();
                 linearSlides.moveSlidesToPositionInches(28);
             } else if (gamepad1.dpad_down) {
                 linearSlides.moveSlidesToPositionInches(18);
@@ -173,6 +173,7 @@ public class NewTeleopQual extends LinearOpMode {
 
             // Update linear slides
             linearSlides.update();
+            intakeAssembly.update();
         }
     }
 
@@ -245,14 +246,14 @@ public class NewTeleopQual extends LinearOpMode {
 
             case ROTATE_UP:
                 if (elapsed > 0.4) {
-                    intakeAssembly.ExtendSlidesToPos(0.39);
+                    intakeAssembly.ExtendSlidesToPos(17);
                     intakeState = IntakeSequenceState.EXTEND_SLIDES;
                     intakeStateStartTime = getRuntime();
                 }
                 break;
 
             case EXTEND_SLIDES:
-                if (elapsed > 0.65) {
+                if (elapsed > 0.4) {
                     depositAssembly.CloseOuttakeClaw();
                     intakeAssembly.LockIntake();
                     intakeState = IntakeSequenceState.CLOSE_OUTTAKE_CLAW;
