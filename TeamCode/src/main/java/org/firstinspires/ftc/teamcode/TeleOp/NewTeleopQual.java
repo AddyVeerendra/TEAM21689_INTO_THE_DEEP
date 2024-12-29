@@ -139,10 +139,10 @@ public class NewTeleopQual extends LinearOpMode {
                 intakeAssembly.PivotClawDown();
             }
 
-            // Unlock intake on left trigger fully pressed
-            if (gamepad1.left_trigger > 0.9) {
-                intakeAssembly.UnlockIntake();
-            }
+            //// Unlock intake on left trigger fully pressed
+            //if (gamepad1.left_trigger > 0.9) {
+                //intakeAssembly.UnlockIntake();
+            //}
 
             // Open outtake claw on gamepad2 right bumper
             if (gamepad2.right_bumper) {
@@ -178,7 +178,7 @@ public class NewTeleopQual extends LinearOpMode {
     }
 
     private double clipPower(double power) {
-        return Math.max(-0.7, Math.min(0.7, power));
+        return Math.max(-1, Math.min(1, power));
     }
 
     // --- Intake Sequence FSM ---
@@ -231,6 +231,7 @@ public class NewTeleopQual extends LinearOpMode {
                 lockDpad = true;
                 intakeAssembly.CloseClaw();
                 depositAssembly.OpenOuttakeClaw();
+                depositAssembly.TransferSample();
                 intakeState = IntakeSequenceState.WAIT_CLOSE_CLAW;
                 intakeStateStartTime = getRuntime();
                 break;
@@ -264,6 +265,7 @@ public class NewTeleopQual extends LinearOpMode {
             case CLOSE_OUTTAKE_CLAW:
                 if (elapsed > 0.15) {
                     intakeAssembly.OpenClaw();
+                    depositAssembly.ScoreSample();
                     intakeState = IntakeSequenceState.DONE_1;
                 }
                 break;
