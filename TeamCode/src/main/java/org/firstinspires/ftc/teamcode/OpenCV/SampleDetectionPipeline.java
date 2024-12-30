@@ -9,9 +9,7 @@ import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SampleDetectionPipeline extends OpenCvPipeline {
@@ -23,7 +21,6 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
     private Mat blueMask = new Mat();
     private Mat hierarchy = new Mat();
     private List<Sample> detectedSamples = new CopyOnWriteArrayList<>();
-    private Map<String, Integer> persistentSamples = new HashMap<>();
 
     // Custom class to store sample data
     public static class Sample {
@@ -31,12 +28,16 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
         public double area;
         public double centerX;
         public double centerY;
+        public double width;
+        public double height;
 
-        public Sample(String color, double area, double centerX, double centerY) {
+        public Sample(String color, double area, double centerX, double centerY, double width, double height) {
             this.color = color;
             this.area = area;
             this.centerX = centerX;
             this.centerY = centerY;
+            this.width = width;
+            this.height = height;
         }
     }
 
@@ -78,11 +79,6 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
         // Combine the two red masks
         Core.bitwise_or(redMask1, redMask2, combinedRedMask);
 
-        // Weighted filter to refine overlapping regions (e.g., yellow vs. red)
-        Mat weightedMask = new Mat();
-        Core.addWeighted(yellowMask, 0.5, combinedRedMask, 0.5, 0, weightedMask);
-        Core.inRange(weightedMask, new Scalar(128), new Scalar(255), yellowMask);
-
         // Clear the list of detected samples
         detectedSamples.clear();
 
@@ -90,6 +86,9 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
         detectColorSamples(input, yellowMask, "Yellow", new Scalar(255, 255, 0)); // Yellow in BGR
         detectColorSamples(input, combinedRedMask, "Red", new Scalar(255, 0, 0)); // Red in BGR
         detectColorSamples(input, blueMask, "Blue", new Scalar(0, 0, 255));       // Blue in BGR
+
+        // Release memory for temporary masks
+        kernel.release();
 
         // Return the processed frame with rectangles drawn
         return input;
@@ -115,25 +114,16 @@ public class SampleDetectionPipeline extends OpenCvPipeline {
                 double centerX = boundingRect.x + boundingRect.width / 2.0;
                 double centerY = boundingRect.y + boundingRect.height / 2.0;
 
-                // Add detection to list and persistent sample tracking
-                detectedSamples.add(new Sample(colorName, area, centerX, centerY));
-                persistentSamples.put(colorName, persistentSamples.getOrDefault(colorName, 0) + 1);
+                // Add detection to list
+                detectedSamples.add(new Sample(colorName, area, centerX, centerY, boundingRect.width, boundingRect.height));
             }
         }
     }
 
-    // Method to return confirmed samples after multi-frame validation
-    public List<Sample> getConfirmedSamples() {
-        List<Sample> confirmedSamples = new ArrayList<>();
-        for (Sample sample : detectedSamples) {
-            if (persistentSamples.getOrDefault(sample.color, 0) >= 3) { // Appear in 3+ frames
-                confirmedSamples.add(sample);
-            }
-        }
-        return confirmedSamples;
+    public List<Sample> getDetectedSamples() {
+        return detectedSamples;
     }
 
-    // Release resources to avoid memory leaks
     @Override
     public void onViewportTapped() {
         hsvFrame.release();
