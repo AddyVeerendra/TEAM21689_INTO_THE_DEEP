@@ -10,14 +10,16 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.HardwareClasses.DepositGripper;
 import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Pivot;
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
-import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Timer;
+import com.pedropathing.pathgen.BezierCurve;
 @Autonomous(name = "AAAAA Auto RED")
 public class ScrimmageAuto2 extends OpMode {
 
@@ -38,7 +40,7 @@ public class ScrimmageAuto2 extends OpMode {
     @Override
     public void init() {
         // Initialize path stuff with hardwareMap
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(new Pose(-12, 63.5, Math.toRadians(-90)));
         follower.setMaxPower(0.5);
         pathTimer = new Timer();

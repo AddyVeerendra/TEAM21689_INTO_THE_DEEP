@@ -5,8 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
-@TeleOp(name = "ColorSampleDisplacementTest", group = "Sensor")
-public class YellowSampleDisplacementTest extends LinearOpMode {
+@TeleOp(name = "YellowSampleDisplacement", group = "Sensor")
+public class YellowSampleDisplacement extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {

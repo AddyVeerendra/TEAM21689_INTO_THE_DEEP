@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.HardwareClasses;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
+import com.pedropathing.pathgen.Point;
+
 
 public final class RobotConstants {
     // Prevent instantiation

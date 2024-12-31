@@ -7,12 +7,15 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.HardwareClasses.RobotConstants;
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
-import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Timer;
 
 @Autonomous(name = "Auto Base", group = "Pedro Auto")
 public class ExampleAuto extends OpMode {
@@ -31,7 +34,7 @@ public class ExampleAuto extends OpMode {
     @Override
     public void init() {
         // Initialize path stuff with hardwareMap
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(new Pose(15, -63, Math.toRadians(90)));
         pathTimer = new Timer();
         buildPaths();
