@@ -67,7 +67,7 @@ public class IntakeAssembly {
     }
 
     public void ExtendSlidesFull() {
-        intakeSlides.movePivotToAngle(85);
+        intakeSlides.movePivotToAngle(74);
     }
 
     public void RetractSlidesFull() {

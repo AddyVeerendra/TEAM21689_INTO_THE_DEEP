@@ -26,7 +26,7 @@ public class NewTeleopQual extends LinearOpMode {
     private boolean clawRotated = true;
     private boolean intakeSequenceToggle = true;
     private boolean depositSampleToggle = true;
-    private boolean depositSpecimenToggle = true;
+    private boolean depositSpecimenToggle = false;
 
     // Button State Tracking
     private boolean rightBumperPressed = false;
@@ -61,7 +61,7 @@ public class NewTeleopQual extends LinearOpMode {
 
         // Initial positions
         intakeAssembly.UnlockIntake();
-        intakeAssembly.ExtendSlidesToPos(17);
+        intakeAssembly.ExtendSlidesToPos(35);
         depositAssembly.OpenOuttakeClaw();
         depositAssembly.Hang();
         intakeAssembly.RotateClaw0();
@@ -141,10 +141,10 @@ public class NewTeleopQual extends LinearOpMode {
                 intakeAssembly.PivotClawDown();
             }
 
-            //// Unlock intake on left trigger fully pressed
-            //if (gamepad1.left_trigger > 0.9) {
-                //intakeAssembly.UnlockIntake();
-            //}
+            // Unlock intake on left trigger fully pressed
+            if (gamepad1.right_trigger > 0.9) {
+                depositAssembly.ScoreSample();
+            }
 
             // Open outtake claw on gamepad2 right bumper
             if (gamepad2.right_bumper) {
@@ -247,7 +247,7 @@ public class NewTeleopQual extends LinearOpMode {
                 break;
 
             case WAIT_CLOSE_CLAW:
-                if (elapsed > 0.15) {
+                if (elapsed > 0.25) {
                     intakeAssembly.RotateClaw0();
                     intakeAssembly.PivotClawUp();
                     intakeState = IntakeSequenceState.ROTATE_UP;
@@ -257,7 +257,7 @@ public class NewTeleopQual extends LinearOpMode {
 
             case ROTATE_UP:
                 if (elapsed > 0.4) {
-                    intakeAssembly.ExtendSlidesToPos(17);
+                    intakeAssembly.ExtendSlidesToPos(24);
                     intakeState = IntakeSequenceState.EXTEND_SLIDES;
                     intakeStateStartTime = getRuntime();
                 }
@@ -275,7 +275,6 @@ public class NewTeleopQual extends LinearOpMode {
             case CLOSE_OUTTAKE_CLAW:
                 if (elapsed > 0.15) {
                     intakeAssembly.OpenClaw();
-                    depositAssembly.ScoreSample();
                     intakeState = IntakeSequenceState.DONE_1;
                 }
                 break;
@@ -339,7 +338,8 @@ public class NewTeleopQual extends LinearOpMode {
         DONE_FALSE_SAMPLE,
 
         // depositSpecimenToggle == true
-        RETRACT_SLIDES_SPECIMEN,
+        RETRACT_SLIDES_SPECIMEN_SCORE,
+        RETRACT_SLIDES_SPECIMEN_GRAB,
         DONE_TRUE_SPECIMEN,
 
         // depositSpecimenToggle == false
@@ -362,7 +362,7 @@ public class NewTeleopQual extends LinearOpMode {
 
     private void startSpecimenDepositSequence(boolean sequenceOne) {
         if (sequenceOne) {
-            depositState = DepositSequenceState.RETRACT_SLIDES_SPECIMEN;
+            depositState = DepositSequenceState.RETRACT_SLIDES_SPECIMEN_SCORE;
         } else {
             depositState = DepositSequenceState.CLOSE_OUTTAKE_SPECIMEN;
         }
@@ -406,10 +406,19 @@ public class NewTeleopQual extends LinearOpMode {
                 depositState = DepositSequenceState.IDLE;
                 break;
 
-            case RETRACT_SLIDES_SPECIMEN:
-                linearSlides.moveSlidesToPositionInches(2);
-                depositAssembly.GrabSpecimen();
-                depositState = DepositSequenceState.DONE_TRUE_SPECIMEN;
+            case RETRACT_SLIDES_SPECIMEN_SCORE:
+                linearSlides.moveSlidesToPositionInches(7);
+                depositState = DepositSequenceState.RETRACT_SLIDES_SPECIMEN_GRAB;
+                depositStateStartTime = getRuntime();
+                break;
+
+            case RETRACT_SLIDES_SPECIMEN_GRAB:
+                if (elapsed > 0.75) {
+                    linearSlides.moveSlidesToPositionInches(2);
+                    depositAssembly.GrabSpecimen();
+                    depositAssembly.OpenOuttakeClaw();
+                    depositState = DepositSequenceState.DONE_TRUE_SPECIMEN;
+                }
                 break;
 
             case DONE_TRUE_SPECIMEN:
@@ -425,7 +434,8 @@ public class NewTeleopQual extends LinearOpMode {
 
             case WAIT_OUTTAKE_CLOSE_SPECIMEN:
                 if (elapsed > 0.15) {
-                    linearSlides.moveSlidesToPositionInches(16);
+                    linearSlides.moveSlidesToPositionInches(15.5);
+                    intakeAssembly.ExtendSlidesToPos(20);
                     depositAssembly.ScoreSpecimen();
                     depositState = DepositSequenceState.DONE_FALSE_SPECIMEN;
                 }
