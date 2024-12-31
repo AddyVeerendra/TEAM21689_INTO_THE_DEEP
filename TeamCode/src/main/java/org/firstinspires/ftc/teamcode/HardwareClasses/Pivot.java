@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
 public class Pivot {
-    private static final double TICKS_PER_REV = 384.5;  // Motor ticks per revolution
-    private static final double GEAR_REDUCTION = 28.0;  // Gear reduction
+    private static final double TICKS_PER_REV = 1425.1;  // Motor ticks per revolution
+    private static final double GEAR_REDUCTION = 1.0;  // Gear reduction
     private static final double TICKS_PER_OUTPUT_REV = TICKS_PER_REV * GEAR_REDUCTION;  // Total ticks per output revolution
     private final DcMotorEx motor;
     double lastSetPivotAngle = 0;
@@ -16,7 +16,7 @@ public class Pivot {
 
     public Pivot(HardwareMap hardwareMap) {
         motor = hardwareMap.get(DcMotorEx.class, "pivotMotor");
-        motor.setDirection(DcMotorSimple.Direction.FORWARD);
+        motor.setDirection(DcMotorSimple.Direction.REVERSE);
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -27,8 +27,8 @@ public class Pivot {
 
         double error = targetAngle - getPivotAngle();
 
-        if (Math.abs(error) > 1) { // Ensure error threshold is handled correctly
-            motor.setPower(Range.clip((error * 0.04), -1, 1));
+        if (Math.abs(error) > 0.001) { // Ensure error threshold is handled correctly
+            motor.setPower(Range.clip((error * 0.012), -1, 1));
             pivotMotorBusy = true;
         } else {
             motor.setPower(0);
@@ -39,7 +39,7 @@ public class Pivot {
     public void correctPivotPosition() {
         if (!pivotMotorBusy) {
             double error = lastSetPivotAngle - getPivotAngle();
-            motor.setPower(Range.clip((error * 0.15), -1, 1));
+            motor.setPower(Range.clip((error * 0.012), -1, 1));
         }
     }
 

@@ -52,13 +52,13 @@ public class DepositAssembly {
     public void ScoreSpecimen() {
         outtakePivotLeft.setPosition(0.65);
         outtakePivotRight.setPosition(0.65);
-        outtakeClawPivot.setPosition(0.88);
+        outtakeClawPivot.setPosition(1);
         RotateOuttakeClaw0();
     }
 
     public void TransferSample() {
-        outtakePivotLeft.setPosition(0.69);
-        outtakePivotRight.setPosition(0.69);
+        outtakePivotLeft.setPosition(0.7);
+        outtakePivotRight.setPosition(0.7);
         outtakeClawPivot.setPosition(1);
         OpenOuttakeClaw();
         RotateOuttakeClaw0();
