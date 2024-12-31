@@ -2,10 +2,7 @@ package org.firstinspires.ftc.teamcode.MiscTests;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.HardwareClasses.ColorV3;
 import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssembly;
 
 @TeleOp(name = "Intake Slides Test", group = "TeleOp")
