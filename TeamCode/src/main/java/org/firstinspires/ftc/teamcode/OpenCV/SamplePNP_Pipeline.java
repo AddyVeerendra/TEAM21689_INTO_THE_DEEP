@@ -1,147 +1,137 @@
 package org.firstinspires.ftc.teamcode.OpenCV;
 
-import org.opencv.core.*;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
+import com.acmerobotics.dashboard.FtcDashboard;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.opencv.calib3d.Calib3d;
 import org.openftc.easyopencv.OpenCvPipeline;
-
+import org.opencv.core.*;
+import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SamplePNP_Pipeline extends OpenCvPipeline {
 
-    // --- Helper Methods ---
-    public static Mat colorMask(Mat image, Scalar lower, Scalar upper) {
-        Mat hsv = new Mat();
-        Imgproc.cvtColor(image, hsv, Imgproc.COLOR_BGR2HSV);
-        Mat mask = new Mat();
-        Core.inRange(hsv, lower, upper, mask);
-        return mask;
-    }
+    private final Telemetry telemetry;
+    private Mat hsvImage = new Mat();
+    private Mat mask = new Mat();
+    private Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
 
-    public static Mat applyMorphology(Mat mask) {
-        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
-        Imgproc.erode(mask, mask, kernel);
-        Imgproc.dilate(mask, mask, kernel);
-        return mask;
-    }
+    private static final Scalar YELLOW_LOWER = new Scalar(20, 100, 100);
+    private static final Scalar YELLOW_UPPER = new Scalar(30, 255, 255);
+    private static final Scalar RED_LOWER1 = new Scalar(0, 100, 100);
+    private static final Scalar RED_UPPER1 = new Scalar(10, 255, 255);
+    private static final Scalar RED_LOWER2 = new Scalar(170, 100, 100);
+    private static final Scalar RED_UPPER2 = new Scalar(180, 255, 255);
+    private static final Scalar BLUE_LOWER = new Scalar(100, 150, 0);
+    private static final Scalar BLUE_UPPER = new Scalar(140, 255, 255);
 
-    public static Mat enhanceContrast(Mat image) {
-        Mat ycrcb = new Mat();
-        Imgproc.cvtColor(image, ycrcb, Imgproc.COLOR_BGR2YCrCb);
-        List<Mat> channels = new ArrayList<>();
-        Core.split(ycrcb, channels);
-        Imgproc.equalizeHist(channels.get(0), channels.get(0));
-        Core.merge(channels, ycrcb);
-        Mat result = new Mat();
-        Imgproc.cvtColor(ycrcb, result, Imgproc.COLOR_YCrCb2BGR);
-        return result;
-    }
+    private final double focalLength;
+    private final double realObjectHeight;
+    private final List<Sample> detectedSamples = new ArrayList<>();
 
-    public static Mat applyFilter(Mat image) {
-        Mat result = new Mat();
-        Imgproc.GaussianBlur(image, result, new Size(5, 5), 0);
-        return result;
-    }
-
-    public static double calculateDistance(double focalLength, double realHeight, double pixelHeight) {
-        return (pixelHeight != 0) ? (focalLength * realHeight) / pixelHeight : -1;
-    }
-
-    // --- Main Detection Function ---
-    public static void detectSamples(Mat image, double focalLength, double realObjectHeight) {
-        // Preprocessing
-        image = enhanceContrast(image);
-        image = applyFilter(image);
-
-        // Define color ranges
-        Scalar yellowLower = new Scalar(20, 100, 100), yellowUpper = new Scalar(30, 255, 255);
-        Scalar redLower1 = new Scalar(0, 100, 100), redUpper1 = new Scalar(10, 255, 255);
-        Scalar redLower2 = new Scalar(170, 100, 100), redUpper2 = new Scalar(180, 255, 255);
-        Scalar blueLower = new Scalar(100, 150, 0), blueUpper = new Scalar(140, 255, 255);
-
-        // Create masks
-        Mat yellowMask = applyMorphology(colorMask(image, yellowLower, yellowUpper));
-        Mat redMask1 = colorMask(image, redLower1, redUpper1);
-        Mat redMask2 = colorMask(image, redLower2, redUpper2);
-        Mat redMask = new Mat();
-        Core.bitwise_or(redMask1, redMask2, redMask);
-        redMask = applyMorphology(redMask);
-        Mat blueMask = applyMorphology(colorMask(image, blueLower, blueUpper));
-
-        // Process each mask
-        processMask(image, yellowMask, "Yellow", focalLength, realObjectHeight);
-        processMask(image, redMask, "Red", focalLength, realObjectHeight);
-        processMask(image, blueMask, "Blue", focalLength, realObjectHeight);
-
-        // Show the output
-        Imgcodecs.imwrite("output.jpg", image);
-        System.out.println("Results saved to output.jpg");
-    }
-
-    public static void processMask(Mat image, Mat mask, String color, double focalLength, double realHeight) {
-        List<MatOfPoint> contours = new ArrayList<>();
-        Imgproc.findContours(mask, contours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-
-        for (MatOfPoint contour : contours) {
-            Rect rect = Imgproc.boundingRect(contour);
-            Imgproc.rectangle(image, rect, new Scalar(0, 255, 0), 2);
-
-            // Calculate distance
-            double distance = calculateDistance(focalLength, realHeight, rect.height);
-            String label = String.format("%s %.2f cm", color, distance);
-            System.out.println(label);
-
-            // Draw the label
-            Imgproc.putText(image, label, new Point(rect.x, rect.y - 10),
-                    Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 1);
-        }
-    }
-
-    // --- Main Function ---
-    public static void main(String[] args) {
-        String imagePath = "input.jpg"; // Input image path
-        double focalLength = 800;       // Example focal length (pixels)
-        double realObjectHeight = 8.9;  // Real object height in cm
-
-        Mat image = Imgcodecs.imread(imagePath);
-        if (image.empty()) {
-            System.out.println("Error: Could not load image.");
-            return;
-        }
-
-        detectSamples(image, focalLength, realObjectHeight);
+    public SamplePNP_Pipeline(Telemetry telemetry, double focalLength, double realObjectHeight) {
+        this.telemetry = telemetry;
+        this.focalLength = focalLength;
+        this.realObjectHeight = realObjectHeight;
     }
 
     @Override
     public Mat processFrame(Mat input) {
-        // Preprocessing
-        Mat enhancedImage = enhanceContrast(input);
-        Mat filteredImage = applyFilter(enhancedImage);
+        detectedSamples.clear();
+        // Step 1: Preprocess the image
+        Imgproc.cvtColor(input, hsvImage, Imgproc.COLOR_BGR2HSV);
 
-        // Define color ranges
-        Scalar yellowLower = new Scalar(20, 100, 100), yellowUpper = new Scalar(30, 255, 255);
-        Scalar redLower1 = new Scalar(0, 100, 100), redUpper1 = new Scalar(10, 255, 255);
-        Scalar redLower2 = new Scalar(170, 100, 100), redUpper2 = new Scalar(180, 255, 255);
-        Scalar blueLower = new Scalar(100, 150, 0), blueUpper = new Scalar(140, 255, 255);
-
-        // Create masks
-        Mat yellowMask = applyMorphology(colorMask(filteredImage, yellowLower, yellowUpper));
-        Mat redMask1 = colorMask(filteredImage, redLower1, redUpper1);
-        Mat redMask2 = colorMask(filteredImage, redLower2, redUpper2);
+        // Step 2: Create masks for each color
+        Mat yellowMask = createColorMask(hsvImage, YELLOW_LOWER, YELLOW_UPPER);
         Mat redMask = new Mat();
-        Core.bitwise_or(redMask1, redMask2, redMask);
-        redMask = applyMorphology(redMask);
-        Mat blueMask = applyMorphology(colorMask(filteredImage, blueLower, blueUpper));
+        Core.bitwise_or(
+                createColorMask(hsvImage, RED_LOWER1, RED_UPPER1),
+                createColorMask(hsvImage, RED_LOWER2, RED_UPPER2),
+                redMask
+        );
+        Mat blueMask = createColorMask(hsvImage, BLUE_LOWER, BLUE_UPPER);
 
-        // Process each mask
-        double focalLength = 800;       // Example focal length (pixels)
-        double realObjectHeight = 8.9;  // Real object height in cm
-        processMask(filteredImage, yellowMask, "Yellow", focalLength, realObjectHeight);
-        processMask(filteredImage, redMask, "Red", focalLength, realObjectHeight);
-        processMask(filteredImage, blueMask, "Blue", focalLength, realObjectHeight);
+        // Step 3: Process masks to find contours
+        processColorMask(yellowMask, input, "Yellow");
+        processColorMask(redMask, input, "Red");
+        processColorMask(blueMask, input, "Blue");
 
-        // Return the processed frame
-        return filteredImage;
+        // Step 4: Return the processed frame
+        return input;
+    }
+
+    private Mat createColorMask(Mat hsvImage, Scalar lower, Scalar upper) {
+        Core.inRange(hsvImage, lower, upper, mask);
+        Imgproc.erode(mask, mask, kernel);
+        Imgproc.dilate(mask, mask, kernel);
+        return mask.clone();
+    }
+
+    private void processColorMask(Mat mask, Mat input, String colorName) {
+        List<MatOfPoint> contours = new ArrayList<>();
+        Mat hierarchy = new Mat();
+        Imgproc.findContours(mask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+
+        for (MatOfPoint contour : contours) {
+            Rect boundingRect = Imgproc.boundingRect(contour);
+            double x = boundingRect.x;
+            double y = boundingRect.y;
+            double w = boundingRect.width;
+            double h = boundingRect.height;
+
+            // Assume the bounding box corners are image points
+            MatOfPoint2f imagePoints = new MatOfPoint2f(
+                    new Point(x, y),
+                    new Point(x + w, y),
+                    new Point(x + w, y + h),
+                    new Point(x, y + h)
+            );
+
+            // Define 3D object points (real-world dimensions in cm)
+            MatOfPoint3f objectPoints = new MatOfPoint3f(
+                    new Point3(0, 0, 0),
+                    new Point3(1.5, 0, 0),
+                    new Point3(1.5, 8.9, 0),
+                    new Point3(0, 8.9, 0)
+            );
+
+            Mat cameraMatrix = Mat.eye(3, 3, CvType.CV_32F);
+            cameraMatrix.put(0, 0, focalLength, 0, input.cols() / 2.0);
+            cameraMatrix.put(1, 1, focalLength, input.rows() / 2.0);
+
+            Mat rvec = new Mat();
+            Mat tvec = new Mat();
+
+            boolean success = Calib3d.solvePnP(objectPoints, imagePoints, cameraMatrix, new MatOfDouble(), rvec, tvec);
+
+            if (success) {
+                double distance = Math.sqrt(
+                        tvec.get(0, 0)[0] * tvec.get(0, 0)[0] +
+                                tvec.get(1, 0)[0] * tvec.get(1, 0)[0] +
+                                tvec.get(2, 0)[0] * tvec.get(2, 0)[0]
+                );
+
+                telemetry.addData(colorName + " Sample Distance", "%.2f cm", distance);
+                Imgproc.rectangle(input, new Point(x, y), new Point(x + w, y + h), new Scalar(0, 255, 0), 2);
+                Imgproc.putText(input, colorName + String.format(" %.2f cm", distance),
+                        new Point(x, y - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 1);
+
+                detectedSamples.add(new Sample(colorName, distance));
+            }
+        }
+    }
+
+    public List<Sample> getDetectedSamples() {
+        return detectedSamples;
+    }
+
+    public static class Sample {
+        public final String color;
+        public final double distance;
+
+        public Sample(String color, double distance) {
+            this.color = color;
+            this.distance = distance;
+        }
     }
 }
