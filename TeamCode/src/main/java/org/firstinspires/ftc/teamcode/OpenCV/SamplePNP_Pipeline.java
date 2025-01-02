@@ -18,16 +18,19 @@ public class SamplePNP_Pipeline extends OpenCvPipeline {
 
     private static final Scalar YELLOW_LOWER = new Scalar(20, 100, 100);
     private static final Scalar YELLOW_UPPER = new Scalar(30, 255, 255);
-    private static final Scalar RED_LOWER1 = new Scalar(0, 100, 100);
-    private static final Scalar RED_UPPER1 = new Scalar(10, 255, 255);
-    private static final Scalar RED_LOWER2 = new Scalar(170, 100, 100);
-    private static final Scalar RED_UPPER2 = new Scalar(180, 255, 255);
-    private static final Scalar BLUE_LOWER = new Scalar(100, 150, 0);
-    private static final Scalar BLUE_UPPER = new Scalar(140, 255, 255);
+    private static final Scalar BLUE_LOWER1 = new Scalar(0, 100, 100);
+    private static final Scalar BLUE_UPPER1 = new Scalar(10, 255, 255);
+    private static final Scalar BLUE_LOWER2 = new Scalar(170, 100, 100);
+    private static final Scalar BLUE_UPPER2 = new Scalar(180, 255, 255);
+    private static final Scalar RED_LOWER = new Scalar(100, 150, 0);
+    private static final Scalar RED_UPPER = new Scalar(140, 255, 255);
 
     private final double focalLength;
     private final double realObjectHeight;
     private final List<Sample> detectedSamples = new ArrayList<>();
+
+    private static final double MIN_CONTOUR_AREA = 500.0; // Minimum contour area
+    private static final double MAX_CONTOUR_AREA = 50000.0; // Maximum contour area
 
     public SamplePNP_Pipeline(Telemetry telemetry, double focalLength, double realObjectHeight) {
         this.telemetry = telemetry;
@@ -43,13 +46,13 @@ public class SamplePNP_Pipeline extends OpenCvPipeline {
 
         // Step 2: Create masks for each color
         Mat yellowMask = createColorMask(hsvImage, YELLOW_LOWER, YELLOW_UPPER);
-        Mat redMask = new Mat();
+        Mat blueMask = new Mat();
         Core.bitwise_or(
-                createColorMask(hsvImage, RED_LOWER1, RED_UPPER1),
-                createColorMask(hsvImage, RED_LOWER2, RED_UPPER2),
-                redMask
+                createColorMask(hsvImage, BLUE_LOWER1, BLUE_UPPER1),
+                createColorMask(hsvImage, BLUE_LOWER2, BLUE_UPPER2),
+                blueMask
         );
-        Mat blueMask = createColorMask(hsvImage, BLUE_LOWER, BLUE_UPPER);
+        Mat redMask = createColorMask(hsvImage, RED_LOWER, RED_UPPER);
 
         // Step 3: Process masks to find contours
         processColorMask(yellowMask, input, "Yellow");
@@ -73,6 +76,11 @@ public class SamplePNP_Pipeline extends OpenCvPipeline {
         Imgproc.findContours(mask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
         for (MatOfPoint contour : contours) {
+            double contourArea = Imgproc.contourArea(contour);
+            if (contourArea < MIN_CONTOUR_AREA || contourArea > MAX_CONTOUR_AREA) {
+                continue; // Skip contours that are too small or too large
+            }
+
             Rect boundingRect = Imgproc.boundingRect(contour);
             double x = boundingRect.x;
             double y = boundingRect.y;
