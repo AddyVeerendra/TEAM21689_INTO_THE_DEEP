@@ -344,7 +344,7 @@ public class LeftSampleAutoV1 extends OpMode {
 
             case 19:
                 if (!follower.isBusy()) {
-                    setPathState(-1)
+                    setPathState(-1);
                     requestOpModeStop();
                 }
                 break;
