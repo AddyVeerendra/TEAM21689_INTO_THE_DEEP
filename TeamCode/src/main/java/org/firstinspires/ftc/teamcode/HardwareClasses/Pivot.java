@@ -16,7 +16,7 @@ public class Pivot {
 
     public Pivot(HardwareMap hardwareMap) {
         motor = hardwareMap.get(DcMotorEx.class, "pivotMotor");
-        motor.setDirection(DcMotorSimple.Direction.REVERSE);
+        motor.setDirection(DcMotorSimple.Direction.FORWARD);
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

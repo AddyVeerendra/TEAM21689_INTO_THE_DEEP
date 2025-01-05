@@ -59,7 +59,7 @@ For support, contact tech@gobilda.com
  */
 
 
-@TeleOp(name="goBILDA® PinPoint Odometry Example", group="Teleop Test")
+@TeleOp(name = "goBILDA® PinPoint Odometry Example", group = "Teleop Test")
 
 public class SensorGoBildaPinpointExample extends LinearOpMode {
 
@@ -74,7 +74,7 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
 
-        odo = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
+        odo = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
 
         /*
         Set the odometry pod positions relative to the point that the odometry computer tracks around.
@@ -143,11 +143,11 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
             //odo.update(GoBildaPinpointDriver.readData.ONLY_UPDATE_HEADING);
 
 
-            if (gamepad1.a){
+            if (gamepad1.a) {
                 odo.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
             }
 
-            if (gamepad1.b){
+            if (gamepad1.b) {
                 odo.recalibrateIMU(); //recalibrates the IMU without resetting position
             }
 
@@ -158,8 +158,8 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
             that cycle time.
              */
             double newTime = getRuntime();
-            double loopTime = newTime-oldTime;
-            double frequency = 1/loopTime;
+            double loopTime = newTime - oldTime;
+            double frequency = 1 / loopTime;
             oldTime = newTime;
 
 
@@ -174,7 +174,7 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
             gets the current Velocity (x & y in mm/sec and heading in degrees/sec) and prints it.
              */
             Pose2D vel = odo.getVelocity();
-            String velocity = String.format(Locale.US,"{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.getX(DistanceUnit.MM), vel.getY(DistanceUnit.MM), vel.getHeading(AngleUnit.DEGREES));
+            String velocity = String.format(Locale.US, "{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.getX(DistanceUnit.MM), vel.getY(DistanceUnit.MM), vel.getHeading(AngleUnit.DEGREES));
             telemetry.addData("Velocity", velocity);
 
 
@@ -195,4 +195,5 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
             telemetry.update();
 
         }
-    }}
+    }
+}

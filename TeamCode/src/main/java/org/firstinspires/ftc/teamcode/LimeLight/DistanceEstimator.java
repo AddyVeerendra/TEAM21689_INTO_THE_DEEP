@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.LimeLight;
 
 import java.util.List;
+
 public class DistanceEstimator {
 
     private static final double FOCAL_LENGTH = 621;

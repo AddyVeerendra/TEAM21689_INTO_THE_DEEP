@@ -8,10 +8,13 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.teamcode.HardwareClasses.DepositAssembly;
 import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssembly;
 import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @TeleOp(name = "QUALIFIER V2 Robot TeleOp")
 public class NewTeleopQual extends LinearOpMode {
 
+    private static final Logger log = LoggerFactory.getLogger(NewTeleopQual.class);
     private DcMotor leftFront;
     private DcMotor leftBack;
     private DcMotor rightFront;
@@ -40,9 +43,9 @@ public class NewTeleopQual extends LinearOpMode {
     public void runOpMode() {
         // Initialize Drive motors
         leftFront = hardwareMap.get(DcMotor.class, "leftFront");
-        leftBack = hardwareMap.get(DcMotor.class, "leftBack");
+        leftBack = hardwareMap.get(DcMotor.class, "leftRear");
         rightFront = hardwareMap.get(DcMotor.class, "rightFront");
-        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+        rightBack = hardwareMap.get(DcMotor.class, "rightRear");
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -407,6 +410,7 @@ public class NewTeleopQual extends LinearOpMode {
                 break;
 
             case RETRACT_SLIDES_SPECIMEN_SCORE:
+                linearSlides.setKP(0.01);
                 linearSlides.moveSlidesToPositionInches(7);
                 depositState = DepositSequenceState.RETRACT_SLIDES_SPECIMEN_GRAB;
                 depositStateStartTime = getRuntime();
@@ -414,6 +418,7 @@ public class NewTeleopQual extends LinearOpMode {
 
             case RETRACT_SLIDES_SPECIMEN_GRAB:
                 if (elapsed > 0.75) {
+                    linearSlides.setKP(0.005);
                     linearSlides.moveSlidesToPositionInches(2);
                     depositAssembly.GrabSpecimen();
                     depositAssembly.OpenOuttakeClaw();
@@ -434,7 +439,7 @@ public class NewTeleopQual extends LinearOpMode {
 
             case WAIT_OUTTAKE_CLOSE_SPECIMEN:
                 if (elapsed > 0.15) {
-                    linearSlides.moveSlidesToPositionInches(15.5);
+                    linearSlides.moveSlidesToPositionInches(15.8);
                     intakeAssembly.ExtendSlidesToPos(20);
                     depositAssembly.ScoreSpecimen();
                     depositState = DepositSequenceState.DONE_FALSE_SPECIMEN;

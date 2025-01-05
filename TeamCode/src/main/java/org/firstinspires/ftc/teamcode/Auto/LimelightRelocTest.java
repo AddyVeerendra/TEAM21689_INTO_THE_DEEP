@@ -1,9 +1,10 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-import org.firstinspires.ftc.teamcode.LimeLight.Megatag2Relocalizer;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
+
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.LimeLight.Megatag2Relocalizer;
 
 import java.util.Arrays;
 import java.util.List;

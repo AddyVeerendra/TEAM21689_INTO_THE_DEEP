@@ -7,6 +7,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -28,7 +29,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
  * @version 1.0, 3/12/2024
  */
 @Config
-@Autonomous (name = "Straight Back And Forth", group = "PIDF Tuning")
+@Autonomous(name = "Straight Back And Forth", group = "PIDF Tuning")
 public class StraightBackAndForth extends OpMode {
     private Telemetry telemetryA;
 
@@ -47,19 +48,21 @@ public class StraightBackAndForth extends OpMode {
      */
     @Override
     public void init() {
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        Constants.setConstants(FConstants.class, LConstants.class);
+        Constants.setConstants(FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap);
 
-        forwards = new Path(new BezierLine(new Point(0,0, Point.CARTESIAN), new Point(DISTANCE,0, Point.CARTESIAN)));
+        forwards = new Path(new BezierLine(new Point(0, 0, Point.CARTESIAN), new Point(DISTANCE, 0, Point.CARTESIAN)));
         forwards.setConstantHeadingInterpolation(0);
-        backwards = new Path(new BezierLine(new Point(DISTANCE,0, Point.CARTESIAN), new Point(0,0, Point.CARTESIAN)));
+        backwards = new Path(new BezierLine(new Point(DISTANCE, 0, Point.CARTESIAN), new Point(0, 0, Point.CARTESIAN)));
         backwards.setConstantHeadingInterpolation(0);
 
         follower.followPath(forwards);
 
         telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetryA.addLine("This will run the robot in a straight line going " + DISTANCE
-                            + " inches forward. The robot will go forward and backward continuously"
-                            + " along the path. Make sure you have enough room.");
+                + " inches forward. The robot will go forward and backward continuously"
+                + " along the path. Make sure you have enough room.");
         telemetryA.update();
     }
 

@@ -5,6 +5,7 @@ import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -21,7 +22,8 @@ public class TeleOpDrive extends OpMode {
 
     @Override
     public void init() {
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        Constants.setConstants(FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap);
         follower.setStartingPose(new Pose(0, 0, Math.toRadians(0)));
     }
 
@@ -62,7 +64,7 @@ public class TeleOpDrive extends OpMode {
         follower.setTeleOpMovementVectors(
                 -gamepad1.left_stick_y * stickScale,
                 -gamepad1.left_stick_x * stickScale,
-                -gamepad1.right_stick_x * stickScale*slowerTurning
+                -gamepad1.right_stick_x * stickScale * slowerTurning
         );
     }
 

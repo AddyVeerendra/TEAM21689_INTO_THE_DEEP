@@ -36,6 +36,7 @@ public class Limelight {
     public LLResult getLatestResult() {
         return limelight.getLatestResult();
     }
+
     // Get the pose of the robot (botpose) from the latest result
     public Pose3D getBotpose() {
         return limelight.getLatestResult().getBotpose_MT2();

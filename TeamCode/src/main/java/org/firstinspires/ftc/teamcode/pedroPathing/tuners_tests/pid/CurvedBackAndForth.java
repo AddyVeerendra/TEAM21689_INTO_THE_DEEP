@@ -7,6 +7,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -28,7 +29,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
  * @version 1.0, 3/13/2024
  */
 @Config
-@Autonomous (name = "Curved Back And Forth", group = "PIDF Testing")
+@Autonomous(name = "Curved Back And Forth", group = "PIDF Testing")
 public class CurvedBackAndForth extends OpMode {
     private Telemetry telemetryA;
 
@@ -47,10 +48,12 @@ public class CurvedBackAndForth extends OpMode {
      */
     @Override
     public void init() {
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        Constants.setConstants(FConstants.class, LConstants.class);
+        Constants.setConstants(FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap);
 
-        forwards = new Path(new BezierCurve(new Point(0,0, Point.CARTESIAN), new Point(Math.abs(DISTANCE),0, Point.CARTESIAN), new Point(Math.abs(DISTANCE),DISTANCE, Point.CARTESIAN)));
-        backwards = new Path(new BezierCurve(new Point(Math.abs(DISTANCE),DISTANCE, Point.CARTESIAN), new Point(Math.abs(DISTANCE),0, Point.CARTESIAN), new Point(0,0, Point.CARTESIAN)));
+        forwards = new Path(new BezierCurve(new Point(0, 0, Point.CARTESIAN), new Point(Math.abs(DISTANCE), 0, Point.CARTESIAN), new Point(Math.abs(DISTANCE), DISTANCE, Point.CARTESIAN)));
+        backwards = new Path(new BezierCurve(new Point(Math.abs(DISTANCE), DISTANCE, Point.CARTESIAN), new Point(Math.abs(DISTANCE), 0, Point.CARTESIAN), new Point(0, 0, Point.CARTESIAN)));
 
         backwards.setReversed(true);
 
@@ -58,9 +61,9 @@ public class CurvedBackAndForth extends OpMode {
 
         telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetryA.addLine("This will run the robot in a curve going " + DISTANCE + " inches"
-                            + " to the left and the same number of inches forward. The robot will go"
-                            + "forward and backward continuously along the path. Make sure you have"
-                            + "enough room.");
+                + " to the left and the same number of inches forward. The robot will go"
+                + "forward and backward continuously along the path. Make sure you have"
+                + "enough room.");
         telemetryA.update();
     }
 

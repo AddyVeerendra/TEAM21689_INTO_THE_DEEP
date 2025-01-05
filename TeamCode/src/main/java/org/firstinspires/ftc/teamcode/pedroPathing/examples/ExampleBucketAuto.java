@@ -7,6 +7,7 @@ import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -30,8 +31,10 @@ public class ExampleBucketAuto extends OpMode {
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
 
-    /** This is the variable where we store the state of our auto.
-     * It is used by the pathUpdate method. */
+    /**
+     * This is the variable where we store the state of our auto.
+     * It is used by the pathUpdate method.
+     */
     private int pathState;
 
     /* Create and Define Poses + Paths
@@ -43,34 +46,50 @@ public class ExampleBucketAuto extends OpMode {
      * Lets assume our robot is 18 by 18 inches
      * Lets assume the Robot is facing the human player and we want to score in the bucket */
 
-    /** Start Pose of our robot */
+    /**
+     * Start Pose of our robot
+     */
     private final Pose startPose = new Pose(9, 111, Math.toRadians(270));
 
-    /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
+    /**
+     * Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle.
+     */
     private final Pose scorePose = new Pose(14, 129, Math.toRadians(315));
 
-    /** Lowest (First) Sample from the Spike Mark */
+    /**
+     * Lowest (First) Sample from the Spike Mark
+     */
     private final Pose pickup1Pose = new Pose(37, 121, Math.toRadians(0));
 
-    /** Middle (Second) Sample from the Spike Mark */
+    /**
+     * Middle (Second) Sample from the Spike Mark
+     */
     private final Pose pickup2Pose = new Pose(43, 130, Math.toRadians(0));
 
-    /** Highest (Third) Sample from the Spike Mark */
+    /**
+     * Highest (Third) Sample from the Spike Mark
+     */
     private final Pose pickup3Pose = new Pose(49, 135, Math.toRadians(0));
 
-    /** Park Pose for our robot, after we do all of the scoring. */
+    /**
+     * Park Pose for our robot, after we do all of the scoring.
+     */
     private final Pose parkPose = new Pose(60, 98, Math.toRadians(90));
 
-    /** Park Control Pose for our robot, this is used to manipulate the bezier curve that we will create for the parking.
-     * The Robot will not go to this pose, it is used a control point for our bezier curve. */
+    /**
+     * Park Control Pose for our robot, this is used to manipulate the bezier curve that we will create for the parking.
+     * The Robot will not go to this pose, it is used a control point for our bezier curve.
+     */
     private final Pose parkControlPose = new Pose(60, 98, Math.toRadians(90));
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
     private Path scorePreload, park;
     private PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3;
 
-    /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
-     * It is necessary to do this so that all the paths are built before the auto starts. **/
+    /**
+     * Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
+     * It is necessary to do this so that all the paths are built before the auto starts.
+     **/
     public void buildPaths() {
 
         /* There are two major types of paths components: BezierCurves and BezierLines.
@@ -136,9 +155,11 @@ public class ExampleBucketAuto extends OpMode {
         park.setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading());
     }
 
-    /** This switch is called continuously and runs the pathing, at certain points, it triggers the action state.
+    /**
+     * This switch is called continuously and runs the pathing, at certain points, it triggers the action state.
      * Everytime the switch changes case, it will reset the timer. (This is because of the setPathState() method)
-     * The followPath() function sets the follower to run the specific path, but does NOT wait for it to finish before moving on. */
+     * The followPath() function sets the follower to run the specific path, but does NOT wait for it to finish before moving on.
+     */
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 0:
@@ -148,63 +169,63 @@ public class ExampleBucketAuto extends OpMode {
             case 1:
 
                 /* You could check for
-                - Follower State: "if(!follower.isBusy() {}" (Though, I don't recommend this because it might not return due to holdEnd
+                - Follower State: "if(!follower.isBusy() {}"
                 - Time: "if(pathTimer.getElapsedTimeSeconds() > 1) {}"
                 - Robot Position: "if(follower.getPose().getX() > 36) {}"
                 */
 
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
+                if (follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
                     /* Score Preload */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-                    follower.followPath(grabPickup1,true);
+                    follower.followPath(grabPickup1, true);
                     setPathState(2);
                 }
                 break;
             case 2:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
-                if(follower.getPose().getX() > (pickup1Pose.getX() - 1) && follower.getPose().getY() > (pickup1Pose.getY() - 1)) {
+                if (follower.getPose().getX() > (pickup1Pose.getX() - 1) && follower.getPose().getY() > (pickup1Pose.getY() - 1)) {
                     /* Grab Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                    follower.followPath(scorePickup1,true);
+                    follower.followPath(scorePickup1, true);
                     setPathState(3);
                 }
                 break;
             case 3:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
+                if (follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
                     /* Score Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-                    follower.followPath(grabPickup2,true);
+                    follower.followPath(grabPickup2, true);
                     setPathState(4);
                 }
                 break;
             case 4:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup2Pose's position */
-                if(follower.getPose().getX() > (pickup2Pose.getX() - 1) && follower.getPose().getY() > (pickup2Pose.getY() - 1)) {
+                if (follower.getPose().getX() > (pickup2Pose.getX() - 1) && follower.getPose().getY() > (pickup2Pose.getY() - 1)) {
                     /* Grab Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                    follower.followPath(scorePickup2,true);
+                    follower.followPath(scorePickup2, true);
                     setPathState(5);
                 }
                 break;
             case 5:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
+                if (follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
                     /* Score Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-                    follower.followPath(grabPickup3,true);
+                    follower.followPath(grabPickup3, true);
                     setPathState(6);
                 }
                 break;
             case 6:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup3Pose's position */
-                if(follower.getPose().getX() > (pickup3Pose.getX() - 1) && follower.getPose().getY() > (pickup3Pose.getY() - 1)) {
+                if (follower.getPose().getX() > (pickup3Pose.getX() - 1) && follower.getPose().getY() > (pickup3Pose.getY() - 1)) {
                     /* Grab Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
@@ -214,17 +235,17 @@ public class ExampleBucketAuto extends OpMode {
                 break;
             case 7:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
+                if (follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
                     /* Score Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
-                    follower.followPath(park,true);
+                    follower.followPath(park, true);
                     setPathState(8);
                 }
                 break;
             case 8:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(follower.getPose().getX() > (parkPose.getX() - 1) && follower.getPose().getY() > (parkPose.getY() - 1)) {
+                if (follower.getPose().getX() > (parkPose.getX() - 1) && follower.getPose().getY() > (parkPose.getY() - 1)) {
                     /* Level 1 Ascent */
 
                     /* Set the state to a Case we won't use or define, so it just stops running an new paths */
@@ -234,14 +255,18 @@ public class ExampleBucketAuto extends OpMode {
         }
     }
 
-    /** These change the states of the paths and actions
-     * It will also reset the timers of the individual switches **/
+    /**
+     * These change the states of the paths and actions
+     * It will also reset the timers of the individual switches
+     **/
     public void setPathState(int pState) {
         pathState = pState;
         pathTimer.resetTimer();
     }
 
-    /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
+    /**
+     * This is the main loop of the OpMode, it will run repeatedly after clicking "Play".
+     **/
     @Override
     public void loop() {
 
@@ -257,31 +282,42 @@ public class ExampleBucketAuto extends OpMode {
         telemetry.update();
     }
 
-    /** This method is called once at the init of the OpMode. **/
+    /**
+     * This method is called once at the init of the OpMode.
+     **/
     @Override
     public void init() {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        Constants.setConstants(FConstants.class, LConstants.class);
+        Constants.setConstants(FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
         buildPaths();
     }
 
-    /** This method is called continuously after Init while waiting for "play". **/
+    /**
+     * This method is called continuously after Init while waiting for "play".
+     **/
     @Override
-    public void init_loop() {}
+    public void init_loop() {
+    }
 
-    /** This method is called once at the start of the OpMode.
-     * It runs all the setup actions, including building paths and starting the path system **/
+    /**
+     * This method is called once at the start of the OpMode.
+     * It runs all the setup actions, including building paths and starting the path system
+     **/
     @Override
     public void start() {
         opmodeTimer.resetTimer();
         setPathState(0);
     }
 
-    /** We do not use this because everything should automatically disable **/
+    /**
+     * We do not use this because everything should automatically disable
+     **/
     @Override
     public void stop() {
     }

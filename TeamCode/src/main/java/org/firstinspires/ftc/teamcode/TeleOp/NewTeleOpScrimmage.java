@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.DepositAssembly;
 import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssembly;
 import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 
-@TeleOp (name = "Scrimmage V2 Robot TeleOp")
+@TeleOp(name = "Scrimmage V2 Robot TeleOp")
 public class NewTeleOpScrimmage extends LinearOpMode {
 
     private DcMotor leftFront;

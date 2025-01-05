@@ -2,6 +2,14 @@ package org.firstinspires.ftc.teamcode.Auto;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Constants;
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -15,14 +23,6 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 import org.firstinspires.ftc.teamcode.LimeLight.Megatag2Relocalizer;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
-
-import com.pedropathing.follower.Follower;
-import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
-import com.pedropathing.pathgen.Point;
-import com.pedropathing.util.Timer;
-import com.pedropathing.pathgen.BezierCurve;
 
 @Autonomous(name = "Limelight Relocalization Qual 1 Auto Specimen")
 public class LimelightRelocQualAutoSpecimen extends OpMode {
@@ -51,7 +51,8 @@ public class LimelightRelocQualAutoSpecimen extends OpMode {
     @Override
     public void init() {
         // Initialize path stuff with hardwareMap
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        Constants.setConstants(FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap);
         follower.setStartingPose(new Pose(12, -61.5, Math.toRadians(90)));
         follower.setMaxPower(0.7);
         pathTimer = new Timer();
@@ -115,6 +116,7 @@ public class LimelightRelocQualAutoSpecimen extends OpMode {
 
         telemetryA.update();
     }
+
     public void autoPathUpdate() {
         switch (pathState) {
             case 0:

@@ -2,26 +2,24 @@ package org.firstinspires.ftc.teamcode.Auto;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Constants;
+import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.HardwareClasses.DepositAssembly;
-import org.firstinspires.ftc.teamcode.HardwareClasses.DepositGripper;
 import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssembly;
 import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
-import org.firstinspires.ftc.teamcode.HardwareClasses.Pivot;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
-
-import com.pedropathing.follower.Follower;
-import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
-import com.pedropathing.pathgen.Point;
-import com.pedropathing.util.Timer;
-import com.pedropathing.pathgen.BezierCurve;
 
 @Autonomous(name = "Scrimmage 2 Auto Blue")
 public class Scrimmage2Auto extends OpMode {
@@ -42,7 +40,8 @@ public class Scrimmage2Auto extends OpMode {
     @Override
     public void init() {
         // Initialize path stuff with hardwareMap
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        Constants.setConstants(FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap);
         follower.setStartingPose(new Pose(12, -63.5, Math.toRadians(90)));
         follower.setMaxPower(0.7);
         pathTimer = new Timer();
@@ -347,7 +346,7 @@ public class Scrimmage2Auto extends OpMode {
             case 16:
                 toChamber = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(5+(cycles * 0.5), -35, Point.CARTESIAN)));
+                        new Point(5 + (cycles * 0.5), -35, Point.CARTESIAN)));
                 toChamber.setConstantHeadingInterpolation(Math.toRadians(90));
                 follower.followPath(toChamber, true);
                 setPathState(17);

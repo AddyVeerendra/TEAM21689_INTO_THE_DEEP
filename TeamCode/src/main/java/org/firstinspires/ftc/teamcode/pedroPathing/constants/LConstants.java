@@ -11,10 +11,10 @@ public class LConstants {
         ThreeWheelIMUConstants.turnTicksToInches = 0.0029;
         ThreeWheelIMUConstants.leftY = 4.75;
         ThreeWheelIMUConstants.rightY = -4.75;
-        ThreeWheelIMUConstants.strafeX = 4.75;
-        ThreeWheelIMUConstants.leftEncoder_HardwareMapName = "rightBack";
+        ThreeWheelIMUConstants.strafeX = -4.75;
+        ThreeWheelIMUConstants.leftEncoder_HardwareMapName = "rightRear";
         ThreeWheelIMUConstants.rightEncoder_HardwareMapName = "leftFront";
-        ThreeWheelIMUConstants.strafeEncoder_HardwareMapName = "leftBack";
+        ThreeWheelIMUConstants.strafeEncoder_HardwareMapName = "leftRear";
         ThreeWheelIMUConstants.leftEncoderDirection = Encoder.FORWARD;
         ThreeWheelIMUConstants.rightEncoderDirection = Encoder.REVERSE;
         ThreeWheelIMUConstants.strafeEncoderDirection = Encoder.FORWARD;
