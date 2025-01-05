@@ -38,6 +38,7 @@ public class NewTeleopQual extends LinearOpMode {
     private boolean dpadLeftPressed = false;
     public boolean lockDpad = false;
     private boolean dpadRightPressed = false;
+    private boolean driverAPressed = false;
 
     @Override
     public void runOpMode() {
@@ -80,20 +81,37 @@ public class NewTeleopQual extends LinearOpMode {
 
         while (opModeIsActive()) {
             // Drive control
+// Drive control
             double speedMultiplier = 1 - (0.7 * gamepad2.left_trigger);
             double y = -gamepad2.left_stick_y * speedMultiplier;
             double x = gamepad2.left_stick_x * 1.1 * speedMultiplier;
             double rx = gamepad2.right_stick_x * speedMultiplier;
 
-            double frontLeftPower = clipPower(y + x + rx);
-            double backLeftPower = clipPower(y - x + rx);
-            double frontRightPower = clipPower(y - x - rx);
-            double backRightPower = clipPower(y + x - rx);
+            if (driveAPressed){
+                // Code for 2 axis lock
+                if (Math.abs(gamepad2.left_stick_y) < 0.3){
+                    double frontLeftPower = clipPower(x);
+                    double backLeftPower = clipPower(-x);
+                    double frontRightPower = clipPower(-x);
+                    double backRightPower = clipPower(x);
+                }
+                if (Math.abs(gamepad2.left_stick_x) < 0.3) {
+                    double frontLeftPower = clipPower(y);
+                    double backLeftPower = clipPower(y);
+                    double frontRightPower = clipPower(y);
+                    double backRightPower = clipPower(y);
+                }
+            } else{
+                double frontLeftPower = clipPower(y + x + rx);
+                double backLeftPower = clipPower(y - x + rx);
+                double frontRightPower = clipPower(y - x - rx);
+                double backRightPower = clipPower(y + x - rx);
+            }
 
-            leftFront.setPower(frontLeftPower);
-            leftBack.setPower(backLeftPower);
-            rightFront.setPower(frontRightPower);
-            rightBack.setPower(backRightPower);
+                leftFront.setPower(frontLeftPower);
+                leftBack.setPower(backLeftPower);
+                rightFront.setPower(frontRightPower);
+                rightBack.setPower(backRightPower);
 
             if (gamepad1.options) {
                 linearSlides.moveSlidesToPositionInches(-20);
