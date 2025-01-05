@@ -58,7 +58,7 @@ public class CRServoTest extends LinearOpMode {
 //                    }
 //                }
 //            } else {
-//                requestOpModeStop();  // Stop the opmode if the color sensor is disconnected
+//                requestOpModeStop();  // Stop the opmode if the color sesor is disconnected
 //            }
 
             if (gamepad1.dpad_down) {
