@@ -2,21 +2,10 @@ package org.firstinspires.ftc.teamcode.OpenCV;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.opencv.calib3d.Calib3d;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfDouble;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint2f;
-import org.opencv.core.MatOfPoint3f;
-import org.opencv.core.Point;
-import org.opencv.core.Point3;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.core.Size;
-import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.CLAHE;
 import org.openftc.easyopencv.OpenCvPipeline;
-
+import org.opencv.core.*;
+import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,22 +15,23 @@ public class SamplePNP_Pipeline extends OpenCvPipeline {
     private Mat hsvImage = new Mat();
     private Mat mask = new Mat();
     private Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
+    private Mat labImage = new Mat();
+    private Mat lChannel = new Mat();
 
-    private static final Scalar YELLOW_LOWER = new Scalar(20, 100, 100);
+    private static final Scalar YELLOW_LOWER = new Scalar(22, 150, 150);
     private static final Scalar YELLOW_UPPER = new Scalar(30, 255, 255);
-    private static final Scalar BLUE_LOWER1 = new Scalar(0, 100, 100);
-    private static final Scalar BLUE_UPPER1 = new Scalar(10, 255, 255);
-    private static final Scalar BLUE_LOWER2 = new Scalar(170, 100, 100);
-    private static final Scalar BLUE_UPPER2 = new Scalar(180, 255, 255);
-    private static final Scalar RED_LOWER = new Scalar(100, 150, 0);
-    private static final Scalar RED_UPPER = new Scalar(140, 255, 255);
+
+    private static final Scalar BLUE_LOWER = new Scalar(100, 170, 170);
+    private static final Scalar BLUE_UPPER = new Scalar(120, 255, 255);
+
+    private static final Scalar RED_LOWER1 = new Scalar(0, 100, 100);
+    private static final Scalar RED_UPPER1 = new Scalar(10, 255, 255);
+    private static final Scalar RED_LOWER2 = new Scalar(170, 100, 100);
+    private static final Scalar RED_UPPER2 = new Scalar(180, 255, 255);
 
     private final double focalLength;
     private final double realObjectHeight;
     private final List<Sample> detectedSamples = new ArrayList<>();
-
-    private static final double MIN_CONTOUR_AREA = 500.0; // Minimum contour area
-    private static final double MAX_CONTOUR_AREA = 50000.0; // Maximum contour area
 
     public SamplePNP_Pipeline(Telemetry telemetry, double focalLength, double realObjectHeight) {
         this.telemetry = telemetry;
@@ -52,25 +42,47 @@ public class SamplePNP_Pipeline extends OpenCvPipeline {
     @Override
     public Mat processFrame(Mat input) {
         detectedSamples.clear();
-        // Step 1: Preprocess the image
+        // Step 1: Convert the image to LAB color space
+        Imgproc.cvtColor(input, labImage, Imgproc.COLOR_BGR2Lab);
+
+        // Step 2: Split the LAB image into its channels
+        List<Mat> labChannels = new ArrayList<>(3);
+        Core.split(labImage, labChannels);
+        lChannel = labChannels.get(0);
+
+        // Step 3: Apply CLAHE to the L channel
+        CLAHE clahe = Imgproc.createCLAHE();
+        clahe.setClipLimit(2.0);
+        clahe.apply(lChannel, lChannel);
+
+        // Step 4: Merge the LAB channels back
+        Core.merge(labChannels, labImage);
+
+        // Step 5: Convert the LAB image back to BGR
+        Imgproc.cvtColor(labImage, input, Imgproc.COLOR_Lab2BGR);
+
+        // Step 6: Convert the image to HSV color space
         Imgproc.cvtColor(input, hsvImage, Imgproc.COLOR_BGR2HSV);
 
-        // Step 2: Create masks for each color
+        // Step 7: Create masks for each color
         Mat yellowMask = createColorMask(hsvImage, YELLOW_LOWER, YELLOW_UPPER);
         Mat blueMask = new Mat();
         Core.bitwise_or(
-                createColorMask(hsvImage, BLUE_LOWER1, BLUE_UPPER1),
-                createColorMask(hsvImage, BLUE_LOWER2, BLUE_UPPER2),
+                createColorMask(hsvImage, RED_LOWER1, RED_UPPER1),
+                createColorMask(hsvImage, RED_LOWER2, RED_UPPER2),
                 blueMask
         );
-        Mat redMask = createColorMask(hsvImage, RED_LOWER, RED_UPPER);
+        Mat redMask = createColorMask(hsvImage, BLUE_LOWER, BLUE_UPPER);
 
-        // Step 3: Process masks to find contours
+        // Step 8: Process masks to find contours
         processColorMask(yellowMask, input, "Yellow");
         processColorMask(redMask, input, "Red");
         processColorMask(blueMask, input, "Blue");
 
-        // Step 4: Return the processed frame
+        // Step 9: Release memory for temporary masks
+        //kernel.release();
+
+        // Step 10: Return the processed frame
         return input;
     }
 
@@ -86,9 +98,12 @@ public class SamplePNP_Pipeline extends OpenCvPipeline {
         Mat hierarchy = new Mat();
         Imgproc.findContours(mask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
+        int minArea = (int) (input.rows() * input.cols() * 0.001); // 0.1% of frame area
+        int maxArea = (int) (input.rows() * input.cols() * 0.1);
+
         for (MatOfPoint contour : contours) {
             double contourArea = Imgproc.contourArea(contour);
-            if (contourArea < MIN_CONTOUR_AREA || contourArea > MAX_CONTOUR_AREA) {
+            if (contourArea < minArea || contourArea > maxArea) {
                 continue; // Skip contours that are too small or too large
             }
 
@@ -97,6 +112,18 @@ public class SamplePNP_Pipeline extends OpenCvPipeline {
             double y = boundingRect.y;
             double w = boundingRect.width;
             double h = boundingRect.height;
+
+            // Calculate center coordinates
+            double centerX = x + w / 2.0;
+            double centerY = y + h / 2.0;
+
+            // Calculate the center of the screen
+            double screenCenterX = input.cols() / 2.0;
+            double screenCenterY = input.rows() / 2.0;
+
+            // Calculate the displacement from the center of the screen
+            double displacementX = centerX - screenCenterX;
+            double displacementY = centerY - screenCenterY;
 
             // Assume the bounding box corners are image points
             MatOfPoint2f imagePoints = new MatOfPoint2f(
@@ -130,12 +157,11 @@ public class SamplePNP_Pipeline extends OpenCvPipeline {
                                 tvec.get(2, 0)[0] * tvec.get(2, 0)[0]
                 );
 
-                telemetry.addData(colorName + " Sample Distance", "%.2f cm", distance);
                 Imgproc.rectangle(input, new Point(x, y), new Point(x + w, y + h), new Scalar(0, 255, 0), 2);
                 Imgproc.putText(input, colorName + String.format(" %.2f cm", distance),
                         new Point(x, y - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 1);
 
-                detectedSamples.add(new Sample(colorName, distance));
+                detectedSamples.add(new Sample(colorName, distance, displacementX, displacementY));
             }
         }
     }
@@ -147,10 +173,31 @@ public class SamplePNP_Pipeline extends OpenCvPipeline {
     public static class Sample {
         public final String color;
         public final double distance;
+        public final double displacementX;
+        public final double displacementY;
 
-        public Sample(String color, double distance) {
+        public Sample(String color, double distance, double displacementX, double displacementY) {
             this.color = color;
             this.distance = distance;
+            this.displacementX = displacementX;
+            this.displacementY = displacementY;
         }
+    }
+
+    @Override
+    public void onViewportTapped() {
+        // Release resources held by Mat objects
+        hsvImage.release();
+        mask.release();
+        kernel.release();
+        labImage.release();
+        lChannel.release();
+
+        // Clear the detected samples list
+        detectedSamples.clear();
+
+        // Log or provide telemetry feedback
+        telemetry.addData("Viewport", "Tapped and resources released");
+        telemetry.update();
     }
 }
