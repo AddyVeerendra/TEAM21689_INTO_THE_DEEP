@@ -3,12 +3,14 @@ package org.firstinspires.ftc.teamcode.OpenCV;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 @TeleOp(name = "PNP_TEST")
 public class PNP_Test extends LinearOpMode {
     private CameraManagerPNP cameraManager;
+    private static final float cameraAngle = 30;
 
     @Override
     public void runOpMode() {
@@ -26,20 +28,25 @@ public class PNP_Test extends LinearOpMode {
             List<SamplePNP_Pipeline.Sample> detectedSamples = cameraManager.getDetectedSamples();
 
             if (!detectedSamples.isEmpty()) {
-                Iterator<SamplePNP_Pipeline.Sample> iterator = detectedSamples.iterator();
-                while (iterator.hasNext()) {
-                    SamplePNP_Pipeline.Sample sample = iterator.next();
-
-                    // Display all sample details on telemetry
+                List<SamplePNP_Pipeline.Sample> samplesCopy = new ArrayList<>(detectedSamples);
+                for (SamplePNP_Pipeline.Sample sample : samplesCopy) {
                     telemetry.addData("Color", sample.color);
                     telemetry.addData("Distance", sample.distance);
+                    telemetry.addData("Extension Distance", getExtensionDistance(cameraAngle, sample.distance));
+                    telemetry.addData("X Displacement", sample.displacementX);
+                    telemetry.addData("Y Displacement", sample.displacementY);
                 }
-            } else {
+            }
+            else {
                 telemetry.addLine("No samples detected.");
             }
 
             telemetry.update();
             sleep(50);
         }
+    }
+
+    public double getExtensionDistance(double cameraAngle, double objectDistance){
+        return (objectDistance * Math.sin(Math.toRadians(cameraAngle)));
     }
 }
