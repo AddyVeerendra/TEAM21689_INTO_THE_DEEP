@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.HardwareClasses.DepositAssembly;
-import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssembly;
+import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssemblyClaw;
 import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 import org.firstinspires.ftc.teamcode.LimeLight.Megatag2Relocalizer;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
@@ -30,7 +30,7 @@ public class LimelightRelocQualAutoSpecimen extends OpMode {
     public static final int TO_SPIKE_TWO = 5;
     public static final int BACK_TO_HUMAN_PLAYER_FROM_SPIKE_1 = 4;
     public static final int WAIT_FOLLOWER_TO_NOT_BE_BUSY = 6;
-    private IntakeAssembly intakeAssembly;
+    private IntakeAssemblyClaw intakeAssembly;
     private DepositAssembly depositAssembly;
     private LinearSlide linearSlides;
     private DistanceSensor distanceSensorFront;
@@ -66,7 +66,7 @@ public class LimelightRelocQualAutoSpecimen extends OpMode {
         DcMotorSimple.Direction[] directions = {DcMotorSimple.Direction.FORWARD, DcMotorSimple.Direction.REVERSE};
         linearSlides = new LinearSlide(hardwareMap, motorNames, directions, 81.5625, 0, 37.5); // Example ticksPerInch and limits
 
-        intakeAssembly = new IntakeAssembly(hardwareMap);
+        intakeAssembly = new IntakeAssemblyClaw(hardwareMap);
 
         depositAssembly = new DepositAssembly(hardwareMap);
 

@@ -6,20 +6,18 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.HardwareClasses.DepositAssembly;
-import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssemblyClaw;
+import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssemblyIntake;
 import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-@TeleOp(name = "QUALIFIER V2 Robot TeleOp")
-public class NewTeleopQual extends LinearOpMode {
+@TeleOp(name = "QUALIFIER 3 Robot TeleOp Intake")
+public class NewTeleopQual3Intake extends LinearOpMode {
 
     private DcMotor leftFront;
     private DcMotor leftBack;
     private DcMotor rightFront;
     private DcMotor rightBack;
 
-    private IntakeAssemblyClaw intakeAssembly;
+    private IntakeAssemblyIntake intakeAssembly;
     private DepositAssembly depositAssembly;
     private LinearSlide linearSlides;
 
@@ -58,7 +56,7 @@ public class NewTeleopQual extends LinearOpMode {
         DcMotorSimple.Direction[] directions = {DcMotorSimple.Direction.FORWARD, DcMotorSimple.Direction.REVERSE};
         linearSlides = new LinearSlide(hardwareMap, motorNames, directions, 81.5625, -37.5, 37.5);
 
-        intakeAssembly = new IntakeAssemblyClaw(hardwareMap);
+        intakeAssembly = new IntakeAssemblyIntake(hardwareMap);
         depositAssembly = new DepositAssembly(hardwareMap);
 
         // Initial positions
@@ -66,9 +64,8 @@ public class NewTeleopQual extends LinearOpMode {
         intakeAssembly.ExtendSlidesToPos(35);
         depositAssembly.OpenOuttakeClaw();
         depositAssembly.Hang();
-        intakeAssembly.RotateClaw0();
-        intakeAssembly.PivotClawUp();
-        intakeAssembly.OpenClaw();
+        intakeAssembly.PivotIntakeTransfer();
+        intakeAssembly.IntakeOff();
 
         while (opModeInInit() && !isStopRequested()) {
             intakeAssembly.update();
@@ -105,9 +102,9 @@ public class NewTeleopQual extends LinearOpMode {
             if (gamepad1.y && !yPressed) {
                 clawRotated = !clawRotated;
                 if (clawRotated) {
-                    intakeAssembly.RotateClaw0();
+                    intakeAssembly.IntakeReverse();
                 } else {
-                    intakeAssembly.RotateClaw90();
+                    intakeAssembly.IntakeOn();
                 }
                 yPressed = true;
             } else if (!gamepad1.y) {
@@ -124,23 +121,9 @@ public class NewTeleopQual extends LinearOpMode {
                 intakeAssembly.LockIntake();
             }
 
-            if (gamepad1.right_bumper && !rightBumperPressed) {
-                clawOpen = !clawOpen;
-                if (clawOpen) {
-                    depositAssembly.OpenOuttakeClaw();
-                    intakeAssembly.CloseClaw();
-                } else {
-                    depositAssembly.CloseOuttakeClaw();
-                    intakeAssembly.OpenClaw();
-                }
-                rightBumperPressed = true;
-            } else if (!gamepad1.right_bumper) {
-                rightBumperPressed = false;
-            }
-
             // Pivot claw down on X
             if (gamepad1.x) {
-                intakeAssembly.PivotClawDown();
+                intakeAssembly.PivotIntakeDown();
             }
 
             // Unlock intake on left trigger fully pressed
@@ -241,7 +224,8 @@ public class NewTeleopQual extends LinearOpMode {
             // -------- Sequence 1 (intakeSequenceToggle == true) --------
             case START_1:
                 lockDpad = true;
-                intakeAssembly.CloseClaw();
+                intakeAssembly.IntakeOff();
+                intakeAssembly.PivotIntakeTransfer();
                 depositAssembly.OpenOuttakeClaw();
                 depositAssembly.TransferSample();
                 intakeState = IntakeSequenceState.WAIT_CLOSE_CLAW;
@@ -249,24 +233,22 @@ public class NewTeleopQual extends LinearOpMode {
                 break;
 
             case WAIT_CLOSE_CLAW:
-                if (elapsed > 0.25) {
-                    intakeAssembly.RotateClaw0();
-                    intakeAssembly.PivotClawUp();
+                if (elapsed > 0) {
                     intakeState = IntakeSequenceState.ROTATE_UP;
                     intakeStateStartTime = getRuntime();
                 }
                 break;
 
             case ROTATE_UP:
-                if (elapsed > 0.4) {
-                    intakeAssembly.ExtendSlidesToPos(24);
+                if (elapsed > 0) {
+                    intakeAssembly.ExtendSlidesToPos(21);
                     intakeState = IntakeSequenceState.EXTEND_SLIDES;
                     intakeStateStartTime = getRuntime();
                 }
                 break;
 
             case EXTEND_SLIDES:
-                if (elapsed > 0.4) {
+                if (elapsed > 0.5) {
                     depositAssembly.CloseOuttakeClaw();
                     intakeAssembly.LockIntake();
                     intakeState = IntakeSequenceState.CLOSE_OUTTAKE_CLAW;
@@ -276,7 +258,8 @@ public class NewTeleopQual extends LinearOpMode {
 
             case CLOSE_OUTTAKE_CLAW:
                 if (elapsed > 0.15) {
-                    intakeAssembly.OpenClaw();
+                    //intakeAssembly.OpenClaw();
+                    intakeAssembly.PivotIntakeMid();
                     intakeState = IntakeSequenceState.DONE_1;
                 }
                 break;
@@ -290,6 +273,7 @@ public class NewTeleopQual extends LinearOpMode {
             // -------- Sequence 2 (intakeSequenceToggle == false) --------
             case START_2:
                 intakeAssembly.UnlockIntake();
+                intakeAssembly.PivotIntakeMid();
                 intakeState = IntakeSequenceState.WAIT_UNLOCK_INTAKE;
                 intakeStateStartTime = getRuntime();
                 break;
@@ -304,16 +288,19 @@ public class NewTeleopQual extends LinearOpMode {
 
             case EXTEND_SLIDES_FULL:
                 // No explicit wait needed here unless you want a delay
-                intakeAssembly.PivotClawMid();
+                intakeAssembly.PivotIntakeMid();
                 intakeState = IntakeSequenceState.SET_PIVOT_MID;
                 intakeStateStartTime = getRuntime();
                 break;
 
             case SET_PIVOT_MID:
                 // Could add a small delay if needed; if not, move on immediately
-                intakeAssembly.OpenClaw();
-                intakeState = IntakeSequenceState.OPEN_CLAW_2;
-                intakeStateStartTime = getRuntime();
+                intakeAssembly.IntakeOn();
+                if (intakeAssembly.getColorV3().proximity() < 1) {
+                    intakeAssembly.IntakeOff();
+                    intakeState = IntakeSequenceState.OPEN_CLAW_2;
+                    intakeStateStartTime = getRuntime();
+                }
                 break;
 
             case OPEN_CLAW_2:

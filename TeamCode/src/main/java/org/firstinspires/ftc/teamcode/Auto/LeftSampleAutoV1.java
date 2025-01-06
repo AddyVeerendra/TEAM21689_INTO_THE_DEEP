@@ -16,14 +16,14 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.HardwareClasses.DepositAssembly;
-import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssembly;
+import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssemblyClaw;
 import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
 @Autonomous(name = "LeftSampleAutoV1")
 public class LeftSampleAutoV1 extends OpMode {
-    private IntakeAssembly intakeAssembly;
+    private IntakeAssemblyClaw intakeAssembly;
     private DepositAssembly depositAssembly;
     private LinearSlide linearSlides;
     // Initialize path following stuff
@@ -49,7 +49,7 @@ public class LeftSampleAutoV1 extends OpMode {
         DcMotorSimple.Direction[] directions = {DcMotorSimple.Direction.FORWARD, DcMotorSimple.Direction.REVERSE};
         linearSlides = new LinearSlide(hardwareMap, motorNames, directions, 82.25625, 0, 37.5); // Example ticksPerInch and limits
 
-        intakeAssembly = new IntakeAssembly(hardwareMap);
+        intakeAssembly = new IntakeAssemblyClaw(hardwareMap);
 
         depositAssembly = new DepositAssembly(hardwareMap);
 

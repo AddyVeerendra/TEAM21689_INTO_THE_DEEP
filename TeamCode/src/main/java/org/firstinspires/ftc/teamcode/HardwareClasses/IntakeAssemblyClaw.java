@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.HardwareClasses;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-public class IntakeAssembly {
+public class IntakeAssemblyClaw {
     private Servo intakePivot;
     private Servo intakeRotate;
     private Servo intakeClaw;
@@ -12,7 +12,7 @@ public class IntakeAssembly {
 
     private Pivot intakeSlides;
 
-    public IntakeAssembly(HardwareMap hardwareMap) {
+    public IntakeAssemblyClaw(HardwareMap hardwareMap) {
         intakePivot = hardwareMap.get(Servo.class, "intakePivot");
         intakePivot.setDirection(Servo.Direction.REVERSE);
         intakeRotate = hardwareMap.get(Servo.class, "intakeRotate");
