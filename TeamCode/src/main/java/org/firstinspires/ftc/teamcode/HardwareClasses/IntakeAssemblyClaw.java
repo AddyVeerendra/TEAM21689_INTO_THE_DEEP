@@ -23,11 +23,11 @@ public class IntakeAssemblyClaw {
     }
 
     public void LockIntake() {
-        intakeLock.setPosition(0.26);
+        intakeLock.setPosition(0);
     }
 
     public void UnlockIntake() {
-        intakeLock.setPosition(0.0);
+        intakeLock.setPosition(0.26);
     }
 
     public void OpenClaw() {

@@ -241,7 +241,7 @@ public class NewTeleopQual3Intake extends LinearOpMode {
 
             case ROTATE_UP:
                 if (elapsed > 0) {
-                    intakeAssembly.ExtendSlidesToPos(21);
+                    intakeAssembly.ExtendSlidesToPos(20);
                     intakeState = IntakeSequenceState.EXTEND_SLIDES;
                     intakeStateStartTime = getRuntime();
                 }
@@ -296,7 +296,7 @@ public class NewTeleopQual3Intake extends LinearOpMode {
             case SET_PIVOT_MID:
                 // Could add a small delay if needed; if not, move on immediately
                 intakeAssembly.IntakeOn();
-                if (intakeAssembly.getColorV3().proximity() < 1) {
+                if (intakeAssembly.getColorV3().proximity() < 2) {
                     intakeAssembly.IntakeOff();
                     intakeState = IntakeSequenceState.OPEN_CLAW_2;
                     intakeStateStartTime = getRuntime();
@@ -425,8 +425,8 @@ public class NewTeleopQual3Intake extends LinearOpMode {
 
             case WAIT_OUTTAKE_CLOSE_SPECIMEN:
                 if (elapsed > 0.15) {
-                    linearSlides.moveSlidesToPositionInches(15.8);
-                    intakeAssembly.ExtendSlidesToPos(20);
+                    linearSlides.moveSlidesToPositionInches(17);
+                    intakeAssembly.ExtendSlidesToPos(15);
                     depositAssembly.ScoreSpecimen();
                     depositState = DepositSequenceState.DONE_FALSE_SPECIMEN;
                 }

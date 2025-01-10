@@ -41,7 +41,7 @@ public class LeftSampleAutoV1 extends OpMode {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(new Pose(-12, -61.5, Math.toRadians(90)));
-        follower.setMaxPower(0.7);
+        follower.setMaxPower(0.4);
         pathTimer = new Timer();
         pathState = 0;
 
@@ -90,7 +90,7 @@ public class LeftSampleAutoV1 extends OpMode {
     public void autoPathUpdate() {
         switch (pathState) {
             case 0:
-                follower.setMaxPower(0.5);
+                follower.setMaxPower(0.4);
                 toChamber = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(-9, -39, Point.CARTESIAN)));
@@ -126,7 +126,7 @@ public class LeftSampleAutoV1 extends OpMode {
                 follower.setMaxPower(0.5);
                 toSpike1Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-46, -51.5, Point.CARTESIAN)));
+                        new Point(-46, -49, Point.CARTESIAN)));
                 toSpike1Grab.setConstantHeadingInterpolation(Math.toRadians(90));
                 follower.followPath(toSpike1Grab, true);
                 setPathState(3);
@@ -183,7 +183,7 @@ public class LeftSampleAutoV1 extends OpMode {
             case 6:
                 toBasket = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-54, -55, Point.CARTESIAN)));
+                        new Point(-57, -55, Point.CARTESIAN)));
                 toBasket.setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(45));
                 follower.followPath(toBasket, true);
                 setPathState(7);
