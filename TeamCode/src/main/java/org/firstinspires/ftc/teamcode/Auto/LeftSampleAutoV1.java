@@ -91,30 +91,27 @@ public class LeftSampleAutoV1 extends OpMode {
         switch (pathState) {
             case 0:
                 follower.setMaxPower(0.4);
-                toChamber = new Path(new BezierLine(
+                toBasket = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-9, -39, Point.CARTESIAN)));
-                toChamber.setConstantHeadingInterpolation(Math.toRadians(90));
-                follower.followPath(toChamber, true);
-                linearSlides.moveSlidesToPositionInches(17);
-                depositAssembly.ScoreSpecimen();
+                        new Point(-48, -56, Point.CARTESIAN)));
+                toBasket.setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(45));
+                follower.followPath(toBasket, true);
+                linearSlides.moveSlidesToPositionInches(30);
+                depositAssembly.ScoreSample();
                 setPathState(1);
                 times = 0;
                 break;
 
             case 1:
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() && !linearSlides.isSlideMotorsBusy()) {
                     if (times == 0) {
                         setPathState(1);
                         times = 1;
                     }
+                    depositAssembly.OpenOuttakeClaw();
 
-                    linearSlides.setKP(0.002);
-                    linearSlides.moveSlidesToPositionInches(7);
-
-                    if (pathTimer.getElapsedTimeSeconds() > 0.75) {
-                        linearSlides.setKP(0.005);
-                        depositAssembly.OpenOuttakeClaw();
+                    if (pathTimer.getElapsedTimeSeconds() > 0.15) {
+                        linearSlides.moveSlidesToPositionInches(0);
                         depositAssembly.TransferSample();
                         setPathState(2);
                     }
@@ -126,7 +123,7 @@ public class LeftSampleAutoV1 extends OpMode {
                 follower.setMaxPower(0.5);
                 toSpike1Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-46, -49, Point.CARTESIAN)));
+                        new Point(-50, -52.5, Point.CARTESIAN)));
                 toSpike1Grab.setConstantHeadingInterpolation(Math.toRadians(90));
                 follower.followPath(toSpike1Grab, true);
                 setPathState(3);
@@ -134,7 +131,7 @@ public class LeftSampleAutoV1 extends OpMode {
                 break;
 
             case 3:
-                if (follower.getCurrentTValue() > 0.4) {
+                if (follower.getCurrentTValue() > 0.98) {
                     intakeAssembly.ExtendSlidesFull();
                     intakeAssembly.PivotClawDown();
                     intakeAssembly.OpenClaw();
@@ -161,7 +158,7 @@ public class LeftSampleAutoV1 extends OpMode {
                 break;
 
             case 4:
-                if (pathTimer.getElapsedTimeSeconds() > 0.4) {
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
                     depositAssembly.CloseOuttakeClaw();
                     setPathState(5);
                 }
@@ -209,7 +206,7 @@ public class LeftSampleAutoV1 extends OpMode {
             case 8:
                 toSpike2Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-54, -50, Point.CARTESIAN)));
+                        new Point(-59, -52.5, Point.CARTESIAN)));
                 toSpike2Grab.setConstantHeadingInterpolation(Math.toRadians(90));
                 follower.followPath(toSpike2Grab, true);
                 setPathState(9);
@@ -234,7 +231,7 @@ public class LeftSampleAutoV1 extends OpMode {
                 break;
 
             case 10:
-                if (pathTimer.getElapsedTimeSeconds() > 0.4) {
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
                     depositAssembly.CloseOuttakeClaw();
                     setPathState(11);
                 }
