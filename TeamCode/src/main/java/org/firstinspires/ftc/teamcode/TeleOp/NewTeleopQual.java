@@ -37,6 +37,12 @@ public class NewTeleopQual extends LinearOpMode {
     private boolean dpadLeftPressed = false;
     public boolean lockDpad = false;
     private boolean dpadRightPressed = false;
+    private boolean frontWheelTurn = false;
+    private boolean leftBumperPressed = false;
+
+    private float frontWheelRadius = 2.0f;
+
+    private float backWheelRadius = 3.0f;
 
     @Override
     public void runOpMode() {
@@ -88,6 +94,19 @@ public class NewTeleopQual extends LinearOpMode {
             double backLeftPower = clipPower(y - x + rx);
             double frontRightPower = clipPower(y - x - rx);
             double backRightPower = clipPower(y + x - rx);
+
+            // Toggle front wheel turn on left bumper press
+            if (gamepad2.left_bumper && !leftBumperPressed) {
+                frontWheelTurn = !frontWheelTurn;
+                leftBumperPressed = true;
+            } else if (!gamepad2.left_bumper) {
+                leftBumperPressed = false;
+            }
+
+            if (frontWheelTurn) {
+                frontLeftPower *= (frontWheelRadius / backWheelRadius);
+                frontRightPower *= (frontWheelRadius / backWheelRadius);
+            }
 
             leftFront.setPower(frontLeftPower);
             leftBack.setPower(backLeftPower);
@@ -398,7 +417,7 @@ public class NewTeleopQual extends LinearOpMode {
                 break;
 
             case EXTEND_SLIDES_SCORE_SAMPLE:
-                linearSlides.moveSlidesToPositionInches(30);
+                linearSlides.moveSlidesToPositionInches(31);
                 depositAssembly.ScoreSample();
                 depositState = DepositSequenceState.DONE_FALSE_SAMPLE;
                 break;

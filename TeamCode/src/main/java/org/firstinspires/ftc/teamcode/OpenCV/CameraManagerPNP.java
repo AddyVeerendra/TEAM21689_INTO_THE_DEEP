@@ -10,6 +10,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.List;
+import java.util.PriorityQueue;
 
 public class CameraManagerPNP {
     private OpenCvWebcam webcam;
@@ -51,7 +52,7 @@ public class CameraManagerPNP {
     }
 
     // Method to return all detected samples as a list of Sample objects
-    public List<SamplePNP_Pipeline.Sample> getDetectedSamples() {
+    public PriorityQueue<SamplePNP_Pipeline.Sample> getDetectedSamples() {
         return pipeline.getDetectedSamples();
     }
 }

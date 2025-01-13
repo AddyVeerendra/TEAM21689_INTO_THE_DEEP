@@ -8,6 +8,8 @@ import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Comparator;
 
 public class SamplePNP_Pipeline extends OpenCvPipeline {
 
@@ -18,8 +20,8 @@ public class SamplePNP_Pipeline extends OpenCvPipeline {
     private Mat labImage = new Mat();
     private Mat lChannel = new Mat();
 
-    private static final Scalar YELLOW_LOWER = new Scalar(22, 150, 150);
-    private static final Scalar YELLOW_UPPER = new Scalar(30, 255, 255);
+    private static final Scalar YELLOW_LOWER = new Scalar(255, 180, 50);
+    private static final Scalar YELLOW_UPPER = new Scalar(255, 200, 0);
 
     private static final Scalar BLUE_LOWER = new Scalar(100, 170, 170);
     private static final Scalar BLUE_UPPER = new Scalar(120, 255, 255);
@@ -31,12 +33,13 @@ public class SamplePNP_Pipeline extends OpenCvPipeline {
 
     private final double focalLength;
     private final double realObjectHeight;
-    private final List<Sample> detectedSamples = new ArrayList<>();
+    private final PriorityQueue<Sample> detectedSamples;
 
     public SamplePNP_Pipeline(Telemetry telemetry, double focalLength, double realObjectHeight) {
         this.telemetry = telemetry;
         this.focalLength = focalLength;
         this.realObjectHeight = realObjectHeight;
+        this.detectedSamples = new PriorityQueue<>(Comparator.comparingInt(sample -> sample.rank));
     }
 
     @Override
@@ -45,26 +48,13 @@ public class SamplePNP_Pipeline extends OpenCvPipeline {
         // Step 1: Convert the image to LAB color space
         Imgproc.cvtColor(input, labImage, Imgproc.COLOR_BGR2Lab);
 
-        // Step 2: Split the LAB image into its channels
-        List<Mat> labChannels = new ArrayList<>(3);
-        Core.split(labImage, labChannels);
-        lChannel = labChannels.get(0);
-
-        // Step 3: Apply CLAHE to the L channel
-        CLAHE clahe = Imgproc.createCLAHE();
-        clahe.setClipLimit(2.0);
-        clahe.apply(lChannel, lChannel);
-
-        // Step 4: Merge the LAB channels back
-        Core.merge(labChannels, labImage);
-
-        // Step 5: Convert the LAB image back to BGR
+        // Step 2: Convert the LAB image back to BGR
         Imgproc.cvtColor(labImage, input, Imgproc.COLOR_Lab2BGR);
 
-        // Step 6: Convert the image to HSV color space
+        // Step 3: Convert the image to HSV color space
         Imgproc.cvtColor(input, hsvImage, Imgproc.COLOR_BGR2HSV);
 
-        // Step 7: Create masks for each color
+        // Step 4: Create masks for each color
         Mat yellowMask = createColorMask(hsvImage, YELLOW_LOWER, YELLOW_UPPER);
         Mat blueMask = new Mat();
         Core.bitwise_or(
@@ -74,15 +64,12 @@ public class SamplePNP_Pipeline extends OpenCvPipeline {
         );
         Mat redMask = createColorMask(hsvImage, BLUE_LOWER, BLUE_UPPER);
 
-        // Step 8: Process masks to find contours
+        // Step 5: Process masks to find contours
         processColorMask(yellowMask, input, "Yellow");
         processColorMask(redMask, input, "Red");
         processColorMask(blueMask, input, "Blue");
 
-        // Step 9: Release memory for temporary masks
-        //kernel.release();
-
-        // Step 10: Return the processed frame
+        // Step 6: Return the processed frame
         return input;
     }
 
@@ -157,16 +144,65 @@ public class SamplePNP_Pipeline extends OpenCvPipeline {
                                 tvec.get(2, 0)[0] * tvec.get(2, 0)[0]
                 );
 
+                Mat rotationMatrix = new Mat();
+                Calib3d.Rodrigues(rvec, rotationMatrix);
+
+                double[] eulerAngles = rotationMatrixToEulerAngles(rotationMatrix);
+
                 Imgproc.rectangle(input, new Point(x, y), new Point(x + w, y + h), new Scalar(0, 255, 0), 2);
                 Imgproc.putText(input, colorName + String.format(" %.2f cm", distance),
                         new Point(x, y - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 1);
 
-                detectedSamples.add(new Sample(colorName, distance, displacementX, displacementY));
+                detectedSamples.add(new Sample(colorName, distance, displacementX, displacementY, eulerAngles[2], 0)); // Yaw angle
             }
         }
     }
 
-    public List<Sample> getDetectedSamples() {
+    private double[] rotationMatrixToEulerAngles(Mat rotationMatrix) {
+        double sy = Math.sqrt(rotationMatrix.get(0, 0)[0] * rotationMatrix.get(0, 0)[0] + rotationMatrix.get(1, 0)[0] * rotationMatrix.get(1, 0)[0]);
+
+        boolean singular = sy < 1e-6;
+
+        double x, y, z;
+        if (!singular) {
+            x = Math.atan2(rotationMatrix.get(2, 1)[0], rotationMatrix.get(2, 2)[0]);
+            y = Math.atan2(-rotationMatrix.get(2, 0)[0], sy);
+            z = Math.atan2(rotationMatrix.get(1, 0)[0], rotationMatrix.get(0, 0)[0]);
+        } else {
+            x = Math.atan2(-rotationMatrix.get(1, 2)[0], rotationMatrix.get(1, 1)[0]);
+            y = Math.atan2(-rotationMatrix.get(2, 0)[0], sy);
+            z = 0;
+        }
+        return new double[]{x, y, z};
+    }
+
+    private void SampleClusterRank(PriorityQueue<Sample> detectedSamples) {
+        for (Sample sample : detectedSamples) {
+            // Calculate the distance between the sample and all other samples
+            for (Sample otherSample : detectedSamples) {
+                if (sample != otherSample) {
+                    double distance = Math.sqrt(
+                            (sample.displacementX - otherSample.displacementX) * (sample.displacementX - otherSample.displacementX) +
+                                    (sample.displacementY - otherSample.displacementY) * (sample.displacementY - otherSample.displacementY)
+                    );
+
+                    // If the distance is less than a certain threshold, check the color of the other sample
+                    if (distance < 50) {
+                        if (otherSample.color.equals("yellow") || otherSample.color.equals(sample.color)) {
+                            // Increase the rank of the sample
+                            sample.rank++;
+                        } else {
+                            // Decrease the rank of the sample
+                            sample.rank--;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public PriorityQueue<Sample> getDetectedSamples() {
+        SampleClusterRank(detectedSamples);
         return detectedSamples;
     }
 
@@ -175,12 +211,16 @@ public class SamplePNP_Pipeline extends OpenCvPipeline {
         public final double distance;
         public final double displacementX;
         public final double displacementY;
+        public final double rotation;
+        public int rank;
 
-        public Sample(String color, double distance, double displacementX, double displacementY) {
+        public Sample(String color, double distance, double displacementX, double displacementY, double rotation, int rank) {
             this.color = color;
             this.distance = distance;
             this.displacementX = displacementX;
             this.displacementY = displacementY;
+            this.rotation = rotation;
+            this.rank = rank;
         }
     }
 

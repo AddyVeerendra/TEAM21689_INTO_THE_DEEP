@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.PriorityQueue;
 
 @TeleOp(name = "PNP_TEST")
 public class PNP_Test extends LinearOpMode {
@@ -25,7 +26,7 @@ public class PNP_Test extends LinearOpMode {
 
         while (opModeIsActive()) {
             // Retrieve detected samples from the pipeline
-            List<SamplePNP_Pipeline.Sample> detectedSamples = cameraManager.getDetectedSamples();
+            PriorityQueue<SamplePNP_Pipeline.Sample> detectedSamples = cameraManager.getDetectedSamples();
 
             if (!detectedSamples.isEmpty()) {
                 List<SamplePNP_Pipeline.Sample> samplesCopy = new ArrayList<>(detectedSamples);
