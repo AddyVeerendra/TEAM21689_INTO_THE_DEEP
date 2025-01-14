@@ -83,7 +83,7 @@ public class QualAutoSpecimen extends OpMode {
 
     @Override
     public void init_loop() {
-
+        intakeAssembly.update();
     }
 
     @Override
@@ -97,7 +97,7 @@ public class QualAutoSpecimen extends OpMode {
         autoPathUpdate();
         follower.telemetryDebug(telemetryA);
         linearSlides.update();
-        telemetryA.addData("Path State", pathState);
+        intakeAssembly.update();
     }
 
     public void autoPathUpdate() {
@@ -132,11 +132,10 @@ public class QualAutoSpecimen extends OpMode {
                         follower.startTeleopDrive();
                         follower.setTeleOpMovementVectors(-0.3, 0, 0); // Adjust the speed as needed
                     } else {
-                        distanceTimes = 1;
-                        follower.breakFollowing();
-                        if (times == 0) {
+                        if (distanceTimes == 0) {
+                            follower.breakFollowing();
                             setPathState(1);
-                            times = 1;
+                            distanceTimes = 1;
                         }
                         linearSlides.setKP(0.003);
                         linearSlides.moveSlidesToPositionInches(7);
@@ -293,11 +292,10 @@ public class QualAutoSpecimen extends OpMode {
                         follower.startTeleopDrive();
                         follower.setTeleOpMovementVectors(0.3, 0, 0); // Adjust the speed as needed
                     } else {
-                        distanceTimes = 1;
-                        follower.breakFollowing();
-                        if (times == 0) {
+                        if (distanceTimes == 0) {
+                            follower.breakFollowing();
                             setPathState(13);
-                            times = 1;
+                            distanceTimes = 1;
                         }
 
                         depositAssembly.CloseOuttakeClaw();
@@ -346,11 +344,10 @@ public class QualAutoSpecimen extends OpMode {
                         follower.startTeleopDrive();
                         follower.setTeleOpMovementVectors(-0.3, 0, 0); // Adjust the speed as needed
                     } else {
-                        distanceTimes = 0;
-                        follower.breakFollowing();
-                        if (times == 0) {
+                        if (distanceTimes == 0) {
+                            follower.breakFollowing();
                             setPathState(15);
-                            times = 1;
+                            distanceTimes = 1;
                         }
                         linearSlides.setKP(0.003);
                         linearSlides.moveSlidesToPositionInches(7);
@@ -428,11 +425,10 @@ public class QualAutoSpecimen extends OpMode {
                         follower.startTeleopDrive();
                         follower.setTeleOpMovementVectors(0.3, 0, 0); // Adjust the speed as needed
                     } else {
-                        distanceTimes = 1;
-                        follower.breakFollowing();
-                        if (times == 0) {
+                        if (distanceTimes == 0) {
+                            follower.breakFollowing();
                             setPathState(19);
-                            times = 1;
+                            distanceTimes = 1;
                         }
 
                         depositAssembly.CloseOuttakeClaw();
