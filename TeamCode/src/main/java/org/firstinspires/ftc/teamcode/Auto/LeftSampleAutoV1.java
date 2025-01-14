@@ -41,7 +41,7 @@ public class LeftSampleAutoV1 extends OpMode {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(new Pose(-12, -61.5, Math.toRadians(-90)));
-        follower.setMaxPower(0.6);
+        follower.setMaxPower(0.75);
         pathTimer = new Timer();
         pathState = 0;
 
@@ -57,6 +57,7 @@ public class LeftSampleAutoV1 extends OpMode {
         intakeAssembly.PivotClawUp();
         intakeAssembly.RotateClaw0();
         intakeAssembly.RetractSlidesFull();
+        intakeAssembly.Lock();
         depositAssembly.CloseOuttakeClaw();
         depositAssembly.Hang();
 
@@ -84,7 +85,6 @@ public class LeftSampleAutoV1 extends OpMode {
         autoPathUpdate();
         follower.telemetryDebug(telemetryA);
         linearSlides.update();
-        telemetryA.addData("Path State", pathState);
     }
 
     public void autoPathUpdate() {
@@ -108,7 +108,7 @@ public class LeftSampleAutoV1 extends OpMode {
                         times = 1;
                     }
                     depositAssembly.OpenOuttakeClaw();
-                    intakeAssembly.ExtendSlidesToPos(10);
+                    //intakeAssembly.ExtendSlidesToPos(10);
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.15) {
                         setPathState(2);
@@ -121,7 +121,7 @@ public class LeftSampleAutoV1 extends OpMode {
                 toSpike1Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(-48, -40, Point.CARTESIAN),
-                        new Point(-48, -30, Point.CARTESIAN)));
+                        new Point(-48, -25, Point.CARTESIAN)));
                 toSpike1Grab.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toSpike1Grab, false);
                 linearSlides.moveSlidesToPositionInches(1.75);
@@ -131,11 +131,19 @@ public class LeftSampleAutoV1 extends OpMode {
                 break;
 
             case 3:
-                if (follower.getCurrentTValue() > 0.4) {
+                if (follower.getCurrentTValue() > 0.6) {
 //                    intakeAssembly.ExtendSlidesFull();
 //                    intakeAssembly.PivotClawDown();
 //                    intakeAssembly.OpenClaw();
 //                    intakeAssembly.RotateClaw0();
+                    follower.setMaxPower(0.4);
+                }
+                if (follower.getCurrentTValue() > 0.9) {
+//                    intakeAssembly.ExtendSlidesFull();
+//                    intakeAssembly.PivotClawDown();
+//                    intakeAssembly.OpenClaw();
+//                    intakeAssembly.RotateClaw0();
+                    depositAssembly.CloseOuttakeClaw();
                 }
                 if (!follower.isBusy()) {
                     if (times == 0) {
@@ -143,11 +151,12 @@ public class LeftSampleAutoV1 extends OpMode {
                         times = 1;
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        depositAssembly.CloseOuttakeClaw();
-                    }
+                    //if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        //depositAssembly.CloseOuttakeClaw();
+                    //}
 
-                    if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        follwer.setMaxPower(0.75);
                         depositAssembly.ScoreSampleFront();
                         linearSlides.moveSlidesToPositionInches(30);
                         setPathState(6);
