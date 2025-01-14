@@ -28,7 +28,7 @@ public class LeftSampleAutoV1 extends OpMode {
     private LinearSlide linearSlides;
     // Initialize path following stuff
     private Follower follower;
-    private Path toChamber, toSpike1Grab, toBasket, toBasket2, toSpike2Grab, toSpike3Grab, toPark;
+    private Path toSpike1Grab, toBasket, toBasket2, toSpike2Grab, toSpike3Grab, toPark;
     private Timer pathTimer;
     private int pathState;
     private int times;
@@ -40,8 +40,8 @@ public class LeftSampleAutoV1 extends OpMode {
         // Initialize path stuff with hardwareMap
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
-        follower.setStartingPose(new Pose(-12, -61.5, Math.toRadians(90)));
-        follower.setMaxPower(0.7);
+        follower.setStartingPose(new Pose(-12, -61.5, Math.toRadians(-90)));
+        follower.setMaxPower(0.6);
         pathTimer = new Timer();
         pathState = 0;
 
@@ -92,11 +92,11 @@ public class LeftSampleAutoV1 extends OpMode {
             case 0:
                 toBasket = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-52, -56, Point.CARTESIAN)));
-                toBasket.setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(45));
+                        new Point(-58, -57, Point.CARTESIAN)));
+                toBasket.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-135));
                 follower.followPath(toBasket, true);
-                linearSlides.moveSlidesToPositionInches(31);
-                depositAssembly.ScoreSample();
+                linearSlides.moveSlidesToPositionInches(30);
+                depositAssembly.ScoreSampleFront();
                 setPathState(1);
                 times = 0;
                 break;
@@ -108,6 +108,7 @@ public class LeftSampleAutoV1 extends OpMode {
                         times = 1;
                     }
                     depositAssembly.OpenOuttakeClaw();
+                    intakeAssembly.ExtendSlidesToPos(10);
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.15) {
                         setPathState(2);
@@ -119,23 +120,22 @@ public class LeftSampleAutoV1 extends OpMode {
             case 2:
                 toSpike1Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-50, -51, Point.CARTESIAN)));
-                toSpike1Grab.setConstantHeadingInterpolation(Math.toRadians(90));
-                follower.followPath(toSpike1Grab, true);
+                        new Point(-48, -40, Point.CARTESIAN),
+                        new Point(-48, -30, Point.CARTESIAN)));
+                toSpike1Grab.setConstantHeadingInterpolation(Math.toRadians(-90));
+                follower.followPath(toSpike1Grab, false);
+                linearSlides.moveSlidesToPositionInches(1.75);
+                depositAssembly.GrabSampleFloor();
                 setPathState(3);
                 times = 0;
                 break;
 
             case 3:
                 if (follower.getCurrentTValue() > 0.4) {
-                    linearSlides.moveSlidesToPositionInches(0);
-                    depositAssembly.TransferSample();
-                }
-                if (follower.getCurrentTValue() > 0.5) {
-                    intakeAssembly.ExtendSlidesFull();
-                    intakeAssembly.PivotClawDown();
-                    intakeAssembly.OpenClaw();
-                    intakeAssembly.RotateClaw0();
+//                    intakeAssembly.ExtendSlidesFull();
+//                    intakeAssembly.PivotClawDown();
+//                    intakeAssembly.OpenClaw();
+//                    intakeAssembly.RotateClaw0();
                 }
                 if (!follower.isBusy()) {
                     if (times == 0) {
@@ -143,19 +143,25 @@ public class LeftSampleAutoV1 extends OpMode {
                         times = 1;
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                        intakeAssembly.CloseClaw();
-                    }
-
                     if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        intakeAssembly.PivotClawUp();
+                        depositAssembly.CloseOuttakeClaw();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0.75) {
-                        intakeAssembly.RotateClaw0();
-                        intakeAssembly.ExtendSlidesToPos(24);
-                        setPathState(4);
+                    if (pathTimer.getElapsedTimeSeconds() > 1) {
+                        depositAssembly.ScoreSampleFront();
+                        linearSlides.moveSlidesToPositionInches(30);
+                        setPathState(6);
                     }
+
+//                    if (pathTimer.getElapsedTimeSeconds() > 0.75) {
+//                        intakeAssembly.PivotClawUp();
+//                    }
+//
+//                    if (pathTimer.getElapsedTimeSeconds() > 1) {
+//                        intakeAssembly.RotateClaw0();
+//                        intakeAssembly.ExtendSlidesToPos(24);
+//                        setPathState(4);
+//                    }
                 }
                 break;
 
@@ -183,7 +189,7 @@ public class LeftSampleAutoV1 extends OpMode {
                 toBasket = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(-52, -52, Point.CARTESIAN)));
-                toBasket.setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(45));
+                toBasket.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-135));
                 follower.followPath(toBasket, true);
                 setPathState(7);
                 times = 0;
@@ -192,9 +198,9 @@ public class LeftSampleAutoV1 extends OpMode {
             case 7:
                 if (!follower.isBusy() && !linearSlides.isSlideMotorsBusy()) {
                     toBasket2 = new Path(new BezierLine(
-                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-52, -56, Point.CARTESIAN)));
-                    toBasket2.setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(45));
+                            new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+                            new Point(-58, -57, Point.CARTESIAN)));
+                    toBasket2.setConstantHeadingInterpolation(Math.toRadians(-135));
                     follower.followPath(toBasket2, true);
                     setPathState(8);
                     times = 0;
@@ -211,44 +217,53 @@ public class LeftSampleAutoV1 extends OpMode {
                     depositAssembly.OpenOuttakeClaw();
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.15) {
+                        linearSlides.moveSlidesToPositionInches(1.5);
+                        depositAssembly.GrabSampleFloor();
                         setPathState(9);
                     }
                 }
                 break;
 
             case 9:
-                toSpike2Grab = new Path(new BezierLine(
+                toSpike2Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-59, -51, Point.CARTESIAN)));
-                toSpike2Grab.setConstantHeadingInterpolation(Math.toRadians(90));
-                follower.followPath(toSpike2Grab, true);
+                        new Point(-59, -40, Point.CARTESIAN),
+                        new Point(-59, -30, Point.CARTESIAN)));
+                toSpike2Grab.setConstantHeadingInterpolation(Math.toRadians(-90));
+                follower.followPath(toSpike2Grab, false);
                 setPathState(10);
                 times = 0;
                 break;
 
             case 10:
                 if (follower.getCurrentTValue() > 0.4) {
-                    linearSlides.moveSlidesToPositionInches(0);
-                    depositAssembly.TransferSample();
+//                    linearSlides.moveSlidesToPositionInches(0);
+//                    depositAssembly.TransferSample();
                 }
                 if (!follower.isBusy()) {
                     if (times == 0) {
                         setPathState(10);
                         times = 1;
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                        intakeAssembly.CloseClaw();
-                    }
-
                     if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        intakeAssembly.PivotClawUp();
+                        depositAssembly.CloseOuttakeClaw();
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0.75) {
-                        intakeAssembly.RotateClaw0();
-                        intakeAssembly.ExtendSlidesToPos(24);
-                        setPathState(11);
+                    if (pathTimer.getElapsedTimeSeconds() > 1) {
+                        depositAssembly.ScoreSampleFront();
+                        linearSlides.moveSlidesToPositionInches(30);
+                        setPathState(13);
                     }
+
+//                    if (pathTimer.getElapsedTimeSeconds() > 0.75) {
+//                        intakeAssembly.PivotClawUp();
+//                    }
+//
+//                    if (pathTimer.getElapsedTimeSeconds() > 1) {
+//                        intakeAssembly.RotateClaw0();
+//                        intakeAssembly.ExtendSlidesToPos(24);
+//                        setPathState(11);
+//                    }
                 }
                 break;
 
@@ -267,7 +282,7 @@ public class LeftSampleAutoV1 extends OpMode {
                     intakeAssembly.ExtendSlidesFull();
                     intakeAssembly.PivotClawDown();
                     intakeAssembly.OpenClaw();
-                    intakeAssembly.RotateClaw0();
+                    intakeAssembly.RotateClaw135();
                     setPathState(13);
                 }
                 break;
@@ -276,7 +291,7 @@ public class LeftSampleAutoV1 extends OpMode {
                 toBasket = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(-52, -52, Point.CARTESIAN)));
-                toBasket.setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(45));
+                toBasket.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-135));
                 follower.followPath(toBasket, true);
                 setPathState(14);
                 times = 0;
@@ -285,11 +300,11 @@ public class LeftSampleAutoV1 extends OpMode {
             case 14:
                 if (!follower.isBusy() && !linearSlides.isSlideMotorsBusy()) {
                     toBasket2 = new Path(new BezierLine(
-                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-52, -56, Point.CARTESIAN)));
-                    toBasket2.setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(45));
+                            new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+                            new Point(-58, -57, Point.CARTESIAN)));
+                    toBasket2.setConstantHeadingInterpolation(Math.toRadians(-135));
                     follower.followPath(toBasket2, true);
-                    setPathState(15);
+                    setPathState(-1);
                     times = 0;
                 }
                 break;
@@ -310,8 +325,8 @@ public class LeftSampleAutoV1 extends OpMode {
 
             case 16:
                 toSpike3Grab = new Path(new BezierLine(
-                    new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),      
-                    new Point(-55, -49, Point.CARTESIAN)));
+                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+                        new Point(-60, -51, Point.CARTESIAN)));
                 toSpike3Grab.setConstantHeadingInterpolation(Math.toRadians(110));
                 follower.followPath(toSpike3Grab, true);
                 setPathState(17);
@@ -328,16 +343,16 @@ public class LeftSampleAutoV1 extends OpMode {
                         setPathState(17);
                         times = 1;
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                        intakeAssembly.CloseClaw();
-                    }
-
                     if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        intakeAssembly.PivotClawUp();
+                        intakeAssembly.CloseClaw();
                     }
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.75) {
                         intakeAssembly.RotateClaw0();
+                        intakeAssembly.PivotClawUp();
+                    }
+
+                    if (pathTimer.getElapsedTimeSeconds() > 1) {
                         intakeAssembly.ExtendSlidesToPos(24);
                         setPathState(18);
                     }
@@ -374,9 +389,9 @@ public class LeftSampleAutoV1 extends OpMode {
             case 21:
                 if (!follower.isBusy() && !linearSlides.isSlideMotorsBusy()) {
                     toBasket2 = new Path(new BezierLine(
-                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-52, -56, Point.CARTESIAN)));
-                    toBasket2.setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(45));
+                            new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+                            new Point(-58, -57, Point.CARTESIAN)));
+                    toBasket2.setConstantHeadingInterpolation(Math.toRadians(45));
                     follower.followPath(toBasket2, true);
                     setPathState(22);
                     times = 0;
@@ -408,7 +423,7 @@ public class LeftSampleAutoV1 extends OpMode {
                 setPathState(24);
                 times = 0;
                 break;
-                
+
             case 24:
                 if (follower.getCurrentTValue() > 0.2) {
                     linearSlides.moveSlidesToPositionInches(0);

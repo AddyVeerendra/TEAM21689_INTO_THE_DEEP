@@ -42,8 +42,8 @@ public class IntakeAssemblyClaw {
         intakeRotate.setPosition(0);
     }
 
-    public void RotateClaw45() {
-        intakeRotate.setPosition(0.15);
+    public void RotateClaw135() {
+        intakeRotate.setPosition(0.4);
     }
 
     public void RotateClaw90() {
@@ -68,6 +68,10 @@ public class IntakeAssemblyClaw {
 
     public void ExtendSlidesFull() {
         intakeSlides.movePivotToAngle(74);
+    }
+
+    public void ExtendSlidesFullAuto() {
+        intakeSlides.movePivotToAngle(40);
     }
 
     public void RetractSlidesFull() {

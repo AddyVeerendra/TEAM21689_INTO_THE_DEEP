@@ -32,7 +32,7 @@ public class DepositAssembly {
     }
 
     public void OpenOuttakeClaw() {
-        outtakeClaw.setPosition(0.75);
+        outtakeClaw.setPosition(0.70);
     }
 
     public void ScoreSample() {
@@ -42,13 +42,26 @@ public class DepositAssembly {
         RotateOuttakeClaw0();
     }
 
+    public void ScoreSampleFront() {
+        outtakePivotLeft.setPosition(0.65);
+        outtakePivotRight.setPosition(0.65);
+        outtakeClawPivot.setPosition(0.9);
+        RotateOuttakeClaw180();
+    }
+
+    public void GrabSampleFloor() {
+        outtakePivotLeft.setPosition(0.02);
+        outtakePivotRight.setPosition(0.02);
+        outtakeClawPivot.setPosition(0.65);
+        RotateOuttakeClaw180();
+    }
+
     public void GrabSpecimen() {
         outtakePivotLeft.setPosition(0.02);
         outtakePivotRight.setPosition(0.02);
         outtakeClawPivot.setPosition(0.9);
         RotateOuttakeClaw180();
     }
-
     public void ScoreSpecimen() {
         outtakePivotLeft.setPosition(0.65);
         outtakePivotRight.setPosition(0.65);
