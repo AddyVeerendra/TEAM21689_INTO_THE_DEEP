@@ -117,7 +117,7 @@ public class QualAutoSpecimen extends OpMode {
                         setPathState(1);
                         times = 1;
                     }
-
+                    
                     linearSlides.setKP(0.005);
                     linearSlides.moveSlidesToPositionInches(5);
 
@@ -202,8 +202,11 @@ public class QualAutoSpecimen extends OpMode {
                 break;
 
             case 9:
+                if (follower.getCurrentTValue() > 0.6) {
+                    follower.setMaxPower(0.75);
+                }
                 if (!follower.isBusy()) {
-                    setPathState(10);
+                    setPathState(13);
                 }
                 break;
 
@@ -227,7 +230,7 @@ public class QualAutoSpecimen extends OpMode {
             case 12:
                 toHumanPlayer2 = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -56, Point.CARTESIAN)));
+                        new Point(40, -55, Point.CARTESIAN)));
                 toHumanPlayer2.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toHumanPlayer2, false);
                 setPathState(13);
@@ -257,7 +260,8 @@ public class QualAutoSpecimen extends OpMode {
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(30, -50, Point.CARTESIAN),
                         new Point(0 + (cycles * 2.5), -30, Point.CARTESIAN)));
-                toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
+                toChamber.setReversed(true);
+                toChamber.setTangentHeadingInterpolation();
                 follower.followPath(toChamber, false);
                 setPathState(15);
                 times = 0;
@@ -268,6 +272,9 @@ public class QualAutoSpecimen extends OpMode {
                     if (follower.getCurrentTValue() > 0.2) {
                         depositAssembly.ScoreSpecimen();
                     }
+                }
+                if (follower.getCurrentTValue() > 0.8) {
+                    toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
                 }
                 if (!follower.isBusy()) {
                     if (times == 0) {
@@ -284,7 +291,7 @@ public class QualAutoSpecimen extends OpMode {
                         linearSlides.moveSlidesToPositionInches(0);
 
                         if (cycles < 2) {
-                            setPathState(16);
+                            setPathState(18);
                         } else {
                             depositAssembly.Hang();
                             linearSlides.moveSlidesToPositionInches(0);
@@ -314,16 +321,20 @@ public class QualAutoSpecimen extends OpMode {
                 break;
 
             case 18:
-                toHumanPlayer2 = new Path(new BezierLine(
+                toHumanPlayer2 = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -56, Point.CARTESIAN)));
-                toHumanPlayer2.setConstantHeadingInterpolation(Math.toRadians(-90));
+                        new Point(40, -45, Point.CARTESIAN),
+                        new Point(40, -55, Point.CARTESIAN)));
+                toHumanPlayer2.setTangientalHeadingInterpolation();
                 follower.followPath(toHumanPlayer2, false);
                 setPathState(19);
                 times = 0;
                 break;
 
             case 19:
+                if (follower.getCurrentTValue() > 0.7) {
+                    toHumanPlayer2.setConstantHeadingInterpolation(Math.toRadians(-90));
+                }
                 if (!follower.isBusy()) {
                     if (cycles == 2) {
                         requestOpModeStop();
