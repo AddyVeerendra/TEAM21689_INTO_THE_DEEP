@@ -95,18 +95,18 @@ public class NewTeleopQual extends LinearOpMode {
             double frontRightPower = clipPower(y - x - rx);
             double backRightPower = clipPower(y + x - rx);
 
-            // Toggle front wheel turn on left bumper press
-            if (gamepad2.left_bumper && !leftBumperPressed) {
-                frontWheelTurn = !frontWheelTurn;
-                leftBumperPressed = true;
-            } else if (!gamepad2.left_bumper) {
-                leftBumperPressed = false;
-            }
-
-            if (frontWheelTurn) {
-                frontLeftPower *= (frontWheelRadius / backWheelRadius);
-                frontRightPower *= (frontWheelRadius / backWheelRadius);
-            }
+//            // Toggle front wheel turn on left bumper press
+//            if (gamepad2.left_bumper && !leftBumperPressed) {
+//                frontWheelTurn = !frontWheelTurn;
+//                leftBumperPressed = true;
+//            } else if (!gamepad2.left_bumper) {
+//                leftBumperPressed = false;
+//            }
+//
+//            if (frontWheelTurn) {
+//                frontLeftPower *= (frontWheelRadius / backWheelRadius);
+//                frontRightPower *= (frontWheelRadius / backWheelRadius);
+//            }
 
             leftFront.setPower(frontLeftPower);
             leftBack.setPower(backLeftPower);
@@ -118,6 +118,13 @@ public class NewTeleopQual extends LinearOpMode {
             } else if (gamepad1.share) {
                 linearSlides.zeroSlides();
                 linearSlides.moveSlidesToPositionInches(0);
+            }
+
+            if (gamepad2.options) {
+                intakeAssembly.ExtendSlidesToPos(-20);
+            } else if (gamepad2.share) {
+                intakeAssembly.zeroSlide();
+                intakeAssembly.RetractSlidesFull();
             }
 
             // Claw rotation toggle on Y
@@ -431,6 +438,7 @@ public class NewTeleopQual extends LinearOpMode {
                 linearSlides.setKP(0.005);
                 linearSlides.moveSlidesToPositionInches(5);
                 intakeAssembly.ExtendSlidesToPos(10);
+                intakeAssembly.UnlockIntake();
                 depositState = DepositSequenceState.RETRACT_SLIDES_SPECIMEN_GRAB;
                 depositStateStartTime = getRuntime();
                 break;
@@ -459,6 +467,7 @@ public class NewTeleopQual extends LinearOpMode {
             case WAIT_OUTTAKE_CLOSE_SPECIMEN:
                 if (elapsed > 0.15) {
                     linearSlides.moveSlidesToPositionInches(13);
+                    intakeAssembly.UnlockIntake();
                     intakeAssembly.ExtendSlidesToPos(10);
                     depositAssembly.ScoreSpecimen();
                     depositState = DepositSequenceState.DONE_FALSE_SPECIMEN;

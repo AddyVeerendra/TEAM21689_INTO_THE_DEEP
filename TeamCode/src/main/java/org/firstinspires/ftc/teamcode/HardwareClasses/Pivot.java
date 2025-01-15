@@ -62,4 +62,9 @@ public class Pivot {
         // Calculate the angle in degrees based on the number of ticks per output revolution
         return (currentTicks / TICKS_PER_OUTPUT_REV) * 360.0;
     }
+
+    public void zeroPivot() {
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
 }

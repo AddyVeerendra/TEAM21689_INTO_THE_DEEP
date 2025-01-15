@@ -82,6 +82,10 @@ public class IntakeAssemblyClaw {
         intakeSlides.movePivotToAngle(pos);
     }
 
+    public void zeroSlide() {
+        intakeSlides.zeroPivot();
+    }
+
     public void update() {
         intakeSlides.update();
     }

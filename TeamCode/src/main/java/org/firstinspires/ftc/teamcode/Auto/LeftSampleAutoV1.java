@@ -108,7 +108,7 @@ public class LeftSampleAutoV1 extends OpMode {
                         times = 1;
                     }
                     depositAssembly.OpenOuttakeClaw();
-                    //intakeAssembly.ExtendSlidesToPos(10);
+                    intakeAssembly.ExtendSlidesToPos(20);
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.15) {
                         setPathState(2);
