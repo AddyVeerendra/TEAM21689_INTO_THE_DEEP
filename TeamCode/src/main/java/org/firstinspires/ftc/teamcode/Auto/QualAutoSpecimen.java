@@ -156,7 +156,7 @@ public class QualAutoSpecimen extends OpMode {
                 toSpike1Give = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(50, -12, Point.CARTESIAN),
-                        new Point(46, -55, Point.CARTESIAN)));
+                        new Point(46, -60, Point.CARTESIAN)));
                 toSpike1Give.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toSpike1Give, false);
                 setPathState(5);
@@ -164,7 +164,8 @@ public class QualAutoSpecimen extends OpMode {
                 break;
 
             case 5:
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() || follower.getCurrentTValue() > 0.9) {
+                    follower.breakFollowing();
                     setPathState(6);
                 }
                 break;
