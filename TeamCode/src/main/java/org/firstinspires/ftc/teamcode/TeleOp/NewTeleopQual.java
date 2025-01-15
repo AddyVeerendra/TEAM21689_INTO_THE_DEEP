@@ -428,16 +428,17 @@ public class NewTeleopQual extends LinearOpMode {
                 break;
 
             case RETRACT_SLIDES_SPECIMEN_SCORE:
-                linearSlides.setKP(0.01);
-                linearSlides.moveSlidesToPositionInches(7);
+                linearSlides.setKP(0.005);
+                linearSlides.moveSlidesToPositionInches(5);
+                intakeAssembly.ExtendSlidesToPos(10);
                 depositState = DepositSequenceState.RETRACT_SLIDES_SPECIMEN_GRAB;
                 depositStateStartTime = getRuntime();
                 break;
 
             case RETRACT_SLIDES_SPECIMEN_GRAB:
-                if (elapsed > 0.75) {
+                if (elapsed > 0.5) {
                     linearSlides.setKP(0.005);
-                    linearSlides.moveSlidesToPositionInches(2);
+                    linearSlides.moveSlidesToPositionInches(0);
                     depositAssembly.GrabSpecimen();
                     depositAssembly.OpenOuttakeClaw();
                     depositState = DepositSequenceState.DONE_TRUE_SPECIMEN;
@@ -457,8 +458,8 @@ public class NewTeleopQual extends LinearOpMode {
 
             case WAIT_OUTTAKE_CLOSE_SPECIMEN:
                 if (elapsed > 0.15) {
-                    linearSlides.moveSlidesToPositionInches(15.8);
-                    intakeAssembly.ExtendSlidesToPos(20);
+                    linearSlides.moveSlidesToPositionInches(13);
+                    intakeAssembly.ExtendSlidesToPos(10);
                     depositAssembly.ScoreSpecimen();
                     depositState = DepositSequenceState.DONE_FALSE_SPECIMEN;
                 }

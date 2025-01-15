@@ -57,7 +57,7 @@ public class LeftSampleAutoV1 extends OpMode {
         intakeAssembly.PivotClawUp();
         intakeAssembly.RotateClaw0();
         intakeAssembly.RetractSlidesFull();
-        intakeAssembly.Lock();
+        intakeAssembly.LockIntake();
         depositAssembly.CloseOuttakeClaw();
         depositAssembly.Hang();
 
@@ -156,7 +156,8 @@ public class LeftSampleAutoV1 extends OpMode {
                     //}
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        follwer.setMaxPower(0.75);
+                        follower.breakFollowing();
+                        follower.setMaxPower(0.75);
                         depositAssembly.ScoreSampleFront();
                         linearSlides.moveSlidesToPositionInches(30);
                         setPathState(6);
