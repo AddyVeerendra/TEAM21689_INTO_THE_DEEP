@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
-@Autonomous(name = "Qual 1 Auto Specimen")
+@Autonomous(name = "AUTO - QUAL 3 SPECIMEN (MAIN)")
 public class QualAutoSpecimen extends OpMode {
 
     private IntakeAssemblyClaw intakeAssembly;
@@ -215,33 +215,6 @@ public class QualAutoSpecimen extends OpMode {
                 }
                 break;
 
-            case 10:
-                follower.setMaxPower(0.75);
-                toHumanPlayer1 = new Path(new BezierLine(
-                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -40, Point.CARTESIAN)));
-                toHumanPlayer1.setConstantHeadingInterpolation(Math.toRadians(-90));
-                follower.followPath(toHumanPlayer1, false);
-                setPathState(11);
-                times = 0;
-                break;
-
-            case 11:
-                if (!follower.isBusy()) {
-                    setPathState(12);
-                }
-                break;
-
-            case 12:
-                toHumanPlayer2 = new Path(new BezierLine(
-                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -55, Point.CARTESIAN)));
-                toHumanPlayer2.setConstantHeadingInterpolation(Math.toRadians(-90));
-                follower.followPath(toHumanPlayer2, false);
-                setPathState(13);
-                times = 0;
-                break;
-
             case 13:
                 if (!follower.isBusy()) {
                     if (times == 0) {
@@ -312,23 +285,6 @@ public class QualAutoSpecimen extends OpMode {
                         }
                     }
 
-                }
-                break;
-
-            case 16:
-                distanceTimes = 0;
-                toHumanPlayer1 = new Path(new BezierLine(
-                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -40, Point.CARTESIAN)));
-                toHumanPlayer1.setConstantHeadingInterpolation(Math.toRadians(-90));
-                follower.followPath(toHumanPlayer1, false);
-                setPathState(17);
-                times = 0;
-                break;
-
-            case 17:
-                if (!follower.isBusy()) {
-                    setPathState(18);
                 }
                 break;
 
