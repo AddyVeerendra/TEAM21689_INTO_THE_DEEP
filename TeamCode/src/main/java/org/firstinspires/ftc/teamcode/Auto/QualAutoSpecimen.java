@@ -177,7 +177,7 @@ public class QualAutoSpecimen extends OpMode {
             case 6:
                 toSpike2Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(48, -12, Point.CARTESIAN)));
+                        new Point(46, -12, Point.CARTESIAN)));
                 toSpike2Grab.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toSpike2Grab, false);
                 setPathState(7);
@@ -199,7 +199,7 @@ public class QualAutoSpecimen extends OpMode {
                 toSpike2Give = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(64, -12, Point.CARTESIAN),
-                        new Point(60, -54, Point.CARTESIAN)));
+                        new Point(60, -56, Point.CARTESIAN)));
                 toSpike2Give.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toSpike2Give, false);
                 setPathState(9);
@@ -235,7 +235,7 @@ public class QualAutoSpecimen extends OpMode {
             case 12:
                 toHumanPlayer2 = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -55, Point.CARTESIAN)));
+                        new Point(40, -51, Point.CARTESIAN)));
                 toHumanPlayer2.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toHumanPlayer2, false);
                 setPathState(13);
@@ -269,7 +269,7 @@ public class QualAutoSpecimen extends OpMode {
                 toChamber = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(30, -50, Point.CARTESIAN),
-                        new Point(0 + (cycles * 2.5), -32, Point.CARTESIAN)));
+                        new Point(0 + (cycles * 2.5), -31, Point.CARTESIAN)));
                 toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toChamber, false);
                 setPathState(15);
@@ -293,13 +293,13 @@ public class QualAutoSpecimen extends OpMode {
                         times = 1;
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                         follower.breakFollowing();
                         linearSlides.setKP(0.005);
                         linearSlides.moveSlidesToPositionInches(5);
                     }
 
-                    if (pathTimer.getElapsedTimeSeconds() > 0.75) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1) {
 
                         depositAssembly.OpenOuttakeClaw();
 
@@ -335,8 +335,8 @@ public class QualAutoSpecimen extends OpMode {
             case 18:
                 toHumanPlayer2 = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -40, Point.CARTESIAN),
-                        new Point(40, -54, Point.CARTESIAN)));
+                        new Point(40, -35, Point.CARTESIAN),
+                        new Point(40, -49, Point.CARTESIAN)));
                 toHumanPlayer2.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toHumanPlayer2, false);
                 setPathState(19);

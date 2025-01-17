@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class FConstants {
     static {
-        FollowerConstants.localizers = Localizers.PINPOINT;
+        FollowerConstants.localizers = Localizers.THREE_WHEEL_IMU;
 
         FollowerConstants.leftFrontMotorName = "leftFront";
         FollowerConstants.leftRearMotorName = "leftRear";
@@ -26,11 +26,11 @@ public class FConstants {
         FollowerConstants.forwardZeroPowerAcceleration = -27;
         FollowerConstants.lateralZeroPowerAcceleration = -71.5;
 
-        FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.3, 0, 0.025, 0);
+        FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.2, 0, 0.025, 0);
         FollowerConstants.useSecondaryTranslationalPID = false;
         FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0.1, 0, 0.01, 0); // Not being used, @see useSecondaryTranslationalPID
 
-        FollowerConstants.headingPIDFCoefficients.setCoefficients(2, 0, 0.1, 0);
+        FollowerConstants.headingPIDFCoefficients.setCoefficients(1, 0, 0.1, 0);
         FollowerConstants.useSecondaryHeadingPID = false;
         FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(2, 0, 0.1, 0); // Not being used, @see useSecondaryHeadingPID
 

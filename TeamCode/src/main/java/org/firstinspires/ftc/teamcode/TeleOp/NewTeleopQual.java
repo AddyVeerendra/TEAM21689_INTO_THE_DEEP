@@ -124,7 +124,7 @@ public class NewTeleopQual extends LinearOpMode {
                 intakeAssembly.ExtendSlidesToPos(-20);
             } else if (gamepad2.share) {
                 intakeAssembly.zeroSlide();
-                intakeAssembly.RetractSlidesFull();
+                intakeAssembly.ExtendSlidesToPos(20);
             }
 
             // Claw rotation toggle on Y
@@ -285,7 +285,7 @@ public class NewTeleopQual extends LinearOpMode {
 
             case ROTATE_UP:
                 if (elapsed > 0.4) {
-                    intakeAssembly.ExtendSlidesToPos(24);
+                    intakeAssembly.ExtendSlidesToPos(22);
                     intakeState = IntakeSequenceState.EXTEND_SLIDES;
                     intakeStateStartTime = getRuntime();
                 }
