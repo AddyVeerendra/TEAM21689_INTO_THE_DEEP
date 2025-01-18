@@ -199,7 +199,7 @@ public class QualAutoSpecimen extends OpMode {
                 toSpike2Give = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(64, -12, Point.CARTESIAN),
-                        new Point(60, -56, Point.CARTESIAN)));
+                        new Point(60, -55.5, Point.CARTESIAN)));
                 toSpike2Give.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toSpike2Give, false);
                 setPathState(9);

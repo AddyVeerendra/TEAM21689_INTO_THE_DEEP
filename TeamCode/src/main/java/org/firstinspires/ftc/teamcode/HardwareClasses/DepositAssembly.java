@@ -70,9 +70,9 @@ public class DepositAssembly {
     }
 
     public void TransferSample() {
-        outtakePivotLeft.setPosition(0.815);
-        outtakePivotRight.setPosition(0.815);
-        outtakeClawPivot.setPosition(1);
+        outtakePivotLeft.setPosition(0.81);
+        outtakePivotRight.setPosition(0.81);
+        outtakeClawPivot.setPosition(0.99);
         OpenOuttakeClaw();
         RotateOuttakeClaw0();
     }
