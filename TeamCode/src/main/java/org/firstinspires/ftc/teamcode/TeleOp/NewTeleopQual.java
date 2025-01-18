@@ -44,6 +44,8 @@ public class NewTeleopQual extends LinearOpMode {
 
     private float backWheelRadius = 3.0f;
 
+    public int times = 0;
+
     @Override
     public void runOpMode() {
         // Initialize Drive motors
@@ -69,15 +71,19 @@ public class NewTeleopQual extends LinearOpMode {
 
         // Initial positions
         intakeAssembly.UnlockIntake();
-        intakeAssembly.ExtendSlidesToPos(35);
+        intakeAssembly.ExtendSlidesToPos(0);
         depositAssembly.OpenOuttakeClaw();
         depositAssembly.Hang();
         intakeAssembly.RotateClaw0();
         intakeAssembly.PivotClawUp();
         intakeAssembly.OpenClaw();
+        linearSlides.moveSlidesToPositionInches(25);
+
+        resetRuntime();
 
         while (opModeInInit() && !isStopRequested()) {
             intakeAssembly.update();
+            linearSlides.update();
         }
 
         waitForStart();
@@ -120,11 +126,17 @@ public class NewTeleopQual extends LinearOpMode {
                 linearSlides.moveSlidesToPositionInches(0);
             }
 
+            if (gamepad2.dpad_up) {
+                linearSlides.moveSlidesToPositionInches(33);
+            }
+
             if (gamepad2.options) {
-                intakeAssembly.ExtendSlidesToPos(-20);
+                intakeAssembly.ExtendSlidesToPos(-40);
             } else if (gamepad2.share) {
                 intakeAssembly.zeroSlide();
+                intakeAssembly.update();
                 intakeAssembly.ExtendSlidesToPos(20);
+                linearSlides.moveSlidesToPositionInches(15);
             }
 
             // Claw rotation toggle on Y
@@ -271,6 +283,7 @@ public class NewTeleopQual extends LinearOpMode {
                 depositAssembly.OpenOuttakeClaw();
                 depositAssembly.TransferSample();
                 intakeState = IntakeSequenceState.WAIT_CLOSE_CLAW;
+                linearSlides.moveSlidesToPositionInches(0);
                 intakeStateStartTime = getRuntime();
                 break;
 
@@ -285,7 +298,7 @@ public class NewTeleopQual extends LinearOpMode {
 
             case ROTATE_UP:
                 if (elapsed > 0.4) {
-                    intakeAssembly.ExtendSlidesToPos(22);
+                    intakeAssembly.ExtendSlidesToPos(24);
                     intakeState = IntakeSequenceState.EXTEND_SLIDES;
                     intakeStateStartTime = getRuntime();
                 }
@@ -302,6 +315,7 @@ public class NewTeleopQual extends LinearOpMode {
 
             case CLOSE_OUTTAKE_CLAW:
                 if (elapsed > 0.15) {
+                    gamepad2.rumble(200);
                     intakeAssembly.OpenClaw();
                     intakeState = IntakeSequenceState.DONE_1;
                 }

@@ -268,7 +268,7 @@ public class QualAutoSpecimen extends OpMode {
                 distanceTimes = 0;
                 toChamber = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(30, -50, Point.CARTESIAN),
+                        new Point(22, -50, Point.CARTESIAN),
                         new Point(0 + (cycles * 2.5), -31, Point.CARTESIAN)));
                 toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toChamber, false);

@@ -63,15 +63,15 @@ public class DepositAssembly {
         RotateOuttakeClaw180();
     }
     public void GrabSpecimen() {
-        outtakePivotLeft.setPosition(0.78);
-        outtakePivotRight.setPosition(0.78);
+        outtakePivotLeft.setPosition(0.8);
+        outtakePivotRight.setPosition(0.8);
         outtakeClawPivot.setPosition(0.85);
         RotateOuttakeClaw0();
     }
 
     public void TransferSample() {
-        outtakePivotLeft.setPosition(0.79);
-        outtakePivotRight.setPosition(0.79);
+        outtakePivotLeft.setPosition(0.815);
+        outtakePivotRight.setPosition(0.815);
         outtakeClawPivot.setPosition(1);
         OpenOuttakeClaw();
         RotateOuttakeClaw0();
