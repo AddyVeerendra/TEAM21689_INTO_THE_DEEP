@@ -20,11 +20,11 @@ public class SamplePNP_Pipeline extends OpenCvPipeline {
     private Mat labImage = new Mat();
     private Mat lChannel = new Mat();
 
-    private static final Scalar YELLOW_LOWER = new Scalar(255, 180, 50);
-    private static final Scalar YELLOW_UPPER = new Scalar(255, 200, 0);
+    private static final Scalar YELLOW_LOWER = new Scalar(20, 100, 150);
+    private static final Scalar YELLOW_UPPER = new Scalar(30, 255, 255);
 
-    private static final Scalar BLUE_LOWER = new Scalar(100, 170, 170);
-    private static final Scalar BLUE_UPPER = new Scalar(120, 255, 255);
+    private static final Scalar BLUE_LOWER = new Scalar(100, 100, 50);
+    private static final Scalar BLUE_UPPER = new Scalar(130, 255, 255);
 
     private static final Scalar RED_LOWER1 = new Scalar(0, 100, 100);
     private static final Scalar RED_UPPER1 = new Scalar(10, 255, 255);
@@ -56,13 +56,13 @@ public class SamplePNP_Pipeline extends OpenCvPipeline {
 
         // Step 4: Create masks for each color
         Mat yellowMask = createColorMask(hsvImage, YELLOW_LOWER, YELLOW_UPPER);
-        Mat blueMask = new Mat();
+        Mat blueMask = createColorMask(hsvImage, BLUE_LOWER, BLUE_UPPER);
+        Mat redMask = new Mat();
         Core.bitwise_or(
                 createColorMask(hsvImage, RED_LOWER1, RED_UPPER1),
                 createColorMask(hsvImage, RED_LOWER2, RED_UPPER2),
-                blueMask
+                redMask
         );
-        Mat redMask = createColorMask(hsvImage, BLUE_LOWER, BLUE_UPPER);
 
         // Step 5: Process masks to find contours
         processColorMask(yellowMask, input, "Yellow");
