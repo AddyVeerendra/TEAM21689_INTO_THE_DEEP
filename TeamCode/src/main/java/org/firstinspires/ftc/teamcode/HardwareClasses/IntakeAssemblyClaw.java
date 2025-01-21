@@ -7,8 +7,9 @@ public class IntakeAssemblyClaw {
     private Servo intakePivot;
     private Servo intakeRotate;
     private Servo intakeClaw;
-    //private Servo intakeSlidesLeft;
     private Servo intakeLock;
+
+    private Servo intakeFlicker;
 
     private Pivot intakeSlides;
 
@@ -17,9 +18,17 @@ public class IntakeAssemblyClaw {
         intakePivot.setDirection(Servo.Direction.REVERSE);
         intakeRotate = hardwareMap.get(Servo.class, "intakeRotate");
         intakeClaw = hardwareMap.get(Servo.class, "intakeClaw");
-        //intakeSlidesLeft = hardwareMap.get(Servo.class, "intakeSlidesLeft");
         intakeLock = hardwareMap.get(Servo.class, "intakeLock");
+        intakeFlicker = hardwareMap.get(Servo.class, "intakeFlicker");
         intakeSlides = new Pivot(hardwareMap);
+    }
+
+    public void IntakeFlickerDown() {
+        intakeFlicker.setPosition(0.07);
+    }
+
+    public void IntakeFlickerUp() {
+        intakeFlicker.setPosition(0.8);
     }
 
     public void LockIntake() {
