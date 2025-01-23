@@ -139,16 +139,16 @@ public class StatesAutoSpecimen extends OpMode {
                 follower.setMaxPower(1);
                 toSpike1Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(0, -65, Point.CARTESIAN),
-                        new Point(12, -55, Point.CARTESIAN)));
-                toSpike1Grab.setConstantHeadingInterpolation(Math.toRadians(30));
+                        new Point(14, -60, Point.CARTESIAN),
+                        new Point(23, -40, Point.CARTESIAN)));
+                toSpike1Grab.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(30));
                 follower.followPath(toSpike1Grab, false);
                 setPathState(3);
                 times = 0;
                 break;
 
             case 3:
-                if (follower.getCurrentTValue() > 0.5) {
+                if (follower.getCurrentTValue() > 0.6) {
                     depositAssembly.GrabSpecimen();
                     linearSlides.moveSlidesToPositionInches(0);
                     intakeAssembly.ExtendSlidesToPos(55);
@@ -161,7 +161,7 @@ public class StatesAutoSpecimen extends OpMode {
 
                     intakeAssembly.IntakeFlickerDown();
 
-                    if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.35) {
                         setPathState(4);
                     }
                 }
@@ -170,8 +170,8 @@ public class StatesAutoSpecimen extends OpMode {
             case 4:
                 toSpike1Give = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(22, -40, Point.CARTESIAN)));
-                toSpike1Give.setConstantHeadingInterpolation(Math.toRadians(-50));
+                        new Point(28, -41, Point.CARTESIAN)));
+                toSpike1Give.setLinearHeadingInterpolation(Math.toRadians(30), Math.toRadians(-50));
                 follower.followPath(toSpike1Give, false);
                 setPathState(5);
                 times = 0;
@@ -180,15 +180,15 @@ public class StatesAutoSpecimen extends OpMode {
             case 5:
                 if (!follower.isBusy()) {
                     intakeAssembly.IntakeFlickerUp();
-                    setPathState(-1);
+                    setPathState(6);
                 }
                 break;
 
             case 6:
                 toSpike2Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(46, -12, Point.CARTESIAN)));
-                toSpike2Grab.setConstantHeadingInterpolation(Math.toRadians(-90));
+                        new Point(33, -40, Point.CARTESIAN)));
+                toSpike2Grab.setLinearHeadingInterpolation(Math.toRadians(-50), Math.toRadians(30));
                 follower.followPath(toSpike2Grab, false);
                 setPathState(7);
                 times = 0;
@@ -201,192 +201,235 @@ public class StatesAutoSpecimen extends OpMode {
                         times = 1;
                     }
 
-                    setPathState(8);
+                    intakeAssembly.IntakeFlickerDown();
+
+                    if (pathTimer.getElapsedTimeSeconds() > 0.35) {
+                        setPathState(8);
+                    }
                 }
                 break;
 
             case 8:
-                toSpike2Give = new Path(new BezierCurve(
+                toSpike2Give = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(64, -12, Point.CARTESIAN),
-                        new Point(60, -55.5, Point.CARTESIAN)));
-                toSpike2Give.setConstantHeadingInterpolation(Math.toRadians(-90));
+                        new Point(38, -41, Point.CARTESIAN)));
+                toSpike2Give.setLinearHeadingInterpolation(Math.toRadians(30), Math.toRadians(-50));
                 follower.followPath(toSpike2Give, false);
                 setPathState(9);
                 times = 0;
                 break;
 
             case 9:
-                if (follower.getCurrentTValue() > 0.6) {
-                    follower.setMaxPower(0.75);
-                }
                 if (!follower.isBusy()) {
-                    setPathState(13);
+                    intakeAssembly.IntakeFlickerUp();
+                    setPathState(10);
                 }
                 break;
 
             case 10:
-                follower.setMaxPower(0.75);
-                toHumanPlayer1 = new Path(new BezierLine(
+                toSpike3Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -40, Point.CARTESIAN)));
-                toHumanPlayer1.setConstantHeadingInterpolation(Math.toRadians(-90));
-                follower.followPath(toHumanPlayer1, false);
+                        new Point(43, -40, Point.CARTESIAN)));
+                toSpike3Grab.setLinearHeadingInterpolation(Math.toRadians(-50), Math.toRadians(30));
+                follower.followPath(toSpike3Grab, false);
                 setPathState(11);
                 times = 0;
                 break;
 
             case 11:
                 if (!follower.isBusy()) {
-                    setPathState(12);
+                    if (times == 0) {
+                        setPathState(11);
+                        times = 1;
+                    }
+
+                    intakeAssembly.IntakeFlickerDown();
+
+                    if (pathTimer.getElapsedTimeSeconds() > 0.35) {
+                        setPathState(12);
+                    }
                 }
                 break;
 
             case 12:
-                toHumanPlayer2 = new Path(new BezierLine(
+                toSpike3Give = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -51, Point.CARTESIAN)));
-                toHumanPlayer2.setConstantHeadingInterpolation(Math.toRadians(-90));
-                follower.followPath(toHumanPlayer2, false);
+                        new Point(43, -41, Point.CARTESIAN)));
+                toSpike3Give.setLinearHeadingInterpolation(Math.toRadians(30), Math.toRadians(-50));
+                follower.followPath(toSpike3Give, false);
                 setPathState(13);
                 times = 0;
                 break;
 
             case 13:
                 if (!follower.isBusy()) {
-                    if (times == 0) {
-                        setPathState(13);
-                        follower.startTeleopDrive();
-                        follower.setTeleOpMovementVectors(0.3, 0, 0);
-                        times = 1;
-                    }
-
-                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                        follower.breakFollowing();
-                        depositAssembly.CloseOuttakeClaw();
-                    }
-
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        depositAssembly.ScoreSpecimen();
-                        linearSlides.moveSlidesToPositionInches(13);
-                        setPathState(14);
-                    }
+                    intakeAssembly.IntakeFlickerUp();
+                    setPathState(-1);
                 }
                 break;
 
-            case 14:
-                distanceTimes = 0;
-                toChamber = new Path(new BezierCurve(
-                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(22, -50, Point.CARTESIAN),
-                        new Point(0 + (cycles * 2.5), -31, Point.CARTESIAN)));
-                toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
-                follower.followPath(toChamber, false);
-                setPathState(15);
-                times = 0;
-                break;
-
-            case 15:
-                if (follower.isBusy()) {
-                    if (follower.getCurrentTValue() > 0.2) {
-                        depositAssembly.ScoreSpecimen();
-                    }
-                }
-                if (follower.getCurrentTValue() > 0.8) {
-                    toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
-                }
-                if (!follower.isBusy()) {
-                    if (times == 0) {
-                        setPathState(15);
-                        follower.startTeleopDrive();
-                        follower.setTeleOpMovementVectors(-0.2, 0, 0);
-                        times = 1;
-                    }
-
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        follower.breakFollowing();
-                        linearSlides.setKP(0.005);
-                        linearSlides.moveSlidesToPositionInches(5);
-                    }
-
-                    if (pathTimer.getElapsedTimeSeconds() > 1) {
-
-                        depositAssembly.OpenOuttakeClaw();
-
-                        if (cycles < 2) {
-                            setPathState(18);
-                            depositAssembly.GrabSpecimen();
-                        } else {
-                            depositAssembly.Hang();
-                            setPathState(18);
-                        }
-                    }
-
-                }
-                break;
-
-            case 16:
-                distanceTimes = 0;
-                toHumanPlayer1 = new Path(new BezierLine(
-                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -40, Point.CARTESIAN)));
-                toHumanPlayer1.setConstantHeadingInterpolation(Math.toRadians(-90));
-                follower.followPath(toHumanPlayer1, false);
-                setPathState(17);
-                times = 0;
-                break;
-
-            case 17:
-                if (!follower.isBusy()) {
-                    setPathState(18);
-                }
-                break;
-
-            case 18:
-                toHumanPlayer2 = new Path(new BezierCurve(
-                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(40, -35, Point.CARTESIAN),
-                        new Point(40, -49, Point.CARTESIAN)));
-                toHumanPlayer2.setConstantHeadingInterpolation(Math.toRadians(-90));
-                follower.followPath(toHumanPlayer2, false);
-                setPathState(19);
-                times = 0;
-                break;
-
-            case 19:
-                if (follower.getCurrentTValue() > 0.5) {
-                    linearSlides.moveSlidesToPositionInches(0);
-                }
-                if (!follower.isBusy()) {
-                    if (cycles == 2) {
-                        intakeAssembly.RetractSlidesFull();
-                        intakeAssembly.PivotClawUp();
-                        setPathState(-1);
-                        return;
-                    }
-
-                    if (!follower.isBusy()) {
-                        if (times == 0) {
-                            setPathState(19);
-                            follower.startTeleopDrive();
-                            follower.setTeleOpMovementVectors(0.3, 0, 0);
-                            times = 1;
-                        }
-
-                        if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                            follower.breakFollowing();
-                            depositAssembly.CloseOuttakeClaw();
-                        }
-
-                        if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                            depositAssembly.ScoreSpecimen();
-                            linearSlides.moveSlidesToPositionInches(13);
-                            cycles++;
-                            setPathState(14);
-                        }
-                    }
-                }
-                break;
+//            case 10:
+//                follower.setMaxPower(0.75);
+//                toHumanPlayer1 = new Path(new BezierLine(
+//                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+//                        new Point(40, -40, Point.CARTESIAN)));
+//                toHumanPlayer1.setConstantHeadingInterpolation(Math.toRadians(-90));
+//                follower.followPath(toHumanPlayer1, false);
+//                setPathState(11);
+//                times = 0;
+//                break;
+//
+//            case 11:
+//                if (!follower.isBusy()) {
+//                    setPathState(12);
+//                }
+//                break;
+//
+//            case 12:
+//                toHumanPlayer2 = new Path(new BezierLine(
+//                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+//                        new Point(40, -51, Point.CARTESIAN)));
+//                toHumanPlayer2.setConstantHeadingInterpolation(Math.toRadians(-90));
+//                follower.followPath(toHumanPlayer2, false);
+//                setPathState(13);
+//                times = 0;
+//                break;
+//
+//            case 13:
+//                if (!follower.isBusy()) {
+//                    if (times == 0) {
+//                        setPathState(13);
+//                        follower.startTeleopDrive();
+//                        follower.setTeleOpMovementVectors(0.3, 0, 0);
+//                        times = 1;
+//                    }
+//
+//                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+//                        follower.breakFollowing();
+//                        depositAssembly.CloseOuttakeClaw();
+//                    }
+//
+//                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+//                        depositAssembly.ScoreSpecimen();
+//                        linearSlides.moveSlidesToPositionInches(13);
+//                        setPathState(14);
+//                    }
+//                }
+//                break;
+//
+//            case 14:
+//                distanceTimes = 0;
+//                toChamber = new Path(new BezierCurve(
+//                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+//                        new Point(22, -50, Point.CARTESIAN),
+//                        new Point(0 + (cycles * 2.5), -31, Point.CARTESIAN)));
+//                toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
+//                follower.followPath(toChamber, false);
+//                setPathState(15);
+//                times = 0;
+//                break;
+//
+//            case 15:
+//                if (follower.isBusy()) {
+//                    if (follower.getCurrentTValue() > 0.2) {
+//                        depositAssembly.ScoreSpecimen();
+//                    }
+//                }
+//                if (follower.getCurrentTValue() > 0.8) {
+//                    toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
+//                }
+//                if (!follower.isBusy()) {
+//                    if (times == 0) {
+//                        setPathState(15);
+//                        follower.startTeleopDrive();
+//                        follower.setTeleOpMovementVectors(-0.2, 0, 0);
+//                        times = 1;
+//                    }
+//
+//                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+//                        follower.breakFollowing();
+//                        linearSlides.setKP(0.005);
+//                        linearSlides.moveSlidesToPositionInches(5);
+//                    }
+//
+//                    if (pathTimer.getElapsedTimeSeconds() > 1) {
+//
+//                        depositAssembly.OpenOuttakeClaw();
+//
+//                        if (cycles < 2) {
+//                            setPathState(18);
+//                            depositAssembly.GrabSpecimen();
+//                        } else {
+//                            depositAssembly.Hang();
+//                            setPathState(18);
+//                        }
+//                    }
+//
+//                }
+//                break;
+//
+//            case 16:
+//                distanceTimes = 0;
+//                toHumanPlayer1 = new Path(new BezierLine(
+//                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+//                        new Point(40, -40, Point.CARTESIAN)));
+//                toHumanPlayer1.setConstantHeadingInterpolation(Math.toRadians(-90));
+//                follower.followPath(toHumanPlayer1, false);
+//                setPathState(17);
+//                times = 0;
+//                break;
+//
+//            case 17:
+//                if (!follower.isBusy()) {
+//                    setPathState(18);
+//                }
+//                break;
+//
+//            case 18:
+//                toHumanPlayer2 = new Path(new BezierCurve(
+//                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+//                        new Point(40, -35, Point.CARTESIAN),
+//                        new Point(40, -49, Point.CARTESIAN)));
+//                toHumanPlayer2.setConstantHeadingInterpolation(Math.toRadians(-90));
+//                follower.followPath(toHumanPlayer2, false);
+//                setPathState(19);
+//                times = 0;
+//                break;
+//
+//            case 19:
+//                if (follower.getCurrentTValue() > 0.5) {
+//                    linearSlides.moveSlidesToPositionInches(0);
+//                }
+//                if (!follower.isBusy()) {
+//                    if (cycles == 2) {
+//                        intakeAssembly.RetractSlidesFull();
+//                        intakeAssembly.PivotClawUp();
+//                        setPathState(-1);
+//                        return;
+//                    }
+//
+//                    if (!follower.isBusy()) {
+//                        if (times == 0) {
+//                            setPathState(19);
+//                            follower.startTeleopDrive();
+//                            follower.setTeleOpMovementVectors(0.3, 0, 0);
+//                            times = 1;
+//                        }
+//
+//                        if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+//                            follower.breakFollowing();
+//                            depositAssembly.CloseOuttakeClaw();
+//                        }
+//
+//                        if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+//                            depositAssembly.ScoreSpecimen();
+//                            linearSlides.moveSlidesToPositionInches(13);
+//                            cycles++;
+//                            setPathState(14);
+//                        }
+//                    }
+//                }
+//                break;
 
             default:
                 // No further action
