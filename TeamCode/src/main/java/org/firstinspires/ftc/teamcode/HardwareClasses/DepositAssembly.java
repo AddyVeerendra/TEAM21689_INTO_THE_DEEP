@@ -83,4 +83,11 @@ public class DepositAssembly {
         outtakeClawPivot.setPosition(0.4);
         RotateOuttakeClaw180();
     }
+
+    public void HangAuto() {
+        outtakePivotLeft.setPosition(0.33);
+        outtakePivotRight.setPosition(0.33);
+        outtakeClawPivot.setPosition(0.4);
+        RotateOuttakeClaw180();
+    }
 }

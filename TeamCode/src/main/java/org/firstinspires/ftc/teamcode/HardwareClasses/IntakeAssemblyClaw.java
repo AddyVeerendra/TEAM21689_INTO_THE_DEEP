@@ -24,11 +24,19 @@ public class IntakeAssemblyClaw {
     }
 
     public void IntakeFlickerDown() {
-        intakeFlicker.setPosition(0.05);
+        intakeFlicker.setPosition(0.01);
+    }
+
+    public void IntakeFlickerUpMid() {
+        intakeFlicker.setPosition(0.25);
     }
 
     public void IntakeFlickerUp() {
-        intakeFlicker.setPosition(0.8);
+        intakeFlicker.setPosition(0.82);
+    }
+
+    public void IntakeFlickerVertical() {
+        intakeFlicker.setPosition(0.6);
     }
 
     public void LockIntake() {
