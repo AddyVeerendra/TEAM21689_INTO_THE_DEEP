@@ -1,243 +1,148 @@
 package org.firstinspires.ftc.teamcode.OpenCV;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.opencv.calib3d.Calib3d;
-import org.opencv.imgproc.CLAHE;
-import org.openftc.easyopencv.OpenCvPipeline;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
+import org.openftc.easyopencv.*;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.PriorityQueue;
-import java.util.Comparator;
 
 public class SamplePNP_Pipeline extends OpenCvPipeline {
 
-    private final Telemetry telemetry;
-    private Mat hsvImage = new Mat();
-    private Mat mask = new Mat();
-    private Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
-    private Mat labImage = new Mat();
-    private Mat lChannel = new Mat();
+    private final Scalar YELLOW_LOWER = new Scalar(20, 100, 150);
+    private final Scalar YELLOW_UPPER = new Scalar(30, 255, 255);
+    private final Scalar BLUE_LOWER = new Scalar(100, 100, 50);
+    private final Scalar BLUE_UPPER = new Scalar(130, 255, 255);
+    private final Scalar RED_LOWER1 = new Scalar(0, 100, 100);
+    private final Scalar RED_UPPER1 = new Scalar(10, 255, 255);
+    private final Scalar RED_LOWER2 = new Scalar(170, 100, 100);
+    private final Scalar RED_UPPER2 = new Scalar(180, 255, 255);
 
-    private static final Scalar YELLOW_LOWER = new Scalar(20, 100, 150);
-    private static final Scalar YELLOW_UPPER = new Scalar(30, 255, 255);
+    private final double focalLength;  // Camera's focal length
+    private final double realObjectHeight;  // Real height of the object to estimate distance
 
-    private static final Scalar BLUE_LOWER = new Scalar(100, 100, 50);
-    private static final Scalar BLUE_UPPER = new Scalar(130, 255, 255);
+    private Mat processedFrame = new Mat(); // For visualization
+    private List<Sample> detectedSamples = new ArrayList<>();
 
-    private static final Scalar RED_LOWER1 = new Scalar(0, 100, 100);
-    private static final Scalar RED_UPPER1 = new Scalar(10, 255, 255);
-    private static final Scalar RED_LOWER2 = new Scalar(170, 100, 100);
-    private static final Scalar RED_UPPER2 = new Scalar(180, 255, 255);
-
-    private final double focalLength;
-    private final double realObjectHeight;
-    private final PriorityQueue<Sample> detectedSamples;
-
-    public SamplePNP_Pipeline(Telemetry telemetry, double focalLength, double realObjectHeight) {
-        this.telemetry = telemetry;
+    // Constructor
+    public SamplePNP_Pipeline(double focalLength, double realObjectHeight) {
         this.focalLength = focalLength;
         this.realObjectHeight = realObjectHeight;
-        this.detectedSamples = new PriorityQueue<>(Comparator.comparingInt(sample -> sample.rank));
     }
 
     @Override
     public Mat processFrame(Mat input) {
+        // Clear previous samples
         detectedSamples.clear();
-        // Step 1: Convert the image to LAB color space
-        Imgproc.cvtColor(input, labImage, Imgproc.COLOR_BGR2Lab);
 
-        // Step 2: Convert the LAB image back to BGR
-        Imgproc.cvtColor(labImage, input, Imgproc.COLOR_Lab2BGR);
-
-        // Step 3: Convert the image to HSV color space
+        // Convert to HSV
+        Mat hsvImage = new Mat();
         Imgproc.cvtColor(input, hsvImage, Imgproc.COLOR_BGR2HSV);
 
-        // Step 4: Create masks for each color
+        // Create masks for each color
         Mat yellowMask = createColorMask(hsvImage, YELLOW_LOWER, YELLOW_UPPER);
-        Mat blueMask = createColorMask(hsvImage, BLUE_LOWER, BLUE_UPPER);
         Mat redMask = new Mat();
-        Core.bitwise_or(
-                createColorMask(hsvImage, RED_LOWER1, RED_UPPER1),
-                createColorMask(hsvImage, RED_LOWER2, RED_UPPER2),
-                redMask
-        );
+        Core.bitwise_or(createColorMask(hsvImage, RED_LOWER1, RED_UPPER1),
+                createColorMask(hsvImage, RED_LOWER2, RED_UPPER2), redMask);
+        Mat blueMask = createColorMask(hsvImage, BLUE_LOWER, BLUE_UPPER);
 
-        // Step 5: Process masks to find contours
-        processColorMask(yellowMask, input, "Yellow");
-        processColorMask(redMask, input, "Red");
-        processColorMask(blueMask, input, "Blue");
+        // Process each mask
+        processColorMask(yellowMask, "Yellow", input);
+        processColorMask(redMask, "Red", input);
+        processColorMask(blueMask, "Blue", input);
 
-        // Step 6: Return the processed frame
-        return input;
+        // Optional visualization: Draw bounding boxes
+        for (Sample sample : detectedSamples) {
+            Scalar color = sample.color.equals("Yellow") ? new Scalar(255, 255, 0) :
+                    sample.color.equals("Red") ? new Scalar(255, 0, 0) :
+                            new Scalar(0, 0, 255);
+            Point topLeft = new Point(sample.boundingBox.x, sample.boundingBox.y);
+            Point bottomRight = new Point(sample.boundingBox.x + sample.boundingBox.width,
+                    sample.boundingBox.y + sample.boundingBox.height);
+            Imgproc.rectangle(input, topLeft, bottomRight, color, 2);
+        }
+
+        // Release resources
+        hsvImage.release();
+        yellowMask.release();
+        redMask.release();
+        blueMask.release();
+
+        // Return the modified frame
+        processedFrame = input;
+        return processedFrame;
     }
 
     private Mat createColorMask(Mat hsvImage, Scalar lower, Scalar upper) {
+        Mat mask = new Mat();
         Core.inRange(hsvImage, lower, upper, mask);
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
         Imgproc.erode(mask, mask, kernel);
         Imgproc.dilate(mask, mask, kernel);
-        return mask.clone();
+        return mask;
     }
 
-    private void processColorMask(Mat mask, Mat input, String colorName) {
+    private void processColorMask(Mat mask, String colorName, Mat input) {
         List<MatOfPoint> contours = new ArrayList<>();
         Mat hierarchy = new Mat();
         Imgproc.findContours(mask, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
-        int minArea = (int) (input.rows() * input.cols() * 0.001); // 0.1% of frame area
-        int maxArea = (int) (input.rows() * input.cols() * 0.1);
-
         for (MatOfPoint contour : contours) {
-            double contourArea = Imgproc.contourArea(contour);
-            if (contourArea < minArea || contourArea > maxArea) {
-                continue; // Skip contours that are too small or too large
+            double area = Imgproc.contourArea(contour);
+            if (area < input.size().area() * 0.001 || area > input.size().area() * 0.1) {
+                continue;
             }
 
-            Rect boundingRect = Imgproc.boundingRect(contour);
-            double x = boundingRect.x;
-            double y = boundingRect.y;
-            double w = boundingRect.width;
-            double h = boundingRect.height;
+            Rect boundingBox = Imgproc.boundingRect(contour);
+            double centerX = boundingBox.x + boundingBox.width / 2.0;
+            double centerY = boundingBox.y + boundingBox.height / 2.0;
+            double displacementX = centerX - input.width() / 2.0;
+            double displacementY = centerY - input.height() / 2.0;
 
-            // Calculate center coordinates
-            double centerX = x + w / 2.0;
-            double centerY = y + h / 2.0;
+            // Calculate distance using focal length and bounding box height
+            double distance = focalLength / boundingBox.height * realObjectHeight;
+            double rotation = 0; // Placeholder for rotation logic
 
-            // Calculate the center of the screen
-            double screenCenterX = input.cols() / 2.0;
-            double screenCenterY = input.rows() / 2.0;
-
-            // Calculate the displacement from the center of the screen
-            double displacementX = centerX - screenCenterX;
-            double displacementY = centerY - screenCenterY;
-
-            // Assume the bounding box corners are image points
-            MatOfPoint2f imagePoints = new MatOfPoint2f(
-                    new Point(x, y),
-                    new Point(x + w, y),
-                    new Point(x + w, y + h),
-                    new Point(x, y + h)
-            );
-
-            // Define 3D object points (real-world dimensions in cm)
-            MatOfPoint3f objectPoints = new MatOfPoint3f(
-                    new Point3(0, 0, 0),
-                    new Point3(1.5, 0, 0),
-                    new Point3(1.5, 8.9, 0),
-                    new Point3(0, 8.9, 0)
-            );
-
-            Mat cameraMatrix = Mat.eye(3, 3, CvType.CV_32F);
-            cameraMatrix.put(0, 0, focalLength, 0, input.cols() / 2.0);
-            cameraMatrix.put(1, 1, focalLength, input.rows() / 2.0);
-
-            Mat rvec = new Mat();
-            Mat tvec = new Mat();
-
-            boolean success = Calib3d.solvePnP(objectPoints, imagePoints, cameraMatrix, new MatOfDouble(), rvec, tvec);
-
-            if (success) {
-                double distance = Math.sqrt(
-                        tvec.get(0, 0)[0] * tvec.get(0, 0)[0] +
-                                tvec.get(1, 0)[0] * tvec.get(1, 0)[0] +
-                                tvec.get(2, 0)[0] * tvec.get(2, 0)[0]
-                );
-
-                Mat rotationMatrix = new Mat();
-                Calib3d.Rodrigues(rvec, rotationMatrix);
-
-                double[] eulerAngles = rotationMatrixToEulerAngles(rotationMatrix);
-
-                Imgproc.rectangle(input, new Point(x, y), new Point(x + w, y + h), new Scalar(0, 255, 0), 2);
-                Imgproc.putText(input, colorName + String.format(" %.2f cm", distance),
-                        new Point(x, y - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 1);
-
-                detectedSamples.add(new Sample(colorName, distance, displacementX, displacementY, eulerAngles[2], 0)); // Yaw angle
-            }
+            // Add the detected sample
+            detectedSamples.add(new Sample(colorName, distance, displacementX, displacementY, rotation, boundingBox));
         }
+
+        hierarchy.release();
     }
 
-    private double[] rotationMatrixToEulerAngles(Mat rotationMatrix) {
-        double sy = Math.sqrt(rotationMatrix.get(0, 0)[0] * rotationMatrix.get(0, 0)[0] + rotationMatrix.get(1, 0)[0] * rotationMatrix.get(1, 0)[0]);
-
-        boolean singular = sy < 1e-6;
-
-        double x, y, z;
-        if (!singular) {
-            x = Math.atan2(rotationMatrix.get(2, 1)[0], rotationMatrix.get(2, 2)[0]);
-            y = Math.atan2(-rotationMatrix.get(2, 0)[0], sy);
-            z = Math.atan2(rotationMatrix.get(1, 0)[0], rotationMatrix.get(0, 0)[0]);
-        } else {
-            x = Math.atan2(-rotationMatrix.get(1, 2)[0], rotationMatrix.get(1, 1)[0]);
-            y = Math.atan2(-rotationMatrix.get(2, 0)[0], sy);
-            z = 0;
-        }
-        return new double[]{x, y, z};
-    }
-
-    private void SampleClusterRank(PriorityQueue<Sample> detectedSamples) {
-        for (Sample sample : detectedSamples) {
-            // Calculate the distance between the sample and all other samples
-            for (Sample otherSample : detectedSamples) {
-                if (sample != otherSample) {
-                    double distance = Math.sqrt(
-                            (sample.displacementX - otherSample.displacementX) * (sample.displacementX - otherSample.displacementX) +
-                                    (sample.displacementY - otherSample.displacementY) * (sample.displacementY - otherSample.displacementY)
-                    );
-
-                    // If the distance is less than a certain threshold, check the color of the other sample
-                    if (distance < 50) {
-                        if (otherSample.color.equals("yellow") || otherSample.color.equals(sample.color)) {
-                            // Increase the rank of the sample
-                            sample.rank++;
-                        } else {
-                            // Decrease the rank of the sample
-                            sample.rank--;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public PriorityQueue<Sample> getDetectedSamples() {
-        SampleClusterRank(detectedSamples);
+    public List<Sample> getDetectedSamples() {
         return detectedSamples;
     }
 
-    public static class Sample {
-        public final String color;
-        public final double distance;
-        public final double displacementX;
-        public final double displacementY;
-        public final double rotation;
-        public int rank;
+    public Sample getHighestRankedSample() {
+        return detectedSamples.stream()
+                .max((s1, s2) -> Double.compare(s1.rank, s2.rank))
+                .orElse(null);
+    }
 
-        public Sample(String color, double distance, double displacementX, double displacementY, double rotation, int rank) {
+    // Internal class for storing detected samples
+    static class Sample {
+        String color;
+        double distance;
+        double displacementX;
+        double displacementY;
+        double rotation;
+        double rank;
+        Rect boundingBox;
+
+        public Sample(String color, double distance, double displacementX, double displacementY, double rotation, Rect boundingBox) {
             this.color = color;
             this.distance = distance;
             this.displacementX = displacementX;
             this.displacementY = displacementY;
             this.rotation = rotation;
-            this.rank = rank;
+            this.rank = 0;  // Default rank, can be set later
+            this.boundingBox = boundingBox;
         }
-    }
 
-    @Override
-    public void onViewportTapped() {
-        // Release resources held by Mat objects
-        hsvImage.release();
-        mask.release();
-        kernel.release();
-        labImage.release();
-        lChannel.release();
-
-        // Clear the detected samples list
-        detectedSamples.clear();
-
-        // Log or provide telemetry feedback
-        telemetry.addData("Viewport", "Tapped and resources released");
-        telemetry.update();
+        @Override
+        public String toString() {
+            return String.format("Sample(color=%s, distance=%.2f, rank=%.2f)", color, distance, rank);
+        }
     }
 }

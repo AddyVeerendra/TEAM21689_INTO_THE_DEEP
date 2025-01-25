@@ -26,7 +26,7 @@ public class CameraManagerPNP {
                 hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
         // Create an instance of the SamplePNP_Pipeline
-        pipeline = new SamplePNP_Pipeline(telemetry, focalLength, realObjectHeight);
+        pipeline = new SamplePNP_Pipeline(focalLength, realObjectHeight);
 
         // Set the pipeline for the webcam
         webcam.setPipeline(pipeline);
@@ -52,7 +52,7 @@ public class CameraManagerPNP {
     }
 
     // Method to return all detected samples as a list of Sample objects
-    public PriorityQueue<SamplePNP_Pipeline.Sample> getDetectedSamples() {
+    public List<SamplePNP_Pipeline.Sample> getDetectedSamples() {
         return pipeline.getDetectedSamples();
     }
 }

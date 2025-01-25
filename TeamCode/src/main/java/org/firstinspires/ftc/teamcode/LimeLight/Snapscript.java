@@ -36,7 +36,6 @@ public class Snapscript {
             limelight.setPollRateHz(90);
 
             timer = new ElapsedTime();
-            limelight.start();
 
         } catch (Exception e) {
             System.err.println("Error initializing Snapscript: " + e.getMessage());
@@ -52,6 +51,7 @@ public class Snapscript {
      */
     static int ctr = 0;
     public double[] getPython() {
+        limelight.start();
         try {
             if (timer.seconds() < MIN_UPDATE_INTERVAL) {
                 sleep((long)((MIN_UPDATE_INTERVAL - timer.seconds()) * 1000));
