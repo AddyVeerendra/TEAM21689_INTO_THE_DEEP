@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
-@Autonomous(name = "States Auto Specimen")
+@Autonomous(name = "A Beautiful 5 Spec Auto")
 public class StatesAutoSpecimen extends OpMode {
 
     private IntakeAssemblyClaw intakeAssembly;

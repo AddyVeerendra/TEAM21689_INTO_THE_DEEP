@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
-@TeleOp(name = "A TeleOp")
+@TeleOp(name = "TeleOp")
 public class TeleOpDrive extends OpMode {
     private Follower follower;
 

@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.util.Range;
 public class Pivot {
     private static final double TICKS_PER_REV = 1425.1;  // Motor ticks per revolution
     private static final double GEAR_REDUCTION = 1.0;  // Gear reduction
+    public double offset = 15;
     private static final double TICKS_PER_OUTPUT_REV = TICKS_PER_REV * GEAR_REDUCTION;  // Total ticks per output revolution
     private final DcMotorEx motor;
     double lastSetPivotAngle = 0;
@@ -60,7 +61,7 @@ public class Pivot {
         double currentTicks = motor.getCurrentPosition();
 
         // Calculate the angle in degrees based on the number of ticks per output revolution
-        return (currentTicks / TICKS_PER_OUTPUT_REV) * 360.0;
+        return ((currentTicks / TICKS_PER_OUTPUT_REV) * 360.0) - offset;
     }
 
     public void zeroPivot() {

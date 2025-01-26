@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.DepositGripper;
 import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Pivot;
 
-@TeleOp(name = "AAAAA Teleop (so it shows up on top :)")
+@TeleOp(name = "gripper test")
 public class GripperTest extends LinearOpMode {
     private DepositGripper gripper;
     private LinearSlide linearSlide;
