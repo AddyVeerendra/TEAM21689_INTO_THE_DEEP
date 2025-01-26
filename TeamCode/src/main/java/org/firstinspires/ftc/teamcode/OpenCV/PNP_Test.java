@@ -26,7 +26,7 @@ public class PNP_Test extends LinearOpMode {
 
         while (opModeIsActive()) {
             // Retrieve detected samples from the pipeline
-            PriorityQueue<SamplePNP_Pipeline.Sample> detectedSamples = cameraManager.getDetectedSamples();
+            List<SamplePNP_Pipeline.Sample> detectedSamples = cameraManager.getDetectedSamples();
 
             if (!detectedSamples.isEmpty()) {
                 List<SamplePNP_Pipeline.Sample> samplesCopy = new ArrayList<>(detectedSamples);
@@ -36,6 +36,10 @@ public class PNP_Test extends LinearOpMode {
                     telemetry.addData("Extension Distance", getExtensionDistance(cameraAngle, sample.distance));
                     telemetry.addData("X Displacement", sample.displacementX);
                     telemetry.addData("Y Displacement", sample.displacementY);
+                    telemetry.addData("Rotation", sample.rotation);
+                    telemetry.addData("Rank", sample.rank);
+
+
                 }
             }
             else {
