@@ -79,6 +79,10 @@ public class IntakeAssemblyClaw {
         intakePivot.setPosition(0.85);
     }
 
+    public void setOffset(double set) {
+        intakeSlides.setOffset(set);
+    }
+
     public void PivotClawMid() {
         intakePivot.setPosition(0.35);
     }

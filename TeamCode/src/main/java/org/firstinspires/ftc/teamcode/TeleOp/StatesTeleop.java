@@ -72,6 +72,7 @@ public class StatesTeleop extends LinearOpMode {
         intakeAssembly.OpenClaw();
         intakeAssembly.IntakeFlickerVertical();
         linearSlides.moveSlidesToPositionInches(25);
+        intakeAssembly.setOffset(15);
 
         resetRuntime();
 

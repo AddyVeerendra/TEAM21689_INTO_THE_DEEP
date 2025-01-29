@@ -45,7 +45,7 @@ public class StatesAutoSpecimen extends OpMode {
         // Initialize path stuff with hardwareMap
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
-        follower.setStartingPose(new Pose(12, -61.5, Math.toRadians(-90)));
+        follower.setStartingPose(new Pose(12, -61, Math.toRadians(-90)));
         follower.setMaxPower(0.85);
         pathTimer = new Timer();
         pathState = 0;
@@ -65,6 +65,7 @@ public class StatesAutoSpecimen extends OpMode {
         intakeAssembly.RotateClaw0();
         intakeAssembly.RetractSlidesFull();
         intakeAssembly.UnlockIntake();
+        intakeAssembly.setOffset(0);
         depositAssembly.CloseOuttakeClaw();
         depositAssembly.HangAuto();
 
@@ -99,7 +100,7 @@ public class StatesAutoSpecimen extends OpMode {
             case 0:
                 toChamber = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-2.5, -34, Point.CARTESIAN)));
+                        new Point(-2.5, -35, Point.CARTESIAN)));
                 toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toChamber, false);
                 linearSlides.moveSlidesToPositionInches(13);
@@ -272,7 +273,7 @@ public class StatesAutoSpecimen extends OpMode {
                 follower.setMaxPower(0.85);
                 toHumanPlayer1 = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(41, -51, Point.CARTESIAN)));
+                        new Point(41, -51.5, Point.CARTESIAN)));
                 toHumanPlayer1.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toHumanPlayer1, false);
                 intakeAssembly.ExtendSlidesToPos(15);
@@ -307,7 +308,7 @@ public class StatesAutoSpecimen extends OpMode {
                 toChamber = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(22, -50, Point.CARTESIAN),
-                        new Point(0 + (cycles * 2.5), -31, Point.CARTESIAN)));
+                        new Point(0 + (cycles * 2.5), -32.5, Point.CARTESIAN)));
                 toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toChamber, false);
                 setPathState(17);
@@ -354,7 +355,7 @@ public class StatesAutoSpecimen extends OpMode {
                 toHumanPlayer2 = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(40, -35, Point.CARTESIAN),
-                        new Point(40, -49, Point.CARTESIAN)));
+                        new Point(40, -49.5, Point.CARTESIAN)));
                 if (cycles < 3) {
                     toHumanPlayer2.setConstantHeadingInterpolation(Math.toRadians(-90));
                 } else if (cycles == 3) {
