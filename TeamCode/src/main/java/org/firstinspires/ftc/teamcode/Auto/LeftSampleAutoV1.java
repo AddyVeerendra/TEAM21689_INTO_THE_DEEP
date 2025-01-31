@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
-@Autonomous(name = "LeftSampleAutoV1")
+@Autonomous(name = "4 Sample Auto")
 public class LeftSampleAutoV1 extends OpMode {
     private IntakeAssemblyClaw intakeAssembly;
     private DepositAssembly depositAssembly;
@@ -151,30 +151,18 @@ public class LeftSampleAutoV1 extends OpMode {
                     follower.setMaxPower(0.5);
                     depositAssembly.ScoreSampleFront();
                     linearSlides.moveSlidesToPositionInches(30);
-                    setPathState(6);
+                    setPathState(7);
                 }
-                break;
-
-            case 6:
-                toBasket = new Path(new BezierLine(
-                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-52, -52, Point.CARTESIAN)));
-                toBasket.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-135));
-                follower.followPath(toBasket, true);
-                setPathState(7);
-                times = 0;
                 break;
 
             case 7:
-                if (!follower.isBusy() && !linearSlides.isSlideMotorsBusy()) {
-                    toBasket2 = new Path(new BezierLine(
-                            new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                            new Point(-58, -57, Point.CARTESIAN)));
-                    toBasket2.setConstantHeadingInterpolation(Math.toRadians(-135));
-                    follower.followPath(toBasket2, true);
-                    setPathState(8);
-                    times = 0;
-                }
+                toBasket2 = new Path(new BezierLine(
+                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+                        new Point(-58, -57, Point.CARTESIAN)));
+                toBasket2.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-135));
+                follower.followPath(toBasket2, true);
+                setPathState(8);
+                times = 0;
                 break;
 
 
@@ -221,7 +209,7 @@ public class LeftSampleAutoV1 extends OpMode {
                     follower.setMaxPower(0.5);
                     depositAssembly.ScoreSampleFront();
                     linearSlides.moveSlidesToPositionInches(30);
-                    setPathState(13);
+                    setPathState(14);
                 }
                 break;
 
@@ -237,31 +225,27 @@ public class LeftSampleAutoV1 extends OpMode {
                 break;
 
             case 14:
-                if (!follower.isBusy() && !linearSlides.isSlideMotorsBusy()) {
-                    toBasket2 = new Path(new BezierLine(
-                            new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                            new Point(-58, -57, Point.CARTESIAN)));
-                    toBasket2.setConstantHeadingInterpolation(Math.toRadians(-135));
-                    follower.followPath(toBasket2, true);
-                    setPathState(15);
-                    times = 0;
-                }
+                toBasket2 = new Path(new BezierLine(
+                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+                        new Point(-58, -57, Point.CARTESIAN)));
+                toBasket2.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-135));
+                follower.followPath(toBasket2, true);
+                setPathState(15);
+                times = 0;
                 break;
 
             case 15:
                 if (!follower.isBusy()) {
-                    if (!follower.isBusy()) {
-                        if (times == 0) {
-                            setPathState(15);
-                            times = 1;
-                        }
-                        depositAssembly.OpenOuttakeClaw();
+                    if (times == 0) {
+                        setPathState(15);
+                        times = 1;
+                    }
+                    depositAssembly.OpenOuttakeClaw();
 
-                        if (pathTimer.getElapsedTimeSeconds() > 0.15) {
-                            linearSlides.moveSlidesToPositionInches(1.5);
-                            depositAssembly.GrabSampleFloor();
-                            setPathState(16);
-                        }
+                    if (pathTimer.getElapsedTimeSeconds() > 0.15) {
+                        linearSlides.moveSlidesToPositionInches(1.5);
+                        depositAssembly.GrabSampleFloor();
+                        setPathState(16);
                     }
                 }
                 break;
@@ -269,8 +253,8 @@ public class LeftSampleAutoV1 extends OpMode {
             case 16:
                 toSpike3Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-59, -25, Point.CARTESIAN),
-                        new Point(-62, -30, Point.CARTESIAN)));
+                        new Point(-55, -25, Point.CARTESIAN),
+                        new Point(-59, -30, Point.CARTESIAN)));
                 toSpike3Grab.setConstantHeadingInterpolation(Math.toRadians(0));
                 follower.followPath(toSpike3Grab, true);
                 setPathState(17);
@@ -292,9 +276,7 @@ public class LeftSampleAutoV1 extends OpMode {
                     }
 
                     follower.setMaxPower(0.5);
-                    depositAssembly.ScoreSampleFront();
-                    linearSlides.moveSlidesToPositionInches(30);
-                    setPathState(18);
+                    setPathState(19);
                 }
                 break;
 
@@ -309,31 +291,31 @@ public class LeftSampleAutoV1 extends OpMode {
                 break;
 
             case 19:
-                if (!follower.isBusy() && !linearSlides.isSlideMotorsBusy()) {
-                    toBasket2 = new Path(new BezierLine(
-                            new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                            new Point(-58, -57, Point.CARTESIAN)));
-                    toBasket2.setConstantHeadingInterpolation(Math.toRadians(-135));
-                    follower.followPath(toBasket2, true);
-                    setPathState(20);
-                    times = 0;
-                }
+                toBasket2 = new Path(new BezierLine(
+                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+                        new Point(-58, -57, Point.CARTESIAN)));
+                toBasket2.setConstantHeadingInterpolation(Math.toRadians(-135));
+                follower.followPath(toBasket2, true);
+                setPathState(15);
+                times = 0;
                 break;
 
             case 20:
+                if (follower.getCurrentTValue() > 0.3) {
+                    depositAssembly.ScoreSampleFront();
+                    linearSlides.moveSlidesToPositionInches(30);
+                }
                 if (!follower.isBusy()) {
-                    if (!follower.isBusy()) {
-                        if (times == 0) {
-                            setPathState(20);
-                            times = 1;
-                        }
-                        depositAssembly.OpenOuttakeClaw();
+                    if (times == 0) {
+                        setPathState(20);
+                        times = 1;
+                    }
+                    depositAssembly.OpenOuttakeClaw();
 
-                        if (pathTimer.getElapsedTimeSeconds() > 0.15) {
-                            linearSlides.moveSlidesToPositionInches(1.5);
-                            depositAssembly.GrabSampleFloor();
-                            setPathState(-1);
-                        }
+                    if (pathTimer.getElapsedTimeSeconds() > 0.15) {
+                        linearSlides.moveSlidesToPositionInches(0);
+                        depositAssembly.Hang();
+                        setPathState(23);
                     }
                 }
                 break;
@@ -344,19 +326,14 @@ public class LeftSampleAutoV1 extends OpMode {
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(-50, -10, Point.CARTESIAN),
                         new Point(-25, -10, Point.CARTESIAN)));
-                toPark.setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(0));
-                follower.followPath(toPark, true);
+                toPark.setLinearHeadingInterpolation(Math.toRadians(-135), Math.toRadians(0));
+                follower.followPath(toPark, false);
                 setPathState(24);
                 times = 0;
                 break;
 
             case 24:
-                if (follower.getCurrentTValue() > 0.2) {
-                    linearSlides.moveSlidesToPositionInches(0);
-                    depositAssembly.Hang();
-                }
                 if (!follower.isBusy() && !linearSlides.isSlideMotorsBusy()) {
-                    intakeAssembly.RetractSlidesFull();
                     setPathState(-1);
                 }
                 break;
