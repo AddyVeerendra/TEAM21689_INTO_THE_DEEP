@@ -23,6 +23,7 @@ package org.firstinspires.ftc.teamcode.MiscVision;
 
 import android.util.Size;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -59,6 +60,7 @@ import java.util.List;
  */
 
 @TeleOp(name = "Concept: Vision Color-Locator", group = "Concept")
+@Disabled
 public class VisionColorLocator extends LinearOpMode {
     @Override
     public void runOpMode() {

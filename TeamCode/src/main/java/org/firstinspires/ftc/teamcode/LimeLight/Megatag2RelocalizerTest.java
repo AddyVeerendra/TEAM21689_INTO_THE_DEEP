@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.LimeLight;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
 
 @TeleOp(name = "Megatag2RelocalizerTest", group = "Sensor")
+@Disabled
 public class Megatag2RelocalizerTest extends LinearOpMode {
 
     Follower follower;

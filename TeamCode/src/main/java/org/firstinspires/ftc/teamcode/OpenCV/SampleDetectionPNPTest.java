@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.OpenCV;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.util.List;
 
 @TeleOp
+@Disabled
 public class SampleDetectionPNPTest extends LinearOpMode {
     // Declare variables for the webcam and the OpenCV pipeline
     private CameraManagerSamplePNP cameraManager;

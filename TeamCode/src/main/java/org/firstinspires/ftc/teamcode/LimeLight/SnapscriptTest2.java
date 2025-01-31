@@ -2,12 +2,14 @@ package org.firstinspires.ftc.teamcode.LimeLight;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.util.Arrays;
 
 @TeleOp(name = "Snapscript Test")
+@Disabled
 public class SnapscriptTest2 extends LinearOpMode {
     private Limelight3A limelight;
 

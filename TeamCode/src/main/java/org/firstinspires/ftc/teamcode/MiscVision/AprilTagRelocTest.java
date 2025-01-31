@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.MiscVision;
 import android.util.Size;
 
 import com.pedropathing.localization.Pose;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @TeleOp(name = "AprilTag Reloc", group = "Concept")
+@Disabled
 public class AprilTagRelocTest extends LinearOpMode {
 
     private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera

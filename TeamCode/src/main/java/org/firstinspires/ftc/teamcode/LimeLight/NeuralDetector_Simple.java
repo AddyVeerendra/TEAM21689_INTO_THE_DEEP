@@ -8,6 +8,7 @@ package org.firstinspires.ftc.teamcode.LimeLight;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -16,6 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import java.util.List;
 
 @TeleOp(name = "SimpleNeuralDetector", group = "Sensor")
+@Disabled
 public class NeuralDetector_Simple extends LinearOpMode {
 
     private Limelight3A limelight;

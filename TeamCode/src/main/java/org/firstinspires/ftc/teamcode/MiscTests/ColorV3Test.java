@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.MiscTests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.HardwareClasses.ColorV3;
 
 @TeleOp
+@Disabled
 public class ColorV3Test extends LinearOpMode {
     private ColorV3 colorV3;
 

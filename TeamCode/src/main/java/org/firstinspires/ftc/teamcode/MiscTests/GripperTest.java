@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.MiscTests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Pivot;
 
 @TeleOp(name = "gripper test")
+@Disabled
 public class GripperTest extends LinearOpMode {
     private DepositGripper gripper;
     private LinearSlide linearSlide;

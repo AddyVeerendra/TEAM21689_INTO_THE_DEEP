@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssemblyIntake;
 import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 
 @TeleOp(name = "QUALIFIER 3 Robot TeleOp Intake")
+@Disabled
 public class NewTeleopQual3Intake extends LinearOpMode {
 
     private DcMotor leftFront;

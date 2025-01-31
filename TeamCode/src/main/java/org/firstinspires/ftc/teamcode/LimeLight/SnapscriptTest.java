@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.LimeLight;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -7,6 +8,7 @@ import java.util.Arrays;
 
 
 @TeleOp(name = "Snapscript", group = "Sensor")
+@Disabled
 public class SnapscriptTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Snapscript snapscript = new Snapscript(hardwareMap, telemetry);

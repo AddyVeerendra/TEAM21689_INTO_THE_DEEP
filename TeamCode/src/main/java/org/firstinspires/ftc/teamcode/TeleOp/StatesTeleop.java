@@ -71,7 +71,6 @@ public class StatesTeleop extends LinearOpMode {
         intakeAssembly.PivotClawUp();
         intakeAssembly.OpenClaw();
         intakeAssembly.IntakeFlickerVertical();
-        linearSlides.moveSlidesToPositionInches(25);
         intakeAssembly.setOffset(15);
 
         resetRuntime();
@@ -82,11 +81,10 @@ public class StatesTeleop extends LinearOpMode {
                 times++;
             } else if (getRuntime() > 1 && times == 1) {
                 intakeAssembly.zeroSlide();
-                intakeAssembly.update();
                 times++;
             } else if (getRuntime() > 1.2 && times == 2) {
                 intakeAssembly.ExtendSlidesToPos(20);
-                linearSlides.moveSlidesToPositionInches(15);
+                linearSlides.moveSlidesToPositionInches(0);
                 times++;
             }
 
@@ -294,7 +292,7 @@ public class StatesTeleop extends LinearOpMode {
 
             case ROTATE_UP:
                 if (elapsed > 0.4) {
-                    intakeAssembly.ExtendSlidesToPos(24);
+                    intakeAssembly.ExtendSlidesToPos(21);
                     intakeState = IntakeSequenceState.EXTEND_SLIDES;
                     intakeStateStartTime = getRuntime();
                 }
@@ -312,6 +310,7 @@ public class StatesTeleop extends LinearOpMode {
             case CLOSE_OUTTAKE_CLAW:
                 if (elapsed > 0.15) {
                     gamepad2.rumble(200);
+                    intakeAssembly.ExtendSlidesToPos(22);
                     intakeAssembly.OpenClaw();
                     intakeState = IntakeSequenceState.DONE_1;
                 }

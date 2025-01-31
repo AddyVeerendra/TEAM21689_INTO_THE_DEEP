@@ -93,6 +93,10 @@ public class StatesAutoSpecimen extends OpMode {
         follower.telemetryDebug(telemetryA);
         linearSlides.update();
         intakeAssembly.update();
+
+        if (follower.isRobotStuck()) {
+            follower.breakFollowing();
+        }
     }
 
     public void autoPathUpdate() {
@@ -141,7 +145,7 @@ public class StatesAutoSpecimen extends OpMode {
                 toSpike1Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(14, -55, Point.CARTESIAN),
-                        new Point(23, -40, Point.CARTESIAN)));
+                        new Point(23, -38, Point.CARTESIAN)));
                 toSpike1Grab.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(20));
                 follower.followPath(toSpike1Grab, false);
                 setPathState(3);
@@ -188,7 +192,7 @@ public class StatesAutoSpecimen extends OpMode {
             case 6:
                 toSpike2Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(33, -40, Point.CARTESIAN)));
+                        new Point(33, -38, Point.CARTESIAN)));
                 toSpike2Grab.setLinearHeadingInterpolation(Math.toRadians(-50), Math.toRadians(25));
                 follower.followPath(toSpike2Grab, false);
                 setPathState(7);
@@ -230,7 +234,7 @@ public class StatesAutoSpecimen extends OpMode {
             case 10:
                 toSpike3Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(43, -40, Point.CARTESIAN)));
+                        new Point(43, -38, Point.CARTESIAN)));
                 toSpike3Grab.setLinearHeadingInterpolation(Math.toRadians(-50), Math.toRadians(30));
                 follower.followPath(toSpike3Grab, false);
                 setPathState(11);
@@ -296,7 +300,6 @@ public class StatesAutoSpecimen extends OpMode {
                     }
 
                     if (pathTimer.getElapsedTimeSeconds() > 0.4) {
-                        depositAssembly.ScoreSpecimen();
                         linearSlides.moveSlidesToPositionInches(13);
                         setPathState(16);
                     }
@@ -317,7 +320,7 @@ public class StatesAutoSpecimen extends OpMode {
 
             case 17:
                 if (follower.isBusy()) {
-                    if (follower.getCurrentTValue() > 0.2) {
+                    if (follower.getCurrentTValue() > 0.3) {
                         depositAssembly.ScoreSpecimen();
                     }
                 }
@@ -395,7 +398,6 @@ public class StatesAutoSpecimen extends OpMode {
                         }
 
                         if (pathTimer.getElapsedTimeSeconds() > 0.4) {
-                            depositAssembly.ScoreSpecimen();
                             linearSlides.moveSlidesToPositionInches(13);
                             cycles++;
                             setPathState(16);

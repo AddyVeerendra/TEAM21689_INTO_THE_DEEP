@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.MiscTests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -8,6 +9,7 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 import org.firstinspires.ftc.teamcode.HardwareClasses.Pivot;
 
 @TeleOp(name = "Pivot Test")
+@Disabled
 public class PivotTest extends LinearOpMode {
 
     private Pivot pivot;

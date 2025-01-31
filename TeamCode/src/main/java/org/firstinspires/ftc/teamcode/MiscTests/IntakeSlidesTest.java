@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.MiscTests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssemblyClaw;
 
 @TeleOp(name = "Intake Slides Test", group = "TeleOp")
+@Disabled
 public class IntakeSlidesTest extends LinearOpMode {
 
     private IntakeAssemblyClaw intakeAssembly;

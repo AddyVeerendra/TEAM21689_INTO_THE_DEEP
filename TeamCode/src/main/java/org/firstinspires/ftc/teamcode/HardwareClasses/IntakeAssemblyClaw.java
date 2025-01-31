@@ -36,7 +36,7 @@ public class IntakeAssemblyClaw {
     }
 
     public void IntakeFlickerVertical() {
-        intakeFlicker.setPosition(0.6);
+        intakeFlicker.setPosition(0.55);
     }
 
     public void LockIntake() {

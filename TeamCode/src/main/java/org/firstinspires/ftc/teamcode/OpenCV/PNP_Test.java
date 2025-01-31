@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.OpenCV;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 @TeleOp(name = "PNP_TEST")
+@Disabled
 public class PNP_Test extends LinearOpMode {
     private CameraManagerPNP cameraManager;
     private static final float cameraAngle = 30;

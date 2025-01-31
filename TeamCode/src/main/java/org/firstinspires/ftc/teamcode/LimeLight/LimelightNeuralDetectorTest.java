@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.LimeLight;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -9,6 +10,7 @@ import java.util.List;
 
 
 @TeleOp(name = "LimelightNeuralDetectorTest", group = "Sensor")
+@Disabled
 public class LimelightNeuralDetectorTest extends LinearOpMode {
 
     @Override
