@@ -293,7 +293,7 @@ public class LeftSampleAutoV1 extends OpMode {
             case 19:
                 toBasket2 = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-58, -57, Point.CARTESIAN)));
+                        new Point(-59, -58, Point.CARTESIAN)));
                 toBasket2.setConstantHeadingInterpolation(Math.toRadians(-135));
                 follower.followPath(toBasket2, true);
                 setPathState(20);
@@ -301,7 +301,7 @@ public class LeftSampleAutoV1 extends OpMode {
                 break;
 
             case 20:
-                if (follower.getCurrentTValue() > 0.2) {
+                if (follower.getCurrentTValue() > 0.1) {
                     depositAssembly.ScoreSampleFront();
                     linearSlides.moveSlidesToPositionInches(30);
                 }
