@@ -50,10 +50,10 @@ public class DepositAssembly {
     }
 
     public void GrabSampleFloor() {
-        outtakePivotLeft.setPosition(0.02);
-        outtakePivotRight.setPosition(0.02);
+        outtakePivotLeft.setPosition(0.03);
+        outtakePivotRight.setPosition(0.03);
         outtakeClawPivot.setPosition(0.65);
-        RotateOuttakeClaw180();
+        RotateOuttakeClaw0();
     }
 
     public void ScoreSpecimen() {
@@ -92,9 +92,9 @@ public class DepositAssembly {
     }
 
     public void GrabSampleFloor90() {
-        outtakePivotLeft.setPosition(0.02);
-        outtakePivotRight.setPosition(0.02);
-        outtakeClawPivot.setPosition(0.45);
-        outtakeClawRotate.setPosition(0.8);
+        outtakePivotLeft.setPosition(0.03);
+        outtakePivotRight.setPosition(0.03);
+        outtakeClawPivot.setPosition(0.7);
+        outtakeClawRotate.setPosition(0.7);
     }
 }

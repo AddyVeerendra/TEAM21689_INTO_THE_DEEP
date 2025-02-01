@@ -375,7 +375,7 @@ public class StatesAutoSpecimen extends OpMode {
                 }
                 if (follower.getCurrentTValue() > 0.2 && cycles == 3) {
                     intakeAssembly.ExtendSlidesFull();
-                    intakeAssembly.IntakeFlickerUp();
+                    intakeAssembly.IntakeFlickerVertical();
                 }
                 if (!follower.isBusy()) {
                     if (cycles == 3) {

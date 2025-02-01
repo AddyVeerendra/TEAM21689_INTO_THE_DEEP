@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<Robot type="FirstInspires-FTC">
+    <EthernetDevice
+        serialNumber="EthernetOverUsb:eth0:172.29.0.27" name="Limelight" port="-1" ipAddress="172.29.0.1" />
+    <LynxUsbDevice name="Control Hub Portal" serialNumber="(embedded)" parentModuleAddress="173">
+        <LynxModule name="Expansion Hub 2" port="2">
+            <goBILDA5202SeriesMotor name="slideMotorLeft" port="0" />
+            <goBILDA5202SeriesMotor name="slideMotorRight" port="1" />
+            <goBILDA5202SeriesMotor name="pivotMotor" port="2" />
+            <Servo name="outtakePivotLeft" port="0" />
+            <Servo name="outtakePivotRight" port="1" />
+            <Servo name="outtakeClawPivot" port="2" />
+            <Servo name="outtakeClaw" port="3" />
+            <Servo name="intakeLock" port="4" />
+            <Servo name="outtakeClawRotate" port="5" />
+            <REV_VL53L0X_RANGE_SENSOR name="distanceBack" port="0" bus="2" />
+            <REV_VL53L0X_RANGE_SENSOR name="distanceFront" port="0" bus="3" />
+        </LynxModule>
+        <LynxModule name="Control Hub" port="173">
+            <goBILDA5202SeriesMotor name="leftFront" port="0" />
+            <goBILDA5202SeriesMotor name="leftRear" port="1" />
+            <goBILDA5202SeriesMotor name="rightFront" port="2" />
+            <goBILDA5202SeriesMotor name="rightRear" port="3" />
+            <Servo name="intakePivot" port="0" />
+            <Servo name="intakeRotate" port="1" />
+            <Servo name="intakeClaw" port="2" />
+            <Servo name="intakeFlicker" port="3" />
+            <goBILDAPinpoint name="pinpoint" port="0" bus="3" />
+            <ControlHubImuBHI260AP name="imu" port="0" bus="0" />
+        </LynxModule>
+    </LynxUsbDevice>
+    <Webcam name="Webcam 1" serialNumber="A6DAAF60" />
+</Robot>

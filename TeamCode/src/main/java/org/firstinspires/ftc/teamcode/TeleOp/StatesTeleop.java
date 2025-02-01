@@ -64,6 +64,7 @@ public class StatesTeleop extends LinearOpMode {
         depositAssembly = new DepositAssembly(hardwareMap);
 
         // Initial positions
+        intakeAssembly.IntakeFlickerVertical();
         intakeAssembly.UnlockIntake();
         depositAssembly.OpenOuttakeClaw();
         depositAssembly.Hang();

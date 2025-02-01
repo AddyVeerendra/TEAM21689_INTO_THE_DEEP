@@ -125,8 +125,8 @@ public class LeftSampleAutoV1 extends OpMode {
             case 2:
                 toSpike1Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-48, -40, Point.CARTESIAN),
-                        new Point(-48, -25, Point.CARTESIAN)));
+                        new Point(-47, -40, Point.CARTESIAN),
+                        new Point(-47.5, -35, Point.CARTESIAN)));
                 toSpike1Grab.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toSpike1Grab, false);
                 linearSlides.moveSlidesToPositionInches(1.75);
@@ -185,8 +185,8 @@ public class LeftSampleAutoV1 extends OpMode {
             case 9:
                 toSpike2Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-59, -40, Point.CARTESIAN),
-                        new Point(-59, -30, Point.CARTESIAN)));
+                        new Point(-58, -40, Point.CARTESIAN),
+                        new Point(-58, -35, Point.CARTESIAN)));
                 toSpike2Grab.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toSpike2Grab, false);
                 setPathState(10);
@@ -254,7 +254,7 @@ public class LeftSampleAutoV1 extends OpMode {
                 toSpike3Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(-55, -25, Point.CARTESIAN),
-                        new Point(-59, -30, Point.CARTESIAN)));
+                        new Point(-59, -28, Point.CARTESIAN)));
                 toSpike3Grab.setConstantHeadingInterpolation(Math.toRadians(0));
                 follower.followPath(toSpike3Grab, true);
                 setPathState(17);
@@ -296,12 +296,12 @@ public class LeftSampleAutoV1 extends OpMode {
                         new Point(-58, -57, Point.CARTESIAN)));
                 toBasket2.setConstantHeadingInterpolation(Math.toRadians(-135));
                 follower.followPath(toBasket2, true);
-                setPathState(15);
+                setPathState(20);
                 times = 0;
                 break;
 
             case 20:
-                if (follower.getCurrentTValue() > 0.3) {
+                if (follower.getCurrentTValue() > 0.2) {
                     depositAssembly.ScoreSampleFront();
                     linearSlides.moveSlidesToPositionInches(30);
                 }
@@ -321,7 +321,7 @@ public class LeftSampleAutoV1 extends OpMode {
                 break;
 
             case 23:
-                follower.setMaxPower(0.8);
+                follower.setMaxPower(1);
                 toPark = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(-50, -10, Point.CARTESIAN),
@@ -334,6 +334,7 @@ public class LeftSampleAutoV1 extends OpMode {
 
             case 24:
                 if (!follower.isBusy() && !linearSlides.isSlideMotorsBusy()) {
+                    intakeAssembly.IntakeFlickerVertical();
                     setPathState(-1);
                 }
                 break;

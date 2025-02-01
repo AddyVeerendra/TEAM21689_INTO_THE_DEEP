@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.HardwareClasses.DepositAssembly;
 
 @TeleOp(name = "Zero servos deposit")
-@Disabled
+//@Disabled
 public class zeroServosDeposit extends LinearOpMode {
 
     private DepositAssembly depositAssembly;
@@ -16,12 +16,12 @@ public class zeroServosDeposit extends LinearOpMode {
     public void runOpMode() {
         depositAssembly = new DepositAssembly(hardwareMap);
 
-        depositAssembly.TransferSample();
+        depositAssembly.GrabSampleFloor();
 
         waitForStart();
 
         while (opModeIsActive()) {
-
+            depositAssembly.GrabSampleFloor90();
         }
     }
 }
