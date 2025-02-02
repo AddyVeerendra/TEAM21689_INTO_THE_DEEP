@@ -86,10 +86,6 @@ public class LeftSampleAutoV1 extends OpMode {
         autoPathUpdate();
         follower.telemetryDebug(telemetryA);
         linearSlides.update();
-
-        if (follower.isRobotStuck()) {
-            follower.breakFollowing();
-        }
     }
 
     public void autoPathUpdate() {

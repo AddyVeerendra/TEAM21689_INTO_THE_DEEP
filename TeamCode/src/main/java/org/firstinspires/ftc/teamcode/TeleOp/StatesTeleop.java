@@ -32,7 +32,7 @@ public class StatesTeleop extends LinearOpMode {
 
     // Button State Tracking
     private boolean rightBumperPressed = false;
-    private boolean yPressed = false;
+    private boolean yPressed = true;
     private boolean aPressed = false;
     private boolean dpadLeftPressed = false;
     public boolean lockDpad = false;
@@ -77,15 +77,17 @@ public class StatesTeleop extends LinearOpMode {
         resetRuntime();
 
         while (opModeInInit() && !isStopRequested()) {
-            if (getRuntime() > 0.3 && times == 0) {
+            if (getRuntime() > 0 && times == 0) {
                 intakeAssembly.ExtendSlidesToPos(-95);
                 times++;
-            } else if (getRuntime() > 1 && times == 1) {
+            } else if (getRuntime() > 0.7 && times == 1) {
                 intakeAssembly.zeroSlide();
                 times++;
-            } else if (getRuntime() > 1.2 && times == 2) {
+            } else if (getRuntime() > 0.9 && times == 2) {
                 intakeAssembly.ExtendSlidesToPos(20);
                 linearSlides.moveSlidesToPositionInches(0);
+                gamepad1.rumble(200);
+                gamepad2.rumble(200);
                 times++;
             }
 
@@ -94,8 +96,6 @@ public class StatesTeleop extends LinearOpMode {
         }
 
         waitForStart();
-
-        depositAssembly.TransferSample();
 
         while (opModeIsActive()) {
             // Drive control
@@ -151,9 +151,9 @@ public class StatesTeleop extends LinearOpMode {
                 depositAssembly.Hang();
                 intakeAssembly.UnlockIntake();
                 intakeAssembly.RetractSlidesFull();
-                linearSlides.moveSlidesToPositionInches(28);
+                linearSlides.moveSlidesToPositionInches(15);
             } else if (gamepad1.dpad_down) {
-                linearSlides.moveSlidesToPositionInches(18);
+                linearSlides.moveSlidesToPositionInches(0);
                 intakeAssembly.LockIntake();
             }
 
@@ -177,8 +177,13 @@ public class StatesTeleop extends LinearOpMode {
             }
 
             // Unlock intake on left trigger fully pressed
+
             if (gamepad1.right_trigger > 0.9) {
-                depositAssembly.ScoreSample();
+                depositAssembly.ScoreSampleLow();
+            }
+
+            if (gamepad1.left_trigger > 0.9) {
+                linearSlides.moveSlidesToPositionInches(23);
             }
 
             // Open outtake claw on gamepad2 right bumper
@@ -280,6 +285,7 @@ public class StatesTeleop extends LinearOpMode {
                 intakeState = IntakeSequenceState.WAIT_CLOSE_CLAW;
                 linearSlides.moveSlidesToPositionInches(0);
                 intakeStateStartTime = getRuntime();
+                intakeAssembly.IntakeFlickerVertical();
                 break;
 
             case WAIT_CLOSE_CLAW:
@@ -341,6 +347,7 @@ public class StatesTeleop extends LinearOpMode {
             case EXTEND_SLIDES_FULL:
                 // No explicit wait needed here unless you want a delay
                 intakeAssembly.PivotClawMid();
+                intakeAssembly.IntakeFlickerUp();
                 intakeState = IntakeSequenceState.SET_PIVOT_MID;
                 intakeStateStartTime = getRuntime();
                 break;
@@ -456,7 +463,7 @@ public class StatesTeleop extends LinearOpMode {
             case RETRACT_SLIDES_SPECIMEN_GRAB:
                 if (elapsed > 0.5) {
                     linearSlides.setKP(0.005);
-                    linearSlides.moveSlidesToPositionInches(0);
+                    linearSlides.moveSlidesToPositionInches(2);
                     depositAssembly.GrabSpecimen();
                     depositAssembly.OpenOuttakeClaw();
                     depositState = DepositSequenceState.DONE_TRUE_SPECIMEN;
@@ -465,7 +472,13 @@ public class StatesTeleop extends LinearOpMode {
 
             case DONE_TRUE_SPECIMEN:
                 // Sequence done
-                depositState = DepositSequenceState.IDLE;
+                if (elapsed > 1.5) {
+                    linearSlides.setKP(0.005);
+                    linearSlides.moveSlidesToPositionInches(0);
+                    depositAssembly.GrabSpecimen();
+                    depositAssembly.OpenOuttakeClaw();
+                    depositState = DepositSequenceState.IDLE;
+                }
                 break;
 
             case CLOSE_OUTTAKE_SPECIMEN:

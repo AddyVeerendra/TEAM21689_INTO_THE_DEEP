@@ -36,8 +36,15 @@ public class DepositAssembly {
     }
 
     public void ScoreSample() {
-        outtakePivotLeft.setPosition(0.23);
-        outtakePivotRight.setPosition(0.23);
+        outtakePivotLeft.setPosition(0.27);
+        outtakePivotRight.setPosition(0.27);
+        outtakeClawPivot.setPosition(0.9);
+        RotateOuttakeClaw0();
+    }
+
+    public void ScoreSampleLow() {
+        outtakePivotLeft.setPosition(0.15);
+        outtakePivotRight.setPosition(0.15);
         outtakeClawPivot.setPosition(0.9);
         RotateOuttakeClaw0();
     }
