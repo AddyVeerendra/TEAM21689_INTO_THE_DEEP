@@ -9,8 +9,8 @@ import java.util.List;
 
 public class SamplePNP_Pipeline extends OpenCvPipeline {
 
-    private final Scalar YELLOW_LOWER = new Scalar(20, 100, 150);
-    private final Scalar YELLOW_UPPER = new Scalar(30, 255, 255);
+    private final Scalar YELLOW_LOWER = new Scalar(10, 100, 100);
+    private final Scalar YELLOW_UPPER = new Scalar(150, 255, 255);
     private final Scalar BLUE_LOWER = new Scalar(100, 100, 50);
     private final Scalar BLUE_UPPER = new Scalar(130, 255, 255);
     private final Scalar RED_LOWER1 = new Scalar(0, 100, 100);

@@ -55,4 +55,8 @@ public class CameraManagerPNP {
     public List<SamplePNP_Pipeline.Sample> getDetectedSamples() {
         return pipeline.getDetectedSamples();
     }
+
+    public SamplePNP_Pipeline.Sample getHighestRankedSample() {
+        return pipeline.getHighestRankedSample();
+    }
 }
