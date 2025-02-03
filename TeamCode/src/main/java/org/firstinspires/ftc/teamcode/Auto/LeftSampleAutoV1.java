@@ -86,6 +86,10 @@ public class LeftSampleAutoV1 extends OpMode {
         autoPathUpdate();
         follower.telemetryDebug(telemetryA);
         linearSlides.update();
+
+        if (follower.isRobotStuck()) {
+            follower.breakFollowing();
+        }
     }
 
     public void autoPathUpdate() {
@@ -250,7 +254,7 @@ public class LeftSampleAutoV1 extends OpMode {
                 toSpike3Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(-55, -25, Point.CARTESIAN),
-                        new Point(-59, -28, Point.CARTESIAN)));
+                        new Point(-59, -26.5, Point.CARTESIAN)));
                 toSpike3Grab.setConstantHeadingInterpolation(Math.toRadians(0));
                 follower.followPath(toSpike3Grab, true);
                 setPathState(17);
@@ -331,6 +335,7 @@ public class LeftSampleAutoV1 extends OpMode {
             case 24:
                 if (!follower.isBusy() && !linearSlides.isSlideMotorsBusy()) {
                     intakeAssembly.IntakeFlickerVertical();
+                    depositAssembly.GrabSampleFloor();
                     setPathState(-1);
                 }
                 break;
