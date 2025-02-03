@@ -31,15 +31,23 @@ public class PNP_Test extends LinearOpMode {
 
         while (opModeIsActive()) {
             // Retrieve detected samples from the pipeline
-            List<SamplePNP_Pipeline.Sample> detectedSamples = cameraManager.getDetectedSamples();
+            List<OldSamplePNP_Pipeline.Sample> detectedSamples = cameraManager.getDetectedSamples();
 
             if (!detectedSamples.isEmpty()) {
-                SamplePNP_Pipeline.Sample highestRankedSample = cameraManager.getHighestRankedSample();
+                OldSamplePNP_Pipeline.Sample highestRankedSample = cameraManager.getHighestRankedSample();
                 if (highestRankedSample != null) {
                     double distanceCm = getExtensionDistance(15, highestRankedSample.distance);
                     double distanceInches = distanceCm / 2.54; // Convert centimeters to inches
 
                     intakeAssembly.ExtendSlidesToPos(distanceInches*74/32 + 2);
+                    intakeAssembly.OpenClaw();
+                    if(highestRankedSample.horizontal){
+                        intakeAssembly.RotateClaw0();
+                    } else {
+                        intakeAssembly.RotateClaw90();
+                    }
+                    intakeAssembly.IntakeFlickerDown();
+                    intakeAssembly.CloseClaw();
 
                     telemetry.addData("Color", highestRankedSample.color);
                     telemetry.addData("Distance (cm)", distanceCm);

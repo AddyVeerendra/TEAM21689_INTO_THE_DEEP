@@ -14,7 +14,7 @@ import java.util.PriorityQueue;
 
 public class CameraManagerPNP {
     private OpenCvWebcam webcam;
-    private SamplePNP_Pipeline pipeline;
+    private OldSamplePNP_Pipeline pipeline;
 
     public CameraManagerPNP(HardwareMap hardwareMap, Telemetry telemetry, double focalLength, double realObjectHeight) {
         // Get the camera monitor view ID for displaying the camera preview on the screen
@@ -26,7 +26,7 @@ public class CameraManagerPNP {
                 hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 
         // Create an instance of the SamplePNP_Pipeline
-        pipeline = new SamplePNP_Pipeline(focalLength, realObjectHeight);
+        pipeline = new OldSamplePNP_Pipeline(focalLength, realObjectHeight, telemetry);
 
         // Set the pipeline for the webcam
         webcam.setPipeline(pipeline);
@@ -52,11 +52,11 @@ public class CameraManagerPNP {
     }
 
     // Method to return all detected samples as a list of Sample objects
-    public List<SamplePNP_Pipeline.Sample> getDetectedSamples() {
+    public List<OldSamplePNP_Pipeline.Sample> getDetectedSamples() {
         return pipeline.getDetectedSamples();
     }
 
-    public SamplePNP_Pipeline.Sample getHighestRankedSample() {
-        return pipeline.getHighestRankedSample();
+    public OldSamplePNP_Pipeline.Sample getHighestRankedSample() {
+        return (pipeline.getDetectedSamples()).get(0);
     }
 }

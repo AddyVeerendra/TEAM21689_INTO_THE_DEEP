@@ -133,7 +133,8 @@ public class OldSamplePNP_Pipeline extends OpenCvPipeline {
                 Imgproc.rectangle(input, new Point(x, y), new Point(x + w, y + h), new Scalar(0, 255, 0), 2);
                 Imgproc.putText(input, colorName + String.format(" %.2f cm", distance),
                         new Point(x, y - 10), Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 0), 1);
-                detectedSamples.add(new Sample(colorName, distance, displacementX, displacementY, eulerAngles[2], 0)); // Yaw angle
+                boolean horizontal = w > h;
+                detectedSamples.add(new Sample(colorName, distance, displacementX, displacementY, eulerAngles[2], 0, horizontal)); // Yaw angle
             }
         }
     }
@@ -193,14 +194,16 @@ public class OldSamplePNP_Pipeline extends OpenCvPipeline {
         public final double displacementY;
         public final double rotation;
         public int rank;
+        public boolean horizontal;
 
-        public Sample(String color, double distance, double displacementX, double displacementY, double rotation, int rank) {
+        public Sample(String color, double distance, double displacementX, double displacementY, double rotation, int rank, boolean horizontal) {
             this.color = color;
             this.distance = distance;
             this.displacementX = displacementX;
             this.displacementY = displacementY;
             this.rotation = rotation;
             this.rank = rank;
+            this.horizontal = horizontal;
         }
     }
 
