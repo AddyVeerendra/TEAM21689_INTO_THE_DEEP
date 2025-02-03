@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
 @Autonomous(name = "4 Sample Auto")
-public class LeftSampleAutoV1 extends OpMode {
+public class StatesAutoSample extends OpMode {
     private IntakeAssemblyClaw intakeAssembly;
     private DepositAssembly depositAssembly;
     private LinearSlide linearSlides;

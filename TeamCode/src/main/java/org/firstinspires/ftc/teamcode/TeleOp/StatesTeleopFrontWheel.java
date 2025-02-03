@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.DepositAssembly;
 import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssemblyClaw;
 import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 
-@TeleOp(name = "AAAAHH SIGMA TELEOP STATES")
+@TeleOp(name = "AAAAHH SIGMA TELEOP STATES ADDY THINGY")
 @Disabled
 public class StatesTeleopFrontWheel extends LinearOpMode {
 

@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -8,6 +11,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.teamcode.HardwareClasses.DepositAssembly;
 import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssemblyClaw;
 import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +31,9 @@ public class StatesTeleop extends LinearOpMode {
     private DepositAssembly depositAssembly;
     private LinearSlide linearSlides;
 
+    private Follower follower;
+    private final Pose startPose = new Pose(0, 0, 0);
+
     // Toggles
     private boolean clawOpen = false;
     private boolean clawRotated = true;
@@ -43,7 +51,7 @@ public class StatesTeleop extends LinearOpMode {
 
     // --- NEW B Toggle Tracking ---
     private boolean bPressed = false;
-    private boolean bSequenceToggle = true; // We'll flip this each time B is pressed.
+    private boolean bSequenceToggle = false; // We'll flip this each time B is pressed.
 
     public int times = 0;
 
@@ -70,6 +78,10 @@ public class StatesTeleop extends LinearOpMode {
         intakeAssembly = new IntakeAssemblyClaw(hardwareMap);
         depositAssembly = new DepositAssembly(hardwareMap);
 
+        Constants.setConstants(FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap);
+        follower.setStartingPose(startPose);
+
         // Initial positions
         intakeAssembly.IntakeFlickerVertical();
         intakeAssembly.UnlockIntake();
@@ -85,17 +97,19 @@ public class StatesTeleop extends LinearOpMode {
 
         // During INIT phase
         while (opModeInInit() && !isStopRequested()) {
-            if (getRuntime() > 0 && times == 0) {
+            if (getRuntime() > 0.3 && times == 0) {
                 intakeAssembly.ExtendSlidesToPos(-95);
                 times++;
-            } else if (getRuntime() > 0.7 && times == 1) {
+            } else if (getRuntime() > 1 && times == 1) {
                 intakeAssembly.zeroSlide();
                 times++;
-            } else if (getRuntime() > 0.9 && times == 2) {
+            } else if (getRuntime() > 1.2 && times == 2) {
                 intakeAssembly.ExtendSlidesToPos(20);
                 linearSlides.moveSlidesToPositionInches(0);
                 gamepad1.rumble(200);
                 gamepad2.rumble(200);
+                gamepad1.setLedColor(255, 105, 180, 1000);
+                gamepad2.setLedColor(255, 105, 180, 1000);
                 times++;
             }
 
@@ -104,6 +118,8 @@ public class StatesTeleop extends LinearOpMode {
         }
 
         waitForStart();
+
+        follower.startTeleopDrive();
 
         // MAIN LOOP
         while (opModeIsActive()) {
@@ -162,9 +178,9 @@ public class StatesTeleop extends LinearOpMode {
                 depositAssembly.Hang();
                 intakeAssembly.UnlockIntake();
                 intakeAssembly.RetractSlidesFull();
-                linearSlides.moveSlidesToPositionInches(15);
+                linearSlides.moveSlidesToPositionInches(25);
             } else if (gamepad1.dpad_down) {
-                linearSlides.moveSlidesToPositionInches(0);
+                linearSlides.moveSlidesToPositionInches(15);
                 intakeAssembly.LockIntake();
             }
 
@@ -172,11 +188,11 @@ public class StatesTeleop extends LinearOpMode {
             if (gamepad1.right_bumper && !rightBumperPressed) {
                 clawOpen = !clawOpen;
                 if (clawOpen) {
-                    depositAssembly.OpenOuttakeClaw();
-                    intakeAssembly.CloseClaw();
-                } else {
                     depositAssembly.CloseOuttakeClaw();
                     intakeAssembly.OpenClaw();
+                } else {
+                    depositAssembly.OpenOuttakeClaw();
+                    intakeAssembly.CloseClaw();
                 }
                 rightBumperPressed = true;
             } else if (!gamepad1.right_bumper) {
@@ -246,6 +262,7 @@ public class StatesTeleop extends LinearOpMode {
             // Update hardware
             linearSlides.update();
             intakeAssembly.update();
+            follower.update();
         }
     }
 
@@ -485,6 +502,9 @@ public class StatesTeleop extends LinearOpMode {
                 linearSlides.moveSlidesToPositionInches(5);
                 intakeAssembly.ExtendSlidesToPos(5);
                 intakeAssembly.UnlockIntake();
+                intakeAssembly.PivotClawUp();
+                intakeAssembly.RotateClaw0();
+                intakeAssembly.IntakeFlickerUp();
                 depositState = DepositSequenceState.RETRACT_SLIDES_SPECIMEN_GRAB;
                 depositStateStartTime = getRuntime();
                 break;
@@ -515,6 +535,7 @@ public class StatesTeleop extends LinearOpMode {
 
             case WAIT_OUTTAKE_CLOSE_SPECIMEN:
                 if (elapsed > 0.2) {
+                    intakeAssembly.IntakeFlickerVertical();
                     linearSlides.moveSlidesToPositionInches(13);
                     intakeAssembly.UnlockIntake();
                     intakeAssembly.ExtendSlidesToPos(5);
@@ -603,14 +624,17 @@ public class StatesTeleop extends LinearOpMode {
                 // Pivot mid, flicker up, same as A's sequence 2
                 intakeAssembly.PivotClawMid();
                 intakeAssembly.IntakeFlickerUp();
+                intakeAssembly.RotateClaw0();
                 bIntakeState = BIntakeSequenceState.B_SET_PIVOT_MID;
                 bIntakeStateStartTime = getRuntime();
                 break;
 
             case B_SET_PIVOT_MID:
-                intakeAssembly.OpenClaw();
-                bIntakeState = BIntakeSequenceState.B_OPEN_CLAW;
-                bIntakeStateStartTime = getRuntime();
+                if (elapsed > 0.3) {
+                    intakeAssembly.OpenClaw();
+                    bIntakeState = BIntakeSequenceState.B_OPEN_CLAW;
+                    bIntakeStateStartTime = getRuntime();
+                }
                 break;
 
             case B_OPEN_CLAW:
@@ -627,7 +651,7 @@ public class StatesTeleop extends LinearOpMode {
             // ------------------------------------------------
             case B_START_2:
                 lockDpad = true;
-                depositAssembly.HangAuto()
+                depositAssembly.HangAuto();
                 intakeAssembly.CloseClaw();
                 // You can open or close outtake as you wish. If you want it closed, skip openOuttakeClaw.
                 // depositAssembly.OpenOuttakeClaw(); // (Optional)
@@ -639,17 +663,17 @@ public class StatesTeleop extends LinearOpMode {
 
             case B_WAIT_CLOSE_CLAW:
                 if (elapsed > 0.25) {
-                    intakeAssembly.RotateClaw0();
-                    intakeAssembly.PivotClawUp();
+                    intakeAssembly.RotateClaw90();
+                    intakeAssembly.PivotClawMid();
                     bIntakeState = BIntakeSequenceState.B_ROTATE_UP;
                     bIntakeStateStartTime = getRuntime();
                 }
                 break;
 
             case B_ROTATE_UP:
-                if (elapsed > 0.2) {
+                if (elapsed > 0.1) {
                     // Move slides out some distance if you want
-                    intakeAssembly.moveSlidesToPos(7);
+                    intakeAssembly.ExtendSlidesToPos(7);
                     bIntakeState = BIntakeSequenceState.B_WAIT_ROTATE_UP;
                     bIntakeStateStartTime = getRuntime();
                 }

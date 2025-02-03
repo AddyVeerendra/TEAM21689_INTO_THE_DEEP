@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -8,6 +11,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.teamcode.HardwareClasses.DepositAssembly;
 import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssemblyClaw;
 import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -629,7 +634,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
             // ------------------------------------------------
             case B_START_2:
                 lockDpad = true;
-                depositAssembly.HangAuto()
+                depositAssembly.HangAuto();
                 intakeAssembly.CloseClaw();
                 // You can open or close outtake as you wish. If you want it closed, skip openOuttakeClaw.
                 // depositAssembly.OpenOuttakeClaw(); // (Optional)
@@ -651,7 +656,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
             case B_ROTATE_UP:
                 if (elapsed > 0.2) {
                     // Move slides out some distance if you want
-                    intakeAssembly.moveSlidesToPos(7);
+                    intakeAssembly.ExtendSlidesToPos(7);
                     bIntakeState = BIntakeSequenceState.B_WAIT_ROTATE_UP;
                     bIntakeStateStartTime = getRuntime();
                 }

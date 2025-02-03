@@ -64,7 +64,7 @@ public class IntakeAssemblyClaw {
     }
 
     public void RotateClaw90() {
-        intakeRotate.setPosition(0.3);
+        intakeRotate.setPosition(0.23);
     }
 
     public void RotateClawToPos(double pos) {
