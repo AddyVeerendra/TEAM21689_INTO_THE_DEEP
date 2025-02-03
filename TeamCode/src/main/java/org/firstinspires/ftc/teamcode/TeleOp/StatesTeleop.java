@@ -11,6 +11,9 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// Make sure to import Range if you want to use Range.clip
+import com.qualcomm.robotcore.util.Range;
+
 @TeleOp(name = "AAAAHH SIGMA TELEOP STATES")
 public class StatesTeleop extends LinearOpMode {
 
@@ -37,6 +40,10 @@ public class StatesTeleop extends LinearOpMode {
     private boolean dpadLeftPressed = false;
     public boolean lockDpad = false;
     private boolean dpadRightPressed = false;
+
+    // --- NEW B Toggle Tracking ---
+    private boolean bPressed = false;
+    private boolean bSequenceToggle = true; // We'll flip this each time B is pressed.
 
     public int times = 0;
 
@@ -76,6 +83,7 @@ public class StatesTeleop extends LinearOpMode {
 
         resetRuntime();
 
+        // During INIT phase
         while (opModeInInit() && !isStopRequested()) {
             if (getRuntime() > 0 && times == 0) {
                 intakeAssembly.ExtendSlidesToPos(-95);
@@ -97,12 +105,13 @@ public class StatesTeleop extends LinearOpMode {
 
         waitForStart();
 
+        // MAIN LOOP
         while (opModeIsActive()) {
             // Drive control
             double speedMultiplier = 1 - (0.7 * gamepad2.left_trigger);
             double y = -gamepad2.left_stick_y * speedMultiplier;
             double x = gamepad2.left_stick_x * 1.1 * speedMultiplier;
-            double rx = gamepad2.right_stick_x * speedMultiplier;
+            double rx = Range.clip(gamepad2.right_stick_x * speedMultiplier, -0.7, 0.7);
 
             double frontLeftPower = clipPower(y + x + rx);
             double backLeftPower = clipPower(y - x + rx);
@@ -114,6 +123,7 @@ public class StatesTeleop extends LinearOpMode {
             rightFront.setPower(frontRightPower);
             rightBack.setPower(backRightPower);
 
+            // Some examples
             if (gamepad1.options) {
                 linearSlides.moveSlidesToPositionInches(-20);
             } else if (gamepad1.share) {
@@ -147,6 +157,7 @@ public class StatesTeleop extends LinearOpMode {
                 yPressed = false;
             }
 
+            // D-pad up/down for quick moves
             if (gamepad1.dpad_up) {
                 depositAssembly.Hang();
                 intakeAssembly.UnlockIntake();
@@ -157,6 +168,7 @@ public class StatesTeleop extends LinearOpMode {
                 intakeAssembly.LockIntake();
             }
 
+            // Toggle the outtake and intake claws
             if (gamepad1.right_bumper && !rightBumperPressed) {
                 clawOpen = !clawOpen;
                 if (clawOpen) {
@@ -176,8 +188,7 @@ public class StatesTeleop extends LinearOpMode {
                 intakeAssembly.PivotClawDown();
             }
 
-            // Unlock intake on left trigger fully pressed
-
+            // Some triggers for deposit
             if (gamepad1.right_trigger > 0.9) {
                 depositAssembly.ScoreSampleLow();
             }
@@ -209,6 +220,7 @@ public class StatesTeleop extends LinearOpMode {
                 dpadLeftPressed = false;
             }
 
+            // Deposit specimen toggle on dpad_right
             if (gamepad1.dpad_right && !dpadRightPressed) {
                 depositSpecimenToggle = !depositSpecimenToggle;
                 startSpecimenDepositSequence(depositSpecimenToggle);
@@ -217,11 +229,21 @@ public class StatesTeleop extends LinearOpMode {
                 dpadRightPressed = false;
             }
 
-            // Update FSMs
+            // --- NEW B Toggle Handling ---
+            if (gamepad1.b && !bPressed) {
+                bSequenceToggle = !bSequenceToggle;  // Flip between true/false
+                startBIntakeSequence(bSequenceToggle);
+                bPressed = true;
+            } else if (!gamepad1.b) {
+                bPressed = false;
+            }
+
+            // Update all FSMs
             updateIntakeSequence();
             updateDepositSequence();
+            updateBIntakeSequence(); // <--- NEW
 
-            // Update linear slides
+            // Update hardware
             linearSlides.update();
             intakeAssembly.update();
         }
@@ -231,7 +253,9 @@ public class StatesTeleop extends LinearOpMode {
         return Math.max(-1, Math.min(1, power));
     }
 
-    // --- Intake Sequence FSM ---
+    // ----------------------------------------------------------------
+    // ----------------- Intake Sequence FSM (A) ----------------------
+    // ----------------------------------------------------------------
     private enum IntakeSequenceState {
         IDLE,
         // Sequence when intakeSequenceToggle == true
@@ -271,6 +295,7 @@ public class StatesTeleop extends LinearOpMode {
 
     private void updateIntakeSequence() {
         double elapsed = getRuntime() - intakeStateStartTime;
+
         switch (intakeState) {
             case IDLE:
                 // Do nothing until triggered
@@ -370,7 +395,9 @@ public class StatesTeleop extends LinearOpMode {
         }
     }
 
-    // --- Deposit Sequence FSM (Triggered by dpad_left) ---
+    // ----------------------------------------------------------------
+    // ---------------- Deposit Sequence FSM (dpad_left/right) --------
+    // ----------------------------------------------------------------
     private enum DepositSequenceState {
         IDLE,
         // depositSampleToggle == true
@@ -416,11 +443,13 @@ public class StatesTeleop extends LinearOpMode {
 
     private void updateDepositSequence() {
         double elapsed = getRuntime() - depositStateStartTime;
+
         switch (depositState) {
             case IDLE:
                 // Do nothing until triggered
                 break;
 
+            // depositSampleToggle == true
             case OPEN_OUTTAKE_SAMPLE:
                 depositAssembly.OpenOuttakeClaw();
                 depositState = DepositSequenceState.WAIT_OUTTAKE_OPEN_SAMPLE;
@@ -436,10 +465,10 @@ public class StatesTeleop extends LinearOpMode {
                 break;
 
             case DONE_TRUE_SAMPLE:
-                // Sequence done
                 depositState = DepositSequenceState.IDLE;
                 break;
 
+            // depositSampleToggle == false
             case EXTEND_SLIDES_SCORE_SAMPLE:
                 linearSlides.moveSlidesToPositionInches(31);
                 depositAssembly.ScoreSample();
@@ -447,10 +476,10 @@ public class StatesTeleop extends LinearOpMode {
                 break;
 
             case DONE_FALSE_SAMPLE:
-                // Sequence done
                 depositState = DepositSequenceState.IDLE;
                 break;
 
+            // depositSpecimenToggle == true
             case RETRACT_SLIDES_SPECIMEN_SCORE:
                 linearSlides.setKP(0.005);
                 linearSlides.moveSlidesToPositionInches(5);
@@ -462,25 +491,22 @@ public class StatesTeleop extends LinearOpMode {
 
             case RETRACT_SLIDES_SPECIMEN_GRAB:
                 if (elapsed > 0.5) {
-                    linearSlides.setKP(0.005);
+                    depositAssembly.OpenOuttakeClaw();
                     linearSlides.moveSlidesToPositionInches(2);
                     depositAssembly.GrabSpecimen();
-                    depositAssembly.OpenOuttakeClaw();
                     depositState = DepositSequenceState.DONE_TRUE_SPECIMEN;
                 }
                 break;
 
             case DONE_TRUE_SPECIMEN:
-                // Sequence done
                 if (elapsed > 1.5) {
-                    linearSlides.setKP(0.005);
                     linearSlides.moveSlidesToPositionInches(0);
                     depositAssembly.GrabSpecimen();
-                    depositAssembly.OpenOuttakeClaw();
                     depositState = DepositSequenceState.IDLE;
                 }
                 break;
 
+            // depositSpecimenToggle == false
             case CLOSE_OUTTAKE_SPECIMEN:
                 depositAssembly.CloseOuttakeClaw();
                 depositState = DepositSequenceState.WAIT_OUTTAKE_CLOSE_SPECIMEN;
@@ -488,18 +514,166 @@ public class StatesTeleop extends LinearOpMode {
                 break;
 
             case WAIT_OUTTAKE_CLOSE_SPECIMEN:
-                if (elapsed > 0.15) {
+                if (elapsed > 0.2) {
                     linearSlides.moveSlidesToPositionInches(13);
                     intakeAssembly.UnlockIntake();
                     intakeAssembly.ExtendSlidesToPos(5);
-                    depositAssembly.ScoreSpecimen();
                     depositState = DepositSequenceState.DONE_FALSE_SPECIMEN;
+                    depositStateStartTime = getRuntime();
                 }
                 break;
 
             case DONE_FALSE_SPECIMEN:
-                // Sequence done
-                depositState = DepositSequenceState.IDLE;
+                if (elapsed > 0.5) {
+                    depositAssembly.ScoreSpecimen();
+                    depositState = DepositSequenceState.IDLE;
+                }
+                break;
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // ---------------- NEW: B Toggle Intake FSM ----------------------
+    // ----------------------------------------------------------------
+
+    private enum BIntakeSequenceState {
+        IDLE,
+
+        // --- B SEQUENCE 1 (bSequenceToggle == true) ---
+        B_START_1,
+        B_WAIT_UNLOCK_INTAKE,
+        B_EXTEND_SLIDES_FULL,
+        B_SET_PIVOT_MID,
+        B_OPEN_CLAW,
+        B_DONE_1,
+
+        // --- B SEQUENCE 2 (bSequenceToggle == false) ---
+        B_START_2,
+        B_WAIT_CLOSE_CLAW,
+        B_ROTATE_UP,
+        B_WAIT_ROTATE_UP,
+        B_EXTEND_SLIDES,
+        B_WAIT_EXTEND_SLIDES,
+        B_CLOSE_OUTTAKE_CLAW,
+        B_WAIT_OUTTAKE_CLAW,
+        // Variation: "stop and not do any transferring" after moving in
+        B_DONE_2
+    }
+
+    private BIntakeSequenceState bIntakeState = BIntakeSequenceState.IDLE;
+    private double bIntakeStateStartTime;
+
+    private void startBIntakeSequence(boolean sequenceOne) {
+        if (sequenceOne) {
+            // B Sequence 1
+            bIntakeState = BIntakeSequenceState.B_START_1;
+        } else {
+            // B Sequence 2
+            bIntakeState = BIntakeSequenceState.B_START_2;
+        }
+        bIntakeStateStartTime = getRuntime();
+    }
+
+    private void updateBIntakeSequence() {
+        double elapsed = getRuntime() - bIntakeStateStartTime;
+
+        switch (bIntakeState) {
+            case IDLE:
+                // Do nothing until triggered
+                break;
+
+            // ------------------------------------------------
+            // B Sequence 1 (do same steps as "A" Sequence 2)
+            // ------------------------------------------------
+            case B_START_1:
+                intakeAssembly.UnlockIntake();
+                bIntakeState = BIntakeSequenceState.B_WAIT_UNLOCK_INTAKE;
+                bIntakeStateStartTime = getRuntime();
+                break;
+
+            case B_WAIT_UNLOCK_INTAKE:
+                if (elapsed > 0.15) {
+                    intakeAssembly.ExtendSlidesFull();
+                    bIntakeState = BIntakeSequenceState.B_EXTEND_SLIDES_FULL;
+                    bIntakeStateStartTime = getRuntime();
+                }
+                break;
+
+            case B_EXTEND_SLIDES_FULL:
+                // Pivot mid, flicker up, same as A's sequence 2
+                intakeAssembly.PivotClawMid();
+                intakeAssembly.IntakeFlickerUp();
+                bIntakeState = BIntakeSequenceState.B_SET_PIVOT_MID;
+                bIntakeStateStartTime = getRuntime();
+                break;
+
+            case B_SET_PIVOT_MID:
+                intakeAssembly.OpenClaw();
+                bIntakeState = BIntakeSequenceState.B_OPEN_CLAW;
+                bIntakeStateStartTime = getRuntime();
+                break;
+
+            case B_OPEN_CLAW:
+                // Done with B Sequence 1
+                bIntakeState = BIntakeSequenceState.B_DONE_1;
+                break;
+
+            case B_DONE_1:
+                bIntakeState = BIntakeSequenceState.IDLE;
+                break;
+
+            // ------------------------------------------------
+            // B Sequence 2 (similar to A's Sequence 1 but no transferring)
+            // ------------------------------------------------
+            case B_START_2:
+                lockDpad = true;
+                depositAssembly.HangAuto()
+                intakeAssembly.CloseClaw();
+                // You can open or close outtake as you wish. If you want it closed, skip openOuttakeClaw.
+                // depositAssembly.OpenOuttakeClaw(); // (Optional)
+                linearSlides.moveSlidesToPositionInches(0);
+                intakeAssembly.IntakeFlickerVertical();
+                bIntakeState = BIntakeSequenceState.B_WAIT_CLOSE_CLAW;
+                bIntakeStateStartTime = getRuntime();
+                break;
+
+            case B_WAIT_CLOSE_CLAW:
+                if (elapsed > 0.25) {
+                    intakeAssembly.RotateClaw0();
+                    intakeAssembly.PivotClawUp();
+                    bIntakeState = BIntakeSequenceState.B_ROTATE_UP;
+                    bIntakeStateStartTime = getRuntime();
+                }
+                break;
+
+            case B_ROTATE_UP:
+                if (elapsed > 0.2) {
+                    // Move slides out some distance if you want
+                    intakeAssembly.moveSlidesToPos(7);
+                    bIntakeState = BIntakeSequenceState.B_WAIT_ROTATE_UP;
+                    bIntakeStateStartTime = getRuntime();
+                }
+                break;
+
+            case B_WAIT_ROTATE_UP:
+                if (elapsed > 0.3) {
+                    intakeAssembly.LockIntake();
+                    bIntakeState = BIntakeSequenceState.B_CLOSE_OUTTAKE_CLAW;
+                    bIntakeStateStartTime = getRuntime();
+                }
+                break;
+
+            case B_CLOSE_OUTTAKE_CLAW:
+                bIntakeState = BIntakeSequenceState.B_WAIT_OUTTAKE_CLAW;
+                break;
+
+            case B_WAIT_OUTTAKE_CLAW:
+                bIntakeState = BIntakeSequenceState.B_DONE_2;
+                break;
+
+            case B_DONE_2:
+                lockDpad = false;
+                bIntakeState = BIntakeSequenceState.IDLE;
                 break;
         }
     }
