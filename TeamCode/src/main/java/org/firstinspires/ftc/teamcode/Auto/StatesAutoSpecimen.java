@@ -145,15 +145,14 @@ public class StatesAutoSpecimen extends OpMode {
                 toSpike1Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(19, -38, Point.CARTESIAN)));
-                toSpike1Grab.setConstantHeadingInterpolation(Math.toRadians(-90));
-                follower.followPath(toSpike1Grab, false);
+                toSpike1Grab.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(30));
+                follower.followPath(toSpike1Grab, true);
                 setPathState(3);
                 times = 0;
                 break;
 
             case 3:
                 if (follower.getCurrentTValue() > 0.5) {
-                    toSpike1Grab.setConstantHeadingInterpolation(Math.toRadians(30));
                     depositAssembly.GrabSpecimen();
                     linearSlides.moveSlidesToPositionInches(0);
                     intakeAssembly.ExtendSlidesToPos(55);
@@ -176,7 +175,7 @@ public class StatesAutoSpecimen extends OpMode {
                 toSpike1Give = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(20, -41, Point.CARTESIAN)));
-                toSpike1Give.setConstantHeadingInterpolation(Math.toRadians(-25));
+                toSpike1Give.setLinearHeadingInterpolation(Math.toRadians(30), Math.toRadians(-25));
                 follower.followPath(toSpike1Give, false);
                 setPathState(5);
                 times = 0;
@@ -193,8 +192,8 @@ public class StatesAutoSpecimen extends OpMode {
                 toSpike2Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(35, -38, Point.CARTESIAN)));
-                toSpike2Grab.setConstantHeadingInterpolation(Math.toRadians(30));
-                follower.followPath(toSpike2Grab, false);
+                toSpike2Grab.setLinearHeadingInterpolation(Math.toRadians(-25), Math.toRadians(30));
+                follower.followPath(toSpike2Grab, true);
                 setPathState(7);
                 times = 0;
                 break;
@@ -218,7 +217,7 @@ public class StatesAutoSpecimen extends OpMode {
                 toSpike2Give = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(36, -41, Point.CARTESIAN)));
-                toSpike2Give.setConstantHeadingInterpolation(Math.toRadians(-40));
+                toSpike2Give.setLinearHeadingInterpolation(Math.toRadians(30), Math.toRadians(-40));
                 follower.followPath(toSpike2Give, false);
                 setPathState(9);
                 times = 0;
@@ -235,8 +234,8 @@ public class StatesAutoSpecimen extends OpMode {
                 toSpike3Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(41, -38, Point.CARTESIAN)));
-                toSpike3Grab.setConstantHeadingInterpolation(Math.toRadians(35));
-                follower.followPath(toSpike3Grab, false);
+                toSpike3Grab.setLinearHeadingInterpolation(Math.toRadians(-40), Math.toRadians(35));
+                follower.followPath(toSpike3Grab, true);
                 setPathState(11);
                 times = 0;
                 break;
@@ -260,7 +259,7 @@ public class StatesAutoSpecimen extends OpMode {
                 toSpike3Give = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(40, -41, Point.CARTESIAN)));
-                toSpike3Give.setConstantHeadingInterpolation(Math.toRadians(-40));
+                toSpike3Give.setLinearHeadingInterpolation(Math.toRadians(35), Math.toRadians(-40));
                 follower.followPath(toSpike3Give, false);
                 setPathState(13);
                 times = 0;
