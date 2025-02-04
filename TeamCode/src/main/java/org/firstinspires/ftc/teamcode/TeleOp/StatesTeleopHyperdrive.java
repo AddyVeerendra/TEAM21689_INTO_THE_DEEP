@@ -31,6 +31,9 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
     private DepositAssembly depositAssembly;
     private LinearSlide linearSlides;
 
+    private Follower follower;
+    private final Pose startPose = new Pose(0, 0, 0);
+
     // Toggles
     private boolean clawOpen = false;
     private boolean clawRotated = true;
@@ -48,12 +51,13 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
 
     // --- NEW B Toggle Tracking ---
     private boolean bPressed = false;
-    private boolean bSequenceToggle = true; // We'll flip this each time B is pressed.
+    private boolean bSequenceToggle = false; // We'll flip this each time B is pressed.
 
     public int times = 0;
 
-    private Follower follower;
-    private final Pose startPose = new Pose(0, 0, 0);
+    // Variables for auto-align functionality
+    private boolean isAutoAligning = false; // Track if the robot is in auto-align mode
+    private boolean isAlignButtonPressed = false; // Prevent multiple align triggers
 
     @Override
     public void runOpMode() {
@@ -97,17 +101,19 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
 
         // During INIT phase
         while (opModeInInit() && !isStopRequested()) {
-            if (getRuntime() > 0 && times == 0) {
+            if (getRuntime() > 0.3 && times == 0) {
                 intakeAssembly.ExtendSlidesToPos(-95);
                 times++;
-            } else if (getRuntime() > 0.7 && times == 1) {
+            } else if (getRuntime() > 1 && times == 1) {
                 intakeAssembly.zeroSlide();
                 times++;
-            } else if (getRuntime() > 0.9 && times == 2) {
+            } else if (getRuntime() > 1.2 && times == 2) {
                 intakeAssembly.ExtendSlidesToPos(20);
                 linearSlides.moveSlidesToPositionInches(0);
                 gamepad1.rumble(200);
                 gamepad2.rumble(200);
+                gamepad1.setLedColor(255, 105, 180, 1000);
+                gamepad2.setLedColor(255, 105, 180, 1000);
                 times++;
             }
 
@@ -121,13 +127,37 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
 
         // MAIN LOOP
         while (opModeIsActive()) {
-            // Drive control
-            double speedMultiplier = 1 - (0.7 * gamepad2.left_trigger);
-            double y = -gamepad2.left_stick_y * speedMultiplier;
-            double x = gamepad2.left_stick_x * 1.1 * speedMultiplier;
-            double rx = Range.clip(gamepad2.right_stick_x * speedMultiplier, -0.7, 0.7);
 
-            follower.setTeleOpMovementVectors(y, x, rx, true); //true = robot centric
+            if (isAutoAligning) {
+                if (follower.getCurrentTValue() > 0.7) {
+                    
+                }
+                // Check if the robot has finished aligning
+                if (!follower.isBusy() || gamepad2.right_bumper) {
+                    isAutoAligning = false; // Alignment is complete
+                    follower.startTeleopDrive(); // Resume teleop driving
+                }
+            } else {
+                // Drive control
+                double speedMultiplier = 1 - (0.7 * gamepad2.left_trigger);
+                double y = -gamepad2.left_stick_y * speedMultiplier;
+                double x = gamepad2.left_stick_x * 1.1 * speedMultiplier;
+                double rx = Range.clip(gamepad2.right_stick_x * speedMultiplier, -0.7, 0.7);
+    
+                follower.setTeleOpMovementVectors(y, x, rx, true);
+
+                if (gamepad1.b) {
+                    follower.setCurrentPoseWithOffset(startPose);
+                }
+                
+                // Trigger auto-align when 'A' button is pressed
+                if (gamepad1.a && !isAlignButtonPressed) {
+                    isAlignButtonPressed = true; // Prevent multiple triggers
+                    initiateAutoAlign(); // Start the auto-align process
+                } else if (!gamepad1.a) {
+                    isAlignButtonPressed = false; // Reset button press state
+                }
+            }
 
             // Some examples
             if (gamepad1.options) {
@@ -168,9 +198,9 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                 depositAssembly.Hang();
                 intakeAssembly.UnlockIntake();
                 intakeAssembly.RetractSlidesFull();
-                linearSlides.moveSlidesToPositionInches(15);
+                linearSlides.moveSlidesToPositionInches(25);
             } else if (gamepad1.dpad_down) {
-                linearSlides.moveSlidesToPositionInches(0);
+                linearSlides.moveSlidesToPositionInches(15);
                 intakeAssembly.LockIntake();
             }
 
@@ -178,11 +208,11 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
             if (gamepad1.right_bumper && !rightBumperPressed) {
                 clawOpen = !clawOpen;
                 if (clawOpen) {
-                    depositAssembly.OpenOuttakeClaw();
-                    intakeAssembly.CloseClaw();
-                } else {
                     depositAssembly.CloseOuttakeClaw();
                     intakeAssembly.OpenClaw();
+                } else {
+                    depositAssembly.OpenOuttakeClaw();
+                    intakeAssembly.CloseClaw();
                 }
                 rightBumperPressed = true;
             } else if (!gamepad1.right_bumper) {
@@ -254,6 +284,21 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
             intakeAssembly.update();
             follower.update();
         }
+    }
+
+    private void initiateAutoAlign() {
+        // Build a simple path to the alignment point (you can modify this as needed)
+        Path alignmentPath = new Path(new BezierLine(
+                new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+                new Point(0, 0, Point.CARTESIAN)));
+        alignmentPath.setReversed(true);
+        alignmentPath.setTangientalHeadingInterpolation();
+
+        // Follow the path to align the robot
+        follower.followPath(alignmentPath);
+
+        // Switch to auto-align mode
+        isAutoAligning = true;
     }
 
     private double clipPower(double power) {
@@ -492,6 +537,9 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                 linearSlides.moveSlidesToPositionInches(5);
                 intakeAssembly.ExtendSlidesToPos(5);
                 intakeAssembly.UnlockIntake();
+                intakeAssembly.PivotClawUp();
+                intakeAssembly.RotateClaw0();
+                intakeAssembly.IntakeFlickerUp();
                 depositState = DepositSequenceState.RETRACT_SLIDES_SPECIMEN_GRAB;
                 depositStateStartTime = getRuntime();
                 break;
@@ -522,6 +570,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
 
             case WAIT_OUTTAKE_CLOSE_SPECIMEN:
                 if (elapsed > 0.2) {
+                    intakeAssembly.IntakeFlickerVertical();
                     linearSlides.moveSlidesToPositionInches(13);
                     intakeAssembly.UnlockIntake();
                     intakeAssembly.ExtendSlidesToPos(5);
@@ -610,14 +659,17 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                 // Pivot mid, flicker up, same as A's sequence 2
                 intakeAssembly.PivotClawMid();
                 intakeAssembly.IntakeFlickerUp();
+                intakeAssembly.RotateClaw0();
                 bIntakeState = BIntakeSequenceState.B_SET_PIVOT_MID;
                 bIntakeStateStartTime = getRuntime();
                 break;
 
             case B_SET_PIVOT_MID:
-                intakeAssembly.OpenClaw();
-                bIntakeState = BIntakeSequenceState.B_OPEN_CLAW;
-                bIntakeStateStartTime = getRuntime();
+                if (elapsed > 0.3) {
+                    intakeAssembly.OpenClaw();
+                    bIntakeState = BIntakeSequenceState.B_OPEN_CLAW;
+                    bIntakeStateStartTime = getRuntime();
+                }
                 break;
 
             case B_OPEN_CLAW:
@@ -646,15 +698,15 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
 
             case B_WAIT_CLOSE_CLAW:
                 if (elapsed > 0.25) {
-                    intakeAssembly.RotateClaw0();
-                    intakeAssembly.PivotClawUp();
+                    intakeAssembly.RotateClaw90();
+                    intakeAssembly.PivotClawMid();
                     bIntakeState = BIntakeSequenceState.B_ROTATE_UP;
                     bIntakeStateStartTime = getRuntime();
                 }
                 break;
 
             case B_ROTATE_UP:
-                if (elapsed > 0.2) {
+                if (elapsed > 0.1) {
                     // Move slides out some distance if you want
                     intakeAssembly.ExtendSlidesToPos(7);
                     bIntakeState = BIntakeSequenceState.B_WAIT_ROTATE_UP;
