@@ -154,6 +154,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
         waitForStart();
 
         follower.startTeleopDrive();
+        times = 0;
 
         // MAIN LOOP
         while (opModeIsActive()) {
@@ -351,7 +352,9 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                     if (follower.isBusy() && follower.getCurrentTValue() > 0.1) {
                         startSampleDepositSequence(false);
                         depositSampleToggle = !depositSampleToggle;
-                        autoAlignState = AutoAlignState.WAIT_FOR_SLIDES;
+                    }
+                    if (follower.isBusy() && follower.getCurrentTValue() > 0.85) {
+                        follower.setMaxPower(0.5);
                     }
                     if (!follower.isBusy()) {
                         autoAlignState = AutoAlignState.WAIT_FOR_TVALUE;
@@ -389,7 +392,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
         alignmentPath.setConstantHeadingInterpolation(Math.toRadians(0));
 
         // Follow the path to align the robot
-        follower.setMaxPower(0.9);
+        follower.setMaxPower(1);
         follower.followPath(alignmentPath);
 
         // Switch to auto-align mode
@@ -427,7 +430,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
             follower.startTeleopDrive(); // Resume normal control
             return;
         }
-
+    
         switch (teleopSequenceState) {
             case MOVE_TO_HUMAN_PLAYER:
                 follower.setMaxPower(0.85);
@@ -438,23 +441,34 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                 follower.followPath(toHumanPlayer, false);
                 intakeAssembly.ExtendSlidesToPos(15);
                 teleopSequenceState = TeleopSequenceState.WAIT_FOR_HUMAN_PLAYER;
-                teleopPathTimer.resetTimer();
+                times = 0;
                 break;
-
+    
             case WAIT_FOR_HUMAN_PLAYER:
                 if (!follower.isBusy()) {
+                    if (times == 0) {
+                        teleopSequenceState = TeleopSequenceState.WAIT_FOR_HUMAN_PLAYER;
+                        follower.startTeleopDrive();
+                        follower.setTeleOpMovementVectors(0.4, 0, 0);
+                        times = 1;
+                        teleopPathTimer.resetTimer();
+                    }
+    
                     if (teleopPathTimer.getElapsedTimeSeconds() > 0.25) {
                         follower.breakFollowing();
                         depositAssembly.CloseOuttakeClaw();
                     }
+    
                     if (teleopPathTimer.getElapsedTimeSeconds() > 0.4) {
                         linearSlides.moveSlidesToPositionInches(13);
                         teleopSequenceState = TeleopSequenceState.MOVE_TO_CHAMBER;
+                        teleopPathTimer.resetTimer();
                     }
                 }
                 break;
-
+    
             case MOVE_TO_CHAMBER:
+                distanceTimes = 0;
                 Path toChamber = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(22, -50, Point.CARTESIAN),
@@ -462,46 +476,80 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                 toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toChamber, false);
                 teleopSequenceState = TeleopSequenceState.WAIT_FOR_CHAMBER;
-                teleopPathTimer.resetTimer();
+                times = 0;
                 break;
-
+    
             case WAIT_FOR_CHAMBER:
-                if (follower.isBusy()) {
-                    if (follower.getCurrentTValue() > 0.3) {
-                        depositAssembly.ScoreSpecimen();
+                if (follower.isBusy() && follower.getCurrentTValue() > 0.3) {
+                    depositAssembly.ScoreSpecimen();
+                }
+    
+                if (!follower.isBusy() && teleopCycleCount < 3) {
+                    if (times == 0) {
+                        teleopSequenceState = TeleopSequenceState.WAIT_FOR_CHAMBER;
+                        follower.startTeleopDrive();
+                        follower.setTeleOpMovementVectors(-0.4, 0, 0);
+                        times = 1;
+                        teleopPathTimer.resetTimer();
+                    }
+    
+                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.25) {
+                        follower.breakFollowing();
+                        linearSlides.setKP(0.005);
+                        linearSlides.moveSlidesToPositionInches(4);
+                    }
+    
+                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.6) {
+                        depositAssembly.OpenOuttakeClaw();
+    
+                        teleopSequenceState = TeleopSequenceState.MOVE_BACK;
+                        depositAssembly.GrabSpecimen();
                     }
                 }
-                if (!follower.isBusy()) {
-                    teleopSequenceState = TeleopSequenceState.MOVE_BACK;
-                }
                 break;
-
+    
             case MOVE_BACK:
-                if (teleopCycleCount < 3) {
-                    Path toHumanPlayer2 = new Path(new BezierCurve(
-                            new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                            new Point(40, -35, Point.CARTESIAN),
-                            new Point(40, -49.5, Point.CARTESIAN)));
-                    toHumanPlayer2.setConstantHeadingInterpolation(Math.toRadians(-90));
-                    follower.followPath(toHumanPlayer2, false);
-                } else {
-                    teleopSequenceState = TeleopSequenceState.DONE;
-                }
+                Path toHumanPlayer2 = new Path(new BezierCurve(
+                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
+                        new Point(40, -35, Point.CARTESIAN),
+                        new Point(40, -49.5, Point.CARTESIAN)));
+                toHumanPlayer2.setConstantHeadingInterpolation(Math.toRadians(-90));
+                follower.followPath(toHumanPlayer2, false);
                 teleopSequenceState = TeleopSequenceState.RESET_CYCLE;
-                teleopPathTimer.resetTimer();
+                times = 0;
                 break;
-
+    
             case RESET_CYCLE:
+                if (follower.getCurrentTValue() > 0.3) {
+                    linearSlides.moveSlidesToPositionInches(0);
+                }
                 if (!follower.isBusy()) {
-                    teleopCycleCount++;
-                    if (teleopCycleCount < 3) {
-                        teleopSequenceState = TeleopSequenceState.MOVE_TO_CHAMBER;
-                    } else {
+                    if (teleopCycleCount == 3) {
                         teleopSequenceState = TeleopSequenceState.DONE;
+                        return;
+                    }
+    
+                    if (times == 0) {
+                        teleopSequenceState = TeleopSequenceState.RESET_CYCLE;
+                        follower.startTeleopDrive();
+                        follower.setTeleOpMovementVectors(0.4, 0, 0);
+                        times = 1;
+                        teleopPathTimer.resetTimer();
+                    }
+    
+                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.25) {
+                        follower.breakFollowing();
+                        depositAssembly.CloseOuttakeClaw();
+                    }
+    
+                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.4) {
+                        linearSlides.moveSlidesToPositionInches(13);
+                        teleopCycleCount++;
+                        teleopSequenceState = TeleopSequenceState.MOVE_TO_CHAMBER;
                     }
                 }
                 break;
-
+    
             case DONE:
                 teleopSequenceState = TeleopSequenceState.IDLE;
                 follower.startTeleopDrive(); // Resume driver control after the sequence is fully complete
