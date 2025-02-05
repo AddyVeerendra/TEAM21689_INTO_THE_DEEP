@@ -30,6 +30,12 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
     private DcMotor rightFront;
     private DcMotor rightBack;
 
+    private double prevY = 0;
+    private double prevX = 0;
+    private double prevRx = 0;
+    
+    private final double DECAY_RATE = 0.05; // Adjust for smoothness (0.03 - 0.07 works well)
+    
     private IntakeAssemblyClaw intakeAssembly;
     private DepositAssembly depositAssembly;
     private LinearSlide linearSlides;
@@ -170,13 +176,26 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                     autoAlignState = AutoAlignState.IDLE;
                 }
             } else {
-                // Drive control
+                // Get joystick values
                 double speedMultiplier = 1 - (0.7 * gamepad2.left_trigger);
-                double y = -gamepad2.left_stick_y * speedMultiplier;
-                double x = -gamepad2.left_stick_x * 1.1 * speedMultiplier;
-                double rx = Range.clip(-gamepad2.right_stick_x * speedMultiplier, -0.7, 0.7);
-    
-                follower.setTeleOpMovementVectors(y, x, rx, true);
+                double y = -gamepad2.left_stick_y * speedMultiplier; // Forward/Back
+                double x = -gamepad2.left_stick_x * 1.1 * speedMultiplier; // Strafing
+                double rx = Range.clip(-gamepad2.right_stick_x * speedMultiplier, -0.7, 0.7); // Rotation
+                
+                // If joystick is released (very small movement), gradually slow down
+                if (Math.abs(y) < 0.05 && Math.abs(x) < 0.05 && Math.abs(rx) < 0.05) {
+                    prevY *= (1 - DECAY_RATE);
+                    prevX *= (1 - DECAY_RATE);
+                    prevRx *= (1 - DECAY_RATE);
+                } else {
+                    // Normal joystick control
+                    prevY = y;
+                    prevX = x;
+                    prevRx = rx;
+                }
+                
+                // Apply movement vectors to follower (gradually decaying)
+                follower.setTeleOpMovementVectors(prevY, prevX, prevRx, true);
 
                 if (gamepad2.b) {
                     follower.setCurrentPoseWithOffset(new Pose(0, 0, Math.toRadians(0)));
