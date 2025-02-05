@@ -1,63 +1,34 @@
-// PNP_Test.java
+// SomeOtherOpMode.java
 package org.firstinspires.ftc.teamcode.OpenCV;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssemblyClaw;
-import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssemblyIntake;
-import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
-
-import java.util.List;
-
-@TeleOp(name = "PNP_TEST")
+@TeleOp(name = "Use_PNP_Data")
 public class PNP_Test extends LinearOpMode {
+
     private CameraManagerPNP cameraManager;
-    private LinearSlide linearSlide;
-    private static final float cameraAngle = 30;
-    private IntakeAssemblyClaw intakeAssembly;
 
     @Override
     public void runOpMode() {
+        // Initialize the camera manager (assumes proper constructor and initialization in your project)
         cameraManager = new CameraManagerPNP(hardwareMap, telemetry, 822.317, 8.9);
-        intakeAssembly = new IntakeAssemblyClaw(hardwareMap);
         cameraManager.initializeCamera();
 
         telemetry.addLine("Waiting for start");
         telemetry.update();
-
         waitForStart();
 
         while (opModeIsActive()) {
-            // Retrieve detected samples from the pipeline
-            List<OldSamplePNP_Pipeline.Sample> detectedSamples = cameraManager.getDetectedSamples();
+            // Extract the PnP data using our helper class.
+            PNPDataExtractor.SampleData sampleData = PNPDataExtractor.extractPNPData(cameraManager);
 
-            if (!detectedSamples.isEmpty()) {
-                OldSamplePNP_Pipeline.Sample highestRankedSample = cameraManager.getHighestRankedSample();
-                if (highestRankedSample != null) {
-                    double distanceCm = getExtensionDistance(15, highestRankedSample.distance);
-                    double distanceInches = distanceCm / 2.54; // Convert centimeters to inches
-
-                    intakeAssembly.ExtendSlidesToPos(distanceInches*74/32 + 2);
-                    intakeAssembly.OpenClaw();
-                    if(highestRankedSample.horizontal){
-                        intakeAssembly.RotateClaw0();
-                    } else {
-                        intakeAssembly.RotateClaw90();
-                    }
-                    intakeAssembly.IntakeFlickerDown();
-                    intakeAssembly.CloseClaw();
-
-                    telemetry.addData("Color", highestRankedSample.color);
-                    telemetry.addData("Distance (cm)", distanceCm);
-                    telemetry.addData("Distance (inches)", distanceInches);
-                    telemetry.addData("Extension Distance", getExtensionDistance(cameraAngle, distanceCm));
-                    telemetry.addData("X Displacement", highestRankedSample.displacementX);
-                    telemetry.addData("Y Displacement", highestRankedSample.displacementY);
-                    telemetry.addData("Rotation", highestRankedSample.rotation);
-                    telemetry.addData("Rank", highestRankedSample.rank);
-                }
+            if (sampleData != null) {
+                telemetry.addData("Color", sampleData.color);
+                telemetry.addData("Horizontal Displacement (cm)", sampleData.horizontalDisplacement);
+                telemetry.addData("Vertical Displacement (cm)", sampleData.verticalDisplacement);
+                telemetry.addData("Rank", sampleData.rank);
+                telemetry.addData("Is Horizontal", sampleData.isHorizontal);
             } else {
                 telemetry.addLine("No samples detected.");
             }
@@ -65,9 +36,5 @@ public class PNP_Test extends LinearOpMode {
             telemetry.update();
             sleep(50);
         }
-    }
-
-    public double getExtensionDistance(double cameraAngle, double objectDistance) {
-        return (objectDistance * Math.sin(Math.toRadians(cameraAngle)));
     }
 }

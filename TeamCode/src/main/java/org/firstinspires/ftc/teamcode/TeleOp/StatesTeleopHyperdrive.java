@@ -1,8 +1,13 @@
+/*
 package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
+import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.Point;
+import com.pedropathing.pathgen.BezierLine;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -292,7 +297,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                 new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                 new Point(0, 0, Point.CARTESIAN)));
         alignmentPath.setReversed(true);
-        alignmentPath.setTangientalHeadingInterpolation();
+        alignmentPath.setConstantHeadingInterpolation();
 
         // Follow the path to align the robot
         follower.followPath(alignmentPath);
@@ -737,3 +742,4 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
         }
     }
 }
+*/
