@@ -22,8 +22,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 @TeleOp(name = "AAAAHH SIGMA TELEOP STATES HYPERDRIVE")
 public class StatesTeleopHyperdrive extends LinearOpMode {
 
-    private final double DECAY_RATE = 0.2; // Adjust for smoothness (0.03 - 0.07 works well)
-
     private IntakeAssemblyClaw intakeAssembly;
     private DepositAssembly depositAssembly;
     private LinearSlide linearSlides;
