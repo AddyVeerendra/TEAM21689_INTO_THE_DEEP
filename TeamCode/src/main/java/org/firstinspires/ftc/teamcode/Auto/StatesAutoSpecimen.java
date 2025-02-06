@@ -323,7 +323,7 @@ public class StatesAutoSpecimen extends OpMode {
                         depositAssembly.ScoreSpecimen();
                     }
                 }
-                if (!follower.isBusy() && cycles < 3) {
+                if (!follower.isBusy()) {
                     if (times == 0) {
                         setPathState(17);
                         follower.startTeleopDrive();

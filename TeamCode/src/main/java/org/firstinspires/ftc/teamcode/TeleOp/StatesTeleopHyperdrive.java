@@ -10,8 +10,8 @@ import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.HardwareClasses.DepositAssembly;
 import org.firstinspires.ftc.teamcode.HardwareClasses.IntakeAssemblyClaw;
@@ -19,23 +19,11 @@ import org.firstinspires.ftc.teamcode.HardwareClasses.LinearSlide;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 
-// Make sure to import Range if you want to use Range.clip
-import com.qualcomm.robotcore.util.Range;
-
 @TeleOp(name = "AAAAHH SIGMA TELEOP STATES HYPERDRIVE")
 public class StatesTeleopHyperdrive extends LinearOpMode {
 
-    private DcMotor leftFront;
-    private DcMotor leftBack;
-    private DcMotor rightFront;
-    private DcMotor rightBack;
+    private final double DECAY_RATE = 0.2; // Adjust for smoothness (0.03 - 0.07 works well)
 
-    private double prevY = 0;
-    private double prevX = 0;
-    private double prevRx = 0;
-    
-    private final double DECAY_RATE = 0.05; // Adjust for smoothness (0.03 - 0.07 works well)
-    
     private IntakeAssemblyClaw intakeAssembly;
     private DepositAssembly depositAssembly;
     private LinearSlide linearSlides;
@@ -73,6 +61,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
     private enum AutoAlignState {
         IDLE, WAIT_FOR_TVALUE, WAIT_FOR_FIRST_ALIGN, WAIT_FOR_SLIDES, START_SECOND_ALIGN, WAIT_FOR_SECOND_ALIGN, DONE
     }
+
     private AutoAlignState autoAlignState = AutoAlignState.IDLE;
 
     // Add a new state machine for the sequence triggered by X
@@ -94,21 +83,13 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
 
     private boolean isBreakingOutOfSequence = false;
 
+    // Add these near your other variable declarations:
+    private double currentY = 0.0, currentX = 0.0, currentRx = 0.0;
+    private double lastUpdateTime = 0.0;
+
     @Override
     public void runOpMode() {
         // Initialize Drive motors
-        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
-        leftBack = hardwareMap.get(DcMotor.class, "leftRear");
-        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
-        rightBack = hardwareMap.get(DcMotor.class, "rightRear");
-
-        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
         String[] motorNames = {"slideMotorLeft", "slideMotorRight"};
         DcMotorSimple.Direction[] directions = {DcMotorSimple.Direction.FORWARD, DcMotorSimple.Direction.REVERSE};
@@ -176,37 +157,78 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                     autoAlignState = AutoAlignState.IDLE;
                 }
             } else {
-                // Get joystick values
-                double speedMultiplier = 1 - (0.7 * gamepad2.left_trigger);
-                double y = -gamepad2.left_stick_y * speedMultiplier; // Forward/Back
-                double x = -gamepad2.left_stick_x * 1.1 * speedMultiplier; // Strafing
-                double rx = Range.clip(-gamepad2.right_stick_x * speedMultiplier, -0.7, 0.7); // Rotation
-                
-                // If joystick is released (very small movement), gradually slow down
-                if (Math.abs(y) < 0.05 && Math.abs(x) < 0.05 && Math.abs(rx) < 0.05) {
-                    prevY *= (1 - DECAY_RATE);
-                    prevX *= (1 - DECAY_RATE);
-                    prevRx *= (1 - DECAY_RATE);
-                } else {
-                    // Normal joystick control
-                    prevY = y;
-                    prevX = x;
-                    prevRx = rx;
-                }
-                
-                // Apply movement vectors to follower (gradually decaying)
-                follower.setTeleOpMovementVectors(prevY, prevX, prevRx, true);
+                if (!isAutoAligning  && teleopSequenceState == TeleopSequenceState.IDLE) {
+                    double speedMultiplier = 1 - (0.7 * gamepad2.left_trigger);
+                    final double DECAY_STEP = 0.02;
+                    double deadband = 0.05;
 
-                if (gamepad2.b) {
-                    follower.setCurrentPoseWithOffset(new Pose(0, 0, Math.toRadians(0)));
-                }
-                
-                // Trigger auto-align when 'A' button is pressed
-                if (gamepad2.a && !isAlignButtonPressed) {
-                    isAlignButtonPressed = true; // Prevent multiple triggers
-                    initiateAutoAlignBasketStart(); // Start the auto-align process
-                } else if (!gamepad2.a) {
-                    isAlignButtonPressed = false; // Reset button press state
+// Read target joystick values
+                    double targetY = -gamepad2.left_stick_y * speedMultiplier; // Forward/Back
+                    double targetX = -gamepad2.left_stick_x * 1.1 * speedMultiplier; // Strafing
+                    double targetRx = Range.clip(-gamepad2.right_stick_x * speedMultiplier, -0.7, 0.7); // Rotation
+
+// For each axis, if the joystick is active, snap to target; otherwise, apply decay
+// only if the current value is above 0.5.
+                    if (Math.abs(targetY) > deadband) {
+                        currentY = targetY;
+                    } else {
+                        if (Math.abs(currentY) > 0.5) {
+                            if (currentY > DECAY_STEP)
+                                currentY -= DECAY_STEP;
+                            else if (currentY < -DECAY_STEP)
+                                currentY += DECAY_STEP;
+                            else
+                                currentY = 0;
+                        } else {
+                            currentY = 0;
+                        }
+                    }
+
+                    if (Math.abs(targetX) > deadband) {
+                        currentX = targetX;
+                    } else {
+                        if (Math.abs(currentX) > 0.5) {
+                            if (currentX > DECAY_STEP)
+                                currentX -= DECAY_STEP;
+                            else if (currentX < -DECAY_STEP)
+                                currentX += DECAY_STEP;
+                            else
+                                currentX = 0;
+                        } else {
+                            currentX = 0;
+                        }
+                    }
+
+                    if (Math.abs(targetRx) > deadband) {
+                        currentRx = targetRx;
+                    } else {
+                        if (Math.abs(currentRx) > 0.5) {
+                            if (currentRx > DECAY_STEP)
+                                currentRx -= DECAY_STEP;
+                            else if (currentRx < -DECAY_STEP)
+                                currentRx += DECAY_STEP;
+                            else
+                                currentRx = 0;
+                        } else {
+                            currentRx = 0;
+                        }
+                    }
+
+// Pass the updated values to your follower.
+                    follower.setTeleOpMovementVectors(currentY, currentX, currentRx, true);
+
+                    if (gamepad2.b) {
+                        follower.setPose(new Pose(0, 0, Math.toRadians(0)));
+                        gamepad2.rumble(200);
+                    }
+
+                    // Trigger auto-align when 'A' button is pressed
+                    if (gamepad2.a && !isAlignButtonPressed) {
+                        isAlignButtonPressed = true; // Prevent multiple triggers
+                        initiateAutoAlignBasketStart(); // Start the auto-align process
+                    } else if (!gamepad2.a) {
+                        isAlignButtonPressed = false; // Reset button press state
+                    }
                 }
             }
 
@@ -221,7 +243,8 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
 
             // Reset robot position when Y is pressed
             if (gamepad2.y) {
-                follower.setCurrentPoseWithOffset(new Pose(41, -51.5, Math.toRadians(-90)));
+                follower.setPose(new Pose(41, -54, Math.toRadians(-90)));
+                gamepad2.rumble(200);
             }
 
 
@@ -373,7 +396,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                         depositSampleToggle = !depositSampleToggle;
                     }
                     if (follower.isBusy() && follower.getCurrentTValue() > 0.85) {
-                        follower.setMaxPower(0.5);
+                        follower.setMaxPower(0.3);
                     }
                     if (!follower.isBusy()) {
                         autoAlignState = AutoAlignState.WAIT_FOR_TVALUE;
@@ -395,6 +418,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                     break;
                 case DONE:
                     autoAlignState = AutoAlignState.IDLE;
+                    isAutoAligning = false;  // Add this line
                     follower.startTeleopDrive();
                     break;
                 default:
@@ -443,15 +467,15 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
 
     private void updateTeleopSequence() {
         if (gamepad2.left_bumper) {
-            isBreakingOutOfSequence = true;
+            isAutoAligning = false;
             follower.breakFollowing();
             teleopSequenceState = TeleopSequenceState.IDLE;
             follower.startTeleopDrive(); // Resume normal control
             return;
         }
-    
         switch (teleopSequenceState) {
             case MOVE_TO_HUMAN_PLAYER:
+                isAutoAligning = true;
                 follower.setMaxPower(0.85);
                 Path toHumanPlayer = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
@@ -462,7 +486,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                 teleopSequenceState = TeleopSequenceState.WAIT_FOR_HUMAN_PLAYER;
                 times = 0;
                 break;
-    
+
             case WAIT_FOR_HUMAN_PLAYER:
                 if (!follower.isBusy()) {
                     if (times == 0) {
@@ -472,38 +496,37 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                         times = 1;
                         teleopPathTimer.resetTimer();
                     }
-    
-                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.25) {
+
+                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.45) {
                         follower.breakFollowing();
                         depositAssembly.CloseOuttakeClaw();
                     }
-    
-                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.4) {
+
+                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.6) {
                         linearSlides.moveSlidesToPositionInches(13);
                         teleopSequenceState = TeleopSequenceState.MOVE_TO_CHAMBER;
                         teleopPathTimer.resetTimer();
                     }
                 }
                 break;
-    
+
             case MOVE_TO_CHAMBER:
-                distanceTimes = 0;
                 Path toChamber = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(22, -50, Point.CARTESIAN),
-                        new Point(0 + (teleopCycleCount * 2.5), -32.5, Point.CARTESIAN)));
+                        new Point(-4 + (teleopCycleCount * 1.75), -32.5, Point.CARTESIAN)));
                 toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toChamber, false);
                 teleopSequenceState = TeleopSequenceState.WAIT_FOR_CHAMBER;
                 times = 0;
                 break;
-    
+
             case WAIT_FOR_CHAMBER:
                 if (follower.isBusy() && follower.getCurrentTValue() > 0.3) {
                     depositAssembly.ScoreSpecimen();
                 }
-    
-                if (!follower.isBusy() && teleopCycleCount < 3) {
+
+                if (!follower.isBusy()) {
                     if (times == 0) {
                         teleopSequenceState = TeleopSequenceState.WAIT_FOR_CHAMBER;
                         follower.startTeleopDrive();
@@ -511,22 +534,22 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                         times = 1;
                         teleopPathTimer.resetTimer();
                     }
-    
-                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.25) {
+
+                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.5) {
                         follower.breakFollowing();
                         linearSlides.setKP(0.005);
                         linearSlides.moveSlidesToPositionInches(4);
                     }
-    
-                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.6) {
+
+                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.85) {
                         depositAssembly.OpenOuttakeClaw();
-    
+
                         teleopSequenceState = TeleopSequenceState.MOVE_BACK;
                         depositAssembly.GrabSpecimen();
                     }
                 }
                 break;
-    
+
             case MOVE_BACK:
                 Path toHumanPlayer2 = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
@@ -537,17 +560,18 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                 teleopSequenceState = TeleopSequenceState.RESET_CYCLE;
                 times = 0;
                 break;
-    
+
             case RESET_CYCLE:
                 if (follower.getCurrentTValue() > 0.3) {
                     linearSlides.moveSlidesToPositionInches(0);
                 }
                 if (!follower.isBusy()) {
-                    if (teleopCycleCount == 3) {
+                    if (teleopCycleCount == 7) {
+                        isAutoAligning = false;
                         teleopSequenceState = TeleopSequenceState.DONE;
                         return;
                     }
-    
+
                     if (times == 0) {
                         teleopSequenceState = TeleopSequenceState.RESET_CYCLE;
                         follower.startTeleopDrive();
@@ -555,23 +579,24 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                         times = 1;
                         teleopPathTimer.resetTimer();
                     }
-    
-                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.25) {
+
+                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.45) {
                         follower.breakFollowing();
                         depositAssembly.CloseOuttakeClaw();
                     }
-    
-                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.4) {
+
+                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.6) {
                         linearSlides.moveSlidesToPositionInches(13);
                         teleopCycleCount++;
                         teleopSequenceState = TeleopSequenceState.MOVE_TO_CHAMBER;
                     }
                 }
                 break;
-    
+
             case DONE:
                 teleopSequenceState = TeleopSequenceState.IDLE;
-                follower.startTeleopDrive(); // Resume driver control after the sequence is fully complete
+                isAutoAligning = false;  // Add this line
+                follower.startTeleopDrive();
                 break;
         }
     }

@@ -31,9 +31,6 @@ public class StatesTeleop extends LinearOpMode {
     private DepositAssembly depositAssembly;
     private LinearSlide linearSlides;
 
-    private Follower follower;
-    private final Pose startPose = new Pose(0, 0, 0);
-
     // Toggles
     private boolean clawOpen = false;
     private boolean clawRotated = true;
@@ -78,10 +75,6 @@ public class StatesTeleop extends LinearOpMode {
         intakeAssembly = new IntakeAssemblyClaw(hardwareMap);
         depositAssembly = new DepositAssembly(hardwareMap);
 
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
-        follower.setStartingPose(startPose);
-
         // Initial positions
         intakeAssembly.IntakeFlickerVertical();
         intakeAssembly.UnlockIntake();
@@ -118,8 +111,6 @@ public class StatesTeleop extends LinearOpMode {
         }
 
         waitForStart();
-
-        follower.startTeleopDrive();
 
         // MAIN LOOP
         while (opModeIsActive()) {
@@ -262,7 +253,6 @@ public class StatesTeleop extends LinearOpMode {
             // Update hardware
             linearSlides.update();
             intakeAssembly.update();
-            follower.update();
         }
     }
 
