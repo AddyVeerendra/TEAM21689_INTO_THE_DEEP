@@ -16,7 +16,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// Make sure to import Range if you want to use Range.clip
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name = "AAAAHH SIGMA TELEOP STATES")
