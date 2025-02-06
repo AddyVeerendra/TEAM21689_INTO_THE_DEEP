@@ -116,14 +116,65 @@ public class StatesTeleop extends LinearOpMode {
         while (opModeIsActive()) {
             // Drive control
             double speedMultiplier = 1 - (0.7 * gamepad2.left_trigger);
-            double y = -gamepad2.left_stick_y * speedMultiplier;
-            double x = gamepad2.left_stick_x * 1.1 * speedMultiplier;
-            double rx = Range.clip(gamepad2.right_stick_x * speedMultiplier, -0.7, 0.7);
+            final double DECAY_STEP = 0.02;
+            double deadband = 0.05;
 
-            double frontLeftPower = clipPower(y + x + rx);
-            double backLeftPower = clipPower(y - x + rx);
-            double frontRightPower = clipPower(y - x - rx);
-            double backRightPower = clipPower(y + x - rx);
+// Read target joystick values
+            double targetY = -gamepad2.left_stick_y * speedMultiplier; // Forward/Back
+            double targetX = -gamepad2.left_stick_x * 1.1 * speedMultiplier; // Strafing
+            double targetRx = Range.clip(-gamepad2.right_stick_x * speedMultiplier, -0.7, 0.7); // Rotation
+
+// For each axis, if the joystick is active, snap to target; otherwise, apply decay
+// only if the current value is above 0.5.
+            if (Math.abs(targetY) > deadband) {
+                currentY = targetY;
+            } else {
+                if (Math.abs(currentY) > 0.5) {
+                    if (currentY > DECAY_STEP)
+                        currentY -= DECAY_STEP;
+                    else if (currentY < -DECAY_STEP)
+                        currentY += DECAY_STEP;
+                    else
+                        currentY = 0;
+                } else {
+                    currentY = 0;
+                }
+            }
+
+            if (Math.abs(targetX) > deadband) {
+                currentX = targetX;
+            } else {
+                if (Math.abs(currentX) > 0.5) {
+                    if (currentX > DECAY_STEP)
+                        currentX -= DECAY_STEP;
+                    else if (currentX < -DECAY_STEP)
+                        currentX += DECAY_STEP;
+                    else
+                        currentX = 0;
+                } else {
+                    currentX = 0;
+                }
+            }
+
+            if (Math.abs(targetRx) > deadband) {
+                currentRx = targetRx;
+            } else {
+                if (Math.abs(currentRx) > 0.5) {
+                    if (currentRx > DECAY_STEP)
+                        currentRx -= DECAY_STEP;
+                    else if (currentRx < -DECAY_STEP)
+                        currentRx += DECAY_STEP;
+                    else
+                        currentRx = 0;
+                } else {
+                    currentRx = 0;
+                }
+            }
+
+            double frontLeftPower = clipPower(currentY + currentX + currentRx);
+            double backLeftPower = clipPower(currentY - currentX + currentRx);
+            double frontRightPower = clipPower(currentY - currentX - currentRx);
+            double backRightPower = clipPower(currentY + currentX - currentRx);
 
             leftFront.setPower(frontLeftPower);
             leftBack.setPower(backLeftPower);
