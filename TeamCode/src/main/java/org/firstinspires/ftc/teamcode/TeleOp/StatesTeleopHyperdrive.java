@@ -54,6 +54,9 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
     private boolean isAutoAligning = false; // Track if the robot is in auto-align mode
     private boolean isAlignButtonPressed = false; // Prevent multiple align triggers
 
+    private boolean useLowTransfer = false;
+    private boolean leftBumperTogglePressed = false;
+
     public Path alignmentPath;
 
     private enum AutoAlignState {
@@ -79,11 +82,8 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
     private int teleopCycleCount = 0;
     private Timer teleopPathTimer = new Timer();
 
-    private boolean isBreakingOutOfSequence = false;
-
     // Add these near your other variable declarations:
     private double currentY = 0.0, currentX = 0.0, currentRx = 0.0;
-    private double lastUpdateTime = 0.0;
 
     @Override
     public void runOpMode() {
@@ -365,6 +365,16 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                 follower.breakFollowing();
             }
 
+            // Toggle the deposit transfer mode on gamepad1 left bumper
+            if (gamepad1.left_bumper && !leftBumperTogglePressed) {
+                useLowTransfer = !useLowTransfer;
+                leftBumperTogglePressed = true;
+                gamepad1.rumble(200);
+                // Optionally, add telemetry or rumble feedback here
+            } else if (!gamepad1.left_bumper) {
+                leftBumperTogglePressed = false;
+            }
+
             // Update all FSMs
             updateIntakeSequence();
             updateDepositSequence();
@@ -457,7 +467,6 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
     }
 
     private void startTeleopSequence() {
-        isBreakingOutOfSequence = false;
         teleopSequenceState = TeleopSequenceState.MOVE_TO_HUMAN_PLAYER;
         teleopCycleCount = 0;
         teleopPathTimer.resetTimer();
@@ -512,7 +521,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                 Path toChamber = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(22, -50, Point.CARTESIAN),
-                        new Point(-4 + (teleopCycleCount * 1.75), -32.5, Point.CARTESIAN)));
+                        new Point(-3.5 + (teleopCycleCount * 2), -32.5, Point.CARTESIAN)));
                 toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toChamber, false);
                 teleopSequenceState = TeleopSequenceState.WAIT_FOR_CHAMBER;
@@ -564,7 +573,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                     linearSlides.moveSlidesToPositionInches(0);
                 }
                 if (!follower.isBusy()) {
-                    if (teleopCycleCount == 7) {
+                    if (teleopCycleCount == 5) {
                         isAutoAligning = false;
                         teleopSequenceState = TeleopSequenceState.DONE;
                         return;
@@ -652,7 +661,11 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                 lockDpad = true;
                 intakeAssembly.CloseClaw();
                 depositAssembly.OpenOuttakeClaw();
-                depositAssembly.TransferSample();
+                if (useLowTransfer) {
+                    depositAssembly.TransferSampleLow();
+                } else {
+                    depositAssembly.TransferSample();
+                }
                 intakeState = IntakeSequenceState.WAIT_CLOSE_CLAW;
                 linearSlides.moveSlidesToPositionInches(0);
                 intakeStateStartTime = getRuntime();
@@ -805,7 +818,11 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
             case WAIT_OUTTAKE_OPEN_SAMPLE:
                 if (elapsed > 0.15) {
                     linearSlides.moveSlidesToPositionInches(0);
-                    depositAssembly.TransferSample();
+                    if (useLowTransfer) {
+                        depositAssembly.TransferSampleLow();
+                    } else {
+                        depositAssembly.TransferSample();
+                    }
                     depositState = DepositSequenceState.DONE_TRUE_SAMPLE;
                 }
                 break;

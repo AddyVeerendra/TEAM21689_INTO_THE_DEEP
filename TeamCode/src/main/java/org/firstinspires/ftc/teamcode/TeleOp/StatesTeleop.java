@@ -49,7 +49,12 @@ public class StatesTeleop extends LinearOpMode {
     private boolean bPressed = false;
     private boolean bSequenceToggle = false; // We'll flip this each time B is pressed.
 
+    private boolean useLowTransfer = false;
+    private boolean leftBumperTogglePressed = false;
+
     public int times = 0;
+
+    private double currentY = 0.0, currentX = 0.0, currentRx = 0.0;
 
     @Override
     public void runOpMode() {
@@ -118,13 +123,13 @@ public class StatesTeleop extends LinearOpMode {
             final double DECAY_STEP = 0.02;
             double deadband = 0.05;
 
-// Read target joystick values
+            // Read target joystick values
             double targetY = -gamepad2.left_stick_y * speedMultiplier; // Forward/Back
             double targetX = -gamepad2.left_stick_x * 1.1 * speedMultiplier; // Strafing
             double targetRx = Range.clip(-gamepad2.right_stick_x * speedMultiplier, -0.7, 0.7); // Rotation
 
-// For each axis, if the joystick is active, snap to target; otherwise, apply decay
-// only if the current value is above 0.5.
+            // For each axis, if the joystick is active, snap to target; otherwise, apply decay
+            // only if the current value is above 0.5.
             if (Math.abs(targetY) > deadband) {
                 currentY = targetY;
             } else {
@@ -295,6 +300,16 @@ public class StatesTeleop extends LinearOpMode {
                 bPressed = false;
             }
 
+            // Toggle the deposit transfer mode on gamepad1 left bumper
+            if (gamepad1.left_bumper && !leftBumperTogglePressed) {
+                useLowTransfer = !useLowTransfer;
+                leftBumperTogglePressed = true;
+                gamepad1.rumble(200);
+                // Optionally, add telemetry or rumble feedback here
+            } else if (!gamepad1.left_bumper) {
+                leftBumperTogglePressed = false;
+            }
+
             // Update all FSMs
             updateIntakeSequence();
             updateDepositSequence();
@@ -363,7 +378,11 @@ public class StatesTeleop extends LinearOpMode {
                 lockDpad = true;
                 intakeAssembly.CloseClaw();
                 depositAssembly.OpenOuttakeClaw();
-                depositAssembly.TransferSample();
+                if (useLowTransfer) {
+                    depositAssembly.TransferSampleLow();
+                } else {
+                    depositAssembly.TransferSample();
+                }
                 intakeState = IntakeSequenceState.WAIT_CLOSE_CLAW;
                 linearSlides.moveSlidesToPositionInches(0);
                 intakeStateStartTime = getRuntime();
@@ -516,7 +535,11 @@ public class StatesTeleop extends LinearOpMode {
             case WAIT_OUTTAKE_OPEN_SAMPLE:
                 if (elapsed > 0.15) {
                     linearSlides.moveSlidesToPositionInches(0);
-                    depositAssembly.TransferSample();
+                    if (useLowTransfer) {
+                        depositAssembly.TransferSampleLow();
+                    } else {
+                        depositAssembly.TransferSample();
+                    }
                     depositState = DepositSequenceState.DONE_TRUE_SAMPLE;
                 }
                 break;
