@@ -157,7 +157,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
             } else {
                 if (!isAutoAligning  && teleopSequenceState == TeleopSequenceState.IDLE) {
                     double speedMultiplier = 1 - (0.7 * gamepad2.left_trigger);
-                    final double DECAY_STEP = 0.02;
+                    final double DECAY_STEP = 0.015;
                     double deadband = 0.05;
 
 // Read target joystick values
@@ -170,7 +170,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                     if (Math.abs(targetY) > deadband) {
                         currentY = targetY;
                     } else {
-                        if (Math.abs(currentY) > 0.5) {
+                        if (Math.abs(currentY) > 0.3) {
                             if (currentY > DECAY_STEP)
                                 currentY -= DECAY_STEP;
                             else if (currentY < -DECAY_STEP)
@@ -185,7 +185,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                     if (Math.abs(targetX) > deadband) {
                         currentX = targetX;
                     } else {
-                        if (Math.abs(currentX) > 0.5) {
+                        if (Math.abs(currentX) > 0.3) {
                             if (currentX > DECAY_STEP)
                                 currentX -= DECAY_STEP;
                             else if (currentX < -DECAY_STEP)
@@ -200,7 +200,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                     if (Math.abs(targetRx) > deadband) {
                         currentRx = targetRx;
                     } else {
-                        if (Math.abs(currentRx) > 0.5) {
+                        if (Math.abs(currentRx) > 0.3) {
                             if (currentRx > DECAY_STEP)
                                 currentRx -= DECAY_STEP;
                             else if (currentRx < -DECAY_STEP)
