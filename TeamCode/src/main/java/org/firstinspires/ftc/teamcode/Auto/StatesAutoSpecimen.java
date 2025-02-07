@@ -324,32 +324,43 @@ public class StatesAutoSpecimen extends OpMode {
                     }
                 }
                 if (!follower.isBusy()) {
+                    // Start teleop drive only once
                     if (times == 0) {
                         setPathState(17);
                         follower.startTeleopDrive();
-                        follower.setTeleOpMovementVectors(-0.4, 0, 0);
+                        // For the final cycle, use full power (here I use 1.0; adjust if needed)
+                        if (cycles == 3) {
+                            follower.setTeleOpMovementVectors(0, 1.0, 0);
+                            linearSlides.setKP(0.005);
+                            linearSlides.moveSlidesToPositionInches(7);
+                        } else {
+                            follower.setTeleOpMovementVectors(-0.4, 0, 0);
+                        }
                         times = 1;
                     }
-
-                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                        follower.breakFollowing();
-                        linearSlides.setKP(0.005);
-                        linearSlides.moveSlidesToPositionInches(4);
-                    }
-
-                    if (pathTimer.getElapsedTimeSeconds() > 0.6) {
-
-                        depositAssembly.OpenOuttakeClaw();
-
-                        if (cycles < 3) {
-                            setPathState(18);
-                            depositAssembly.GrabSpecimen();
-                        } else {
+                    
+                    if (cycles == 3) {
+                        if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                            follower.breakFollowing();
+                            linearSlides.moveSlidesToPositionInches(4);
+                        }
+                        if (pathTimer.getElapsedTimeSeconds() >= 0.85) {
+                            depositAssembly.OpenOuttakeClaw();
                             depositAssembly.Hang();
                             setPathState(18);
                         }
+                    } else { // For cycles less than 3, keep the original timing/behavior
+                        if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                            follower.breakFollowing();
+                            linearSlides.setKP(0.005);
+                            linearSlides.moveSlidesToPositionInches(4);
+                        }
+                        if (pathTimer.getElapsedTimeSeconds() > 0.6) {
+                            depositAssembly.OpenOuttakeClaw();
+                            setPathState(18);
+                            depositAssembly.GrabSpecimen();
+                        }
                     }
-
                 }
                 break;
 
