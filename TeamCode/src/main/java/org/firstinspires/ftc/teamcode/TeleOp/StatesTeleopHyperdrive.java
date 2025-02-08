@@ -157,63 +157,12 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
             } else {
                 if (!isAutoAligning  && teleopSequenceState == TeleopSequenceState.IDLE) {
                     double speedMultiplier = 1 - (0.7 * gamepad2.left_trigger);
-                    final double DECAY_STEP = 0.015;
-                    double deadband = 0.05;
 
-// Read target joystick values
                     double targetY = -gamepad2.left_stick_y * speedMultiplier; // Forward/Back
                     double targetX = -gamepad2.left_stick_x * 1.1 * speedMultiplier; // Strafing
                     double targetRx = Range.clip(-gamepad2.right_stick_x * speedMultiplier, -0.7, 0.7); // Rotation
 
-// For each axis, if the joystick is active, snap to target; otherwise, apply decay
-// only if the current value is above 0.5.
-                    if (Math.abs(targetY) > deadband) {
-                        currentY = targetY;
-                    } else {
-                        if (Math.abs(currentY) > 0.3) {
-                            if (currentY > DECAY_STEP)
-                                currentY -= DECAY_STEP;
-                            else if (currentY < -DECAY_STEP)
-                                currentY += DECAY_STEP;
-                            else
-                                currentY = 0;
-                        } else {
-                            currentY = 0;
-                        }
-                    }
-
-                    if (Math.abs(targetX) > deadband) {
-                        currentX = targetX;
-                    } else {
-                        if (Math.abs(currentX) > 0.3) {
-                            if (currentX > DECAY_STEP)
-                                currentX -= DECAY_STEP;
-                            else if (currentX < -DECAY_STEP)
-                                currentX += DECAY_STEP;
-                            else
-                                currentX = 0;
-                        } else {
-                            currentX = 0;
-                        }
-                    }
-
-                    if (Math.abs(targetRx) > deadband) {
-                        currentRx = targetRx;
-                    } else {
-                        if (Math.abs(currentRx) > 0.3) {
-                            if (currentRx > DECAY_STEP)
-                                currentRx -= DECAY_STEP;
-                            else if (currentRx < -DECAY_STEP)
-                                currentRx += DECAY_STEP;
-                            else
-                                currentRx = 0;
-                        } else {
-                            currentRx = 0;
-                        }
-                    }
-
-// Pass the updated values to your follower.
-                    follower.setTeleOpMovementVectors(currentY, currentX, currentRx, true);
+                    follower.setTeleOpMovementVectors(targetY, targetX, targetRx, true);
 
                     if (gamepad2.b) {
                         follower.setPose(new Pose(0, 0, Math.toRadians(0)));
@@ -571,14 +520,14 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
             case RESET_CYCLE:
                 if (follower.getCurrentTValue() > 0.3) {
                     linearSlides.moveSlidesToPositionInches(0);
-                }
-                if (!follower.isBusy()) {
-                    if (teleopCycleCount == 5) {
+                    if (teleopCycleCount == 6) {
                         isAutoAligning = false;
+                        follower.breakFollowing();
                         teleopSequenceState = TeleopSequenceState.DONE;
                         return;
                     }
-
+                }
+                if (!follower.isBusy()) {
                     if (times == 0) {
                         teleopSequenceState = TeleopSequenceState.RESET_CYCLE;
                         follower.startTeleopDrive();

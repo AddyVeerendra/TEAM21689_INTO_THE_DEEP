@@ -104,7 +104,7 @@ public class StatesAutoSpecimen extends OpMode {
             case 0:
                 toChamber = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-2.5, -35, Point.CARTESIAN)));
+                        new Point(-5.5, -35, Point.CARTESIAN)));
                 toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toChamber, false);
                 linearSlides.moveSlidesToPositionInches(13);
@@ -144,7 +144,7 @@ public class StatesAutoSpecimen extends OpMode {
                 follower.setMaxPower(1);
                 toSpike1Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(24, -38, Point.CARTESIAN)));
+                        new Point(25, -38, Point.CARTESIAN)));
                 toSpike1Grab.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(30));
                 follower.followPath(toSpike1Grab, true);
                 setPathState(3);
@@ -174,8 +174,8 @@ public class StatesAutoSpecimen extends OpMode {
             case 4:
                 toSpike1Give = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(25, -41, Point.CARTESIAN)));
-                toSpike1Give.setLinearHeadingInterpolation(Math.toRadians(30), Math.toRadians(-25));
+                        new Point(26, -38, Point.CARTESIAN)));
+                toSpike1Give.setLinearHeadingInterpolation(Math.toRadians(30), Math.toRadians(-28));
                 follower.followPath(toSpike1Give, false);
                 setPathState(5);
                 times = 0;
@@ -192,7 +192,7 @@ public class StatesAutoSpecimen extends OpMode {
                 toSpike2Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(36, -33, Point.CARTESIAN)));
-                toSpike2Grab.setLinearHeadingInterpolation(Math.toRadians(-25), Math.toRadians(33));
+                toSpike2Grab.setLinearHeadingInterpolation(Math.toRadians(-28), Math.toRadians(33));
                 follower.followPath(toSpike2Grab, true);
                 setPathState(7);
                 times = 0;
@@ -310,7 +310,7 @@ public class StatesAutoSpecimen extends OpMode {
                 toChamber = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(22, -50, Point.CARTESIAN),
-                        new Point(0 + (cycles * 2.5), -32.5, Point.CARTESIAN)));
+                        new Point(-3 + (cycles * 2.5), -32.5, Point.CARTESIAN)));
                 toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toChamber, false);
                 setPathState(17);
@@ -324,42 +324,31 @@ public class StatesAutoSpecimen extends OpMode {
                     }
                 }
                 if (!follower.isBusy()) {
-                    // Start teleop drive only once
                     if (times == 0) {
                         setPathState(17);
                         follower.startTeleopDrive();
-                        // For the final cycle, use full power (here I use 1.0; adjust if needed)
-                        if (cycles == 3) {
-                            follower.setTeleOpMovementVectors(0, 1.0, 0);
-                            linearSlides.setKP(0.005);
-                            linearSlides.moveSlidesToPositionInches(7);
-                        } else {
-                            follower.setTeleOpMovementVectors(-0.4, 0, 0);
-                        }
+                        follower.setTeleOpMovementVectors(-0.4, 0, 0);
                         times = 1;
                     }
-                    
-                    if (cycles == 3) {
-                        if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                            follower.breakFollowing();
-                            linearSlides.moveSlidesToPositionInches(4);
-                        }
-                        if (pathTimer.getElapsedTimeSeconds() >= 0.85) {
-                            depositAssembly.OpenOuttakeClaw();
+
+                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                        follower.breakFollowing();
+                        linearSlides.setKP(0.005);
+                        linearSlides.moveSlidesToPositionInches(4);
+                    }
+
+                    if (pathTimer.getElapsedTimeSeconds() > 0.6) {
+
+                        depositAssembly.OpenOuttakeClaw();
+
+                        if (cycles < 3) {
+                            setPathState(18);
+                            depositAssembly.GrabSpecimen();
+                        } else {
                             depositAssembly.Hang();
                             setPathState(18);
                         }
-                    } else { // For cycles less than 3, keep the original timing/behavior
-                        if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                            follower.breakFollowing();
-                            linearSlides.setKP(0.005);
-                            linearSlides.moveSlidesToPositionInches(4);
-                        }
-                        if (pathTimer.getElapsedTimeSeconds() > 0.6) {
-                            depositAssembly.OpenOuttakeClaw();
-                            setPathState(18);
-                            depositAssembly.GrabSpecimen();
-                        }
+
                     }
                 }
                 break;
