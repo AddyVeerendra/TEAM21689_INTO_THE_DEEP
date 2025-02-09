@@ -103,7 +103,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
 
         // Initial positions
         intakeAssembly.IntakeFlickerVertical();
-        intakeAssembly.UnlockIntake();
+        intakeAssembly.UnlockIntakeMid();
         depositAssembly.OpenOuttakeClaw();
         depositAssembly.Hang();
         intakeAssembly.RotateClaw0();
@@ -125,6 +125,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
             } else if (getRuntime() > 1.2 && times == 2) {
                 intakeAssembly.ExtendSlidesToPos(20);
                 linearSlides.moveSlidesToPositionInches(0);
+                intakeAssembly.UnlockIntake();
                 gamepad1.rumble(200);
                 gamepad2.rumble(200);
                 gamepad1.setLedColor(255, 105, 180, 1000);
@@ -439,12 +440,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
             case MOVE_TO_HUMAN_PLAYER:
                 isAutoAligning = true;
                 follower.setMaxPower(0.85);
-                Path toHumanPlayer = new Path(new BezierLine(
-                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(41, -51.5, Point.CARTESIAN)));
-                toHumanPlayer.setConstantHeadingInterpolation(Math.toRadians(-90));
-                follower.followPath(toHumanPlayer, false);
-                intakeAssembly.ExtendSlidesToPos(15);
+                intakeAssembly.ExtendSlidesToPos(7);
                 teleopSequenceState = TeleopSequenceState.WAIT_FOR_HUMAN_PLAYER;
                 times = 0;
                 break;
@@ -453,18 +449,15 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                 if (!follower.isBusy()) {
                     if (times == 0) {
                         teleopSequenceState = TeleopSequenceState.WAIT_FOR_HUMAN_PLAYER;
-                        follower.startTeleopDrive();
-                        follower.setTeleOpMovementVectors(0.4, 0, 0);
                         times = 1;
                         teleopPathTimer.resetTimer();
                     }
 
-                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.25) {
-                        follower.breakFollowing();
+                    if (teleopPathTimer.getElapsedTimeSeconds() > 0) {
                         depositAssembly.CloseOuttakeClaw();
                     }
 
-                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.60) {
+                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.3) {
                         linearSlides.moveSlidesToPositionInches(13);
                         teleopSequenceState = TeleopSequenceState.MOVE_TO_CHAMBER;
                         teleopPathTimer.resetTimer();
@@ -537,7 +530,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                     if (times == 0) {
                         teleopSequenceState = TeleopSequenceState.RESET_CYCLE;
                         follower.startTeleopDrive();
-                        follower.setTeleOpMovementVectors(0.4, 0, 0);
+                        follower.setTeleOpMovementVectors(0.2, 0, 0);
                         times = 1;
                         teleopPathTimer.resetTimer();
                     }
