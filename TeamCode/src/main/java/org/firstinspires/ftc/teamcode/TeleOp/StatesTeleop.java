@@ -81,7 +81,7 @@ public class StatesTeleop extends LinearOpMode {
 
         // Initial positions
         intakeAssembly.IntakeFlickerVertical();
-        intakeAssembly.UnlockIntake();
+        intakeAssembly.UnlockIntakeMid();
         depositAssembly.OpenOuttakeClaw();
         depositAssembly.Hang();
         intakeAssembly.RotateClaw0();
@@ -103,6 +103,7 @@ public class StatesTeleop extends LinearOpMode {
             } else if (getRuntime() > 1.2 && times == 2) {
                 intakeAssembly.ExtendSlidesToPos(20);
                 linearSlides.moveSlidesToPositionInches(0);
+                intakeAssembly.UnlockIntake();
                 gamepad1.rumble(200);
                 gamepad2.rumble(200);
                 gamepad1.setLedColor(255, 105, 180, 1000);
