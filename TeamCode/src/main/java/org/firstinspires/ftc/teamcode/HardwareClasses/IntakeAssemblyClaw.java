@@ -47,6 +47,10 @@ public class IntakeAssemblyClaw {
         intakeLock.setPosition(0.26);
     }
 
+    public void UnlockIntakeMid() {
+        intakeLock.setPosition(0.1);
+    }
+
     public void OpenClaw() {
         intakeClaw.setPosition(0.66);
     }
