@@ -361,11 +361,11 @@ public class StatesAutoSpecimen extends OpMode {
                             new Point(40, -49.5, Point.CARTESIAN)));
                     toHumanPlayer2.setConstantHeadingInterpolation(Math.toRadians(-90));
                 } else if (cycles == 3) {
-                    toHumanPlayer2 = new Path(new BezierCurve(
+                    toHumanPlayer2 = new Path(new BezierLine(
                             new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                            new Point(40, -40, Point.CARTESIAN),
                             new Point(40, -49.5, Point.CARTESIAN)));
                     toHumanPlayer2.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-30), 0.75);
+                    follower.setMaxPower(1);
                 }
                 follower.followPath(toHumanPlayer2, false);
                 setPathState(19);
@@ -376,11 +376,10 @@ public class StatesAutoSpecimen extends OpMode {
                 if (follower.getCurrentTValue() > 0.3) {
                     linearSlides.moveSlidesToPositionInches(0);
                 }
-                if (follower.getCurrentTValue() > 0.4 && cycles == 3) {
+                if (follower.getCurrentTValue() > 0.3 && cycles == 3) {
                     depositAssembly.GrabSampleFloor();
                     intakeAssembly.ExtendSlidesFull();
                     intakeAssembly.IntakeFlickerVertical();
-                    follower.setMaxPower(1);
                 }
                 if (!follower.isBusy()) {
                     if (cycles == 3) {
