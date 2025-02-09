@@ -191,6 +191,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
             // Reset robot position when Y is pressed
             if (gamepad2.y) {
                 follower.setPose(new Pose(41, -54, Math.toRadians(-90)));
+                follower.update();
                 gamepad2.rumble(200);
             }
 
@@ -324,6 +325,11 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                 leftBumperTogglePressed = false;
             }
 
+            if (gamepad2.right_trigger > 0.8) {
+                depositAssembly.Hang();
+                linearSlides.moveSlidesToPositionInches(11);
+            }
+
             // Update all FSMs
             updateIntakeSequence();
             updateDepositSequence();
@@ -453,12 +459,12 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                         teleopPathTimer.resetTimer();
                     }
 
-                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.45) {
+                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.25) {
                         follower.breakFollowing();
                         depositAssembly.CloseOuttakeClaw();
                     }
 
-                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.6) {
+                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.60) {
                         linearSlides.moveSlidesToPositionInches(13);
                         teleopSequenceState = TeleopSequenceState.MOVE_TO_CHAMBER;
                         teleopPathTimer.resetTimer();

@@ -261,8 +261,6 @@ public class StatesTeleop extends LinearOpMode {
                 leftBumperTogglePressed = false;
             }
 
-            if (gamepad1.right_bumper)
-
             // Update all FSMs
             updateIntakeSequence();
             updateDepositSequence();
