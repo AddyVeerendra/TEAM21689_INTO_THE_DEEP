@@ -23,6 +23,10 @@ public class DepositAssembly {
         outtakeClawRotate.setPosition(0.3);
     }
 
+    public void RotateOuttakeClaw160() {
+        outtakeClawRotate.setPosition(0.9);
+    }
+
     public void RotateOuttakeClaw180() {
         outtakeClawRotate.setPosition(1);
     }
@@ -68,6 +72,12 @@ public class DepositAssembly {
         outtakePivotRight.setPosition(0.4);
         outtakeClawPivot.setPosition(0.5);
         RotateOuttakeClaw180();
+    }
+    public void ScoreSpecimenAutomatedTele() {
+        outtakePivotLeft.setPosition(0.4);
+        outtakePivotRight.setPosition(0.4);
+        outtakeClawPivot.setPosition(0.5);
+        RotateOuttakeClaw160();
     }
     public void GrabSpecimen() {
         outtakePivotLeft.setPosition(0.81);

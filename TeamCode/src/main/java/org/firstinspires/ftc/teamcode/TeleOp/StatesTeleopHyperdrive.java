@@ -441,6 +441,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                 isAutoAligning = true;
                 follower.setMaxPower(0.85);
                 intakeAssembly.ExtendSlidesToPos(7);
+                intakeAssembly.IntakeFlickerVertical();
                 teleopSequenceState = TeleopSequenceState.WAIT_FOR_HUMAN_PLAYER;
                 times = 0;
                 break;
@@ -469,7 +470,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                 Path toChamber = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(22, -50, Point.CARTESIAN),
-                        new Point(-3.5 + (teleopCycleCount * 2), -32.5, Point.CARTESIAN)));
+                        new Point(-3.5 + (teleopCycleCount * 2), -30, Point.CARTESIAN)));
                 toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toChamber, false);
                 teleopSequenceState = TeleopSequenceState.WAIT_FOR_CHAMBER;
@@ -478,7 +479,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
 
             case WAIT_FOR_CHAMBER:
                 if (follower.isBusy() && follower.getCurrentTValue() > 0.3) {
-                    depositAssembly.ScoreSpecimen();
+                    depositAssembly.ScoreSpecimenAutomatedTele();
                 }
 
                 if (!follower.isBusy()) {
@@ -493,10 +494,10 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                     if (teleopPathTimer.getElapsedTimeSeconds() > 0.5) {
                         follower.breakFollowing();
                         linearSlides.setKP(0.005);
-                        linearSlides.moveSlidesToPositionInches(4);
+                        linearSlides.moveSlidesToPositionInches(3);
                     }
 
-                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.85) {
+                    if (teleopPathTimer.getElapsedTimeSeconds() > 1) {
                         depositAssembly.OpenOuttakeClaw();
 
                         teleopSequenceState = TeleopSequenceState.MOVE_BACK;
@@ -798,7 +799,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                 intakeAssembly.UnlockIntake();
                 intakeAssembly.PivotClawUp();
                 intakeAssembly.RotateClaw0();
-                intakeAssembly.IntakeFlickerUp();
+                intakeAssembly.IntakeFlickerVertical();
                 depositState = DepositSequenceState.RETRACT_SLIDES_SPECIMEN_GRAB;
                 depositStateStartTime = getRuntime();
                 break;
