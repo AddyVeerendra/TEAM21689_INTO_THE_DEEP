@@ -216,6 +216,10 @@ public class StatesTeleop extends LinearOpMode {
                 linearSlides.moveSlidesToPositionInches(11);
             }
 
+            if (gamepad2.right_bumper) {
+                depositAssembly.OpenOuttakeClaw();
+            }
+
             // Intake sequence toggle on A
             if (gamepad1.a && !aPressed) {
                 intakeSequenceToggle = !intakeSequenceToggle;

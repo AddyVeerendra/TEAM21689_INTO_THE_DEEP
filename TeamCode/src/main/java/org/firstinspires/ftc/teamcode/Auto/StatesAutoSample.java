@@ -97,7 +97,7 @@ public class StatesAutoSample extends OpMode {
             case 0:
                 toBasket = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-58, -57, Point.CARTESIAN)));
+                        new Point(-60, -58, Point.CARTESIAN)));
                 toBasket.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-135));
                 follower.followPath(toBasket, true);
                 linearSlides.moveSlidesToPositionInches(30);
@@ -126,7 +126,7 @@ public class StatesAutoSample extends OpMode {
                 toSpike1Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(-47, -40, Point.CARTESIAN),
-                        new Point(-47.5, -35, Point.CARTESIAN)));
+                        new Point(-49, -32, Point.CARTESIAN)));
                 toSpike1Grab.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toSpike1Grab, false);
                 linearSlides.moveSlidesToPositionInches(1.75);
@@ -158,7 +158,7 @@ public class StatesAutoSample extends OpMode {
             case 7:
                 toBasket2 = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-58, -57, Point.CARTESIAN)));
+                        new Point(-60, -58, Point.CARTESIAN)));
                 toBasket2.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-135));
                 follower.followPath(toBasket2, true);
                 setPathState(8);
@@ -186,7 +186,7 @@ public class StatesAutoSample extends OpMode {
                 toSpike2Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(-58, -40, Point.CARTESIAN),
-                        new Point(-58, -35, Point.CARTESIAN)));
+                        new Point(-59.5, -32, Point.CARTESIAN)));
                 toSpike2Grab.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toSpike2Grab, false);
                 setPathState(10);
@@ -213,21 +213,10 @@ public class StatesAutoSample extends OpMode {
                 }
                 break;
 
-
-            case 13:
-                toBasket = new Path(new BezierLine(
-                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-52, -52, Point.CARTESIAN)));
-                toBasket.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-135));
-                follower.followPath(toBasket, true);
-                setPathState(14);
-                times = 0;
-                break;
-
             case 14:
                 toBasket2 = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-58, -57, Point.CARTESIAN)));
+                        new Point(-60, -58, Point.CARTESIAN)));
                 toBasket2.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-135));
                 follower.followPath(toBasket2, true);
                 setPathState(15);
@@ -254,7 +243,7 @@ public class StatesAutoSample extends OpMode {
                 toSpike3Grab = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(-55, -25, Point.CARTESIAN),
-                        new Point(-59, -26.5, Point.CARTESIAN)));
+                        new Point(-60.5, -23.5, Point.CARTESIAN)));
                 toSpike3Grab.setConstantHeadingInterpolation(Math.toRadians(0));
                 follower.followPath(toSpike3Grab, true);
                 setPathState(17);
@@ -280,20 +269,10 @@ public class StatesAutoSample extends OpMode {
                 }
                 break;
 
-            case 18:
-                toBasket = new Path(new BezierLine(
-                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-52, -52, Point.CARTESIAN)));
-                toBasket.setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(-135));
-                follower.followPath(toBasket, true);
-                setPathState(19);
-                times = 0;
-                break;
-
             case 19:
                 toBasket2 = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(-59, -58, Point.CARTESIAN)));
+                        new Point(-61, -59, Point.CARTESIAN)));
                 toBasket2.setConstantHeadingInterpolation(Math.toRadians(-135));
                 follower.followPath(toBasket2, true);
                 setPathState(20);
