@@ -24,7 +24,7 @@
             <Servo name="intakePivot" port="0" />
             <Servo name="intakeRotate" port="1" />
             <Servo name="intakeClaw" port="2" />
-            <Servo name="intakeFlicker" port="3" />
+            <Servo name="intakeFlicker" port="4" />
             <goBILDAPinpoint name="pinpoint" port="0" bus="3" />
             <ControlHubImuBHI260AP name="imu" port="0" bus="0" />
         </LynxModule>

@@ -165,18 +165,18 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
 
                     follower.setTeleOpMovementVectors(targetY, targetX, targetRx, true);
 
-                    if (gamepad2.b) {
-                        follower.setPose(new Pose(0, 0, Math.toRadians(0)));
-                        gamepad2.rumble(200);
-                    }
+//                    if (gamepad2.b) {
+//                        follower.setPose(new Pose(0, 0, Math.toRadians(0)));
+//                        gamepad2.rumble(200);
+//                    }
 
-                    // Trigger auto-align when 'A' button is pressed
-                    if (gamepad2.a && !isAlignButtonPressed) {
-                        isAlignButtonPressed = true; // Prevent multiple triggers
-                        initiateAutoAlignBasketStart(); // Start the auto-align process
-                    } else if (!gamepad2.a) {
-                        isAlignButtonPressed = false; // Reset button press state
-                    }
+//                    // Trigger auto-align when 'A' button is pressed
+//                    if (gamepad2.a && !isAlignButtonPressed) {
+//                        isAlignButtonPressed = true; // Prevent multiple triggers
+//                        initiateAutoAlignBasketStart(); // Start the auto-align process
+//                    } else if (!gamepad2.a) {
+//                        isAlignButtonPressed = false; // Reset button press state
+//                    }
                 }
             }
 
@@ -470,7 +470,7 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                 Path toChamber = new Path(new BezierCurve(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
                         new Point(22, -50, Point.CARTESIAN),
-                        new Point(-3.5 + (teleopCycleCount * 2), -30, Point.CARTESIAN)));
+                        new Point(-1.5 + (teleopCycleCount * 2), -30, Point.CARTESIAN)));
                 toChamber.setConstantHeadingInterpolation(Math.toRadians(-90));
                 follower.followPath(toChamber, false);
                 teleopSequenceState = TeleopSequenceState.WAIT_FOR_CHAMBER;
@@ -491,13 +491,13 @@ public class StatesTeleopHyperdrive extends LinearOpMode {
                         teleopPathTimer.resetTimer();
                     }
 
-                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.5) {
+                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.3) {
                         follower.breakFollowing();
                         linearSlides.setKP(0.005);
                         linearSlides.moveSlidesToPositionInches(3);
                     }
 
-                    if (teleopPathTimer.getElapsedTimeSeconds() > 1) {
+                    if (teleopPathTimer.getElapsedTimeSeconds() > 0.8) {
                         depositAssembly.OpenOuttakeClaw();
 
                         teleopSequenceState = TeleopSequenceState.MOVE_BACK;
