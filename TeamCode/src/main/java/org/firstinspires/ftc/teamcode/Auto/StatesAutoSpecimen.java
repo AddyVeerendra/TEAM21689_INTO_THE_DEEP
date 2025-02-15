@@ -144,7 +144,7 @@ public class StatesAutoSpecimen extends OpMode {
                 follower.setMaxPower(1);
                 toSpike1Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(25, -38, Point.CARTESIAN)));
+                        new Point(25, -36, Point.CARTESIAN)));
                 toSpike1Grab.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(30));
                 follower.followPath(toSpike1Grab, true);
                 setPathState(3);
@@ -191,7 +191,7 @@ public class StatesAutoSpecimen extends OpMode {
             case 6:
                 toSpike2Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(36, -33, Point.CARTESIAN)));
+                        new Point(36, -31, Point.CARTESIAN)));
                 toSpike2Grab.setLinearHeadingInterpolation(Math.toRadians(-28), Math.toRadians(33));
                 follower.followPath(toSpike2Grab, true);
                 setPathState(7);
@@ -233,7 +233,7 @@ public class StatesAutoSpecimen extends OpMode {
             case 10:
                 toSpike3Grab = new Path(new BezierLine(
                         new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(46, -38, Point.CARTESIAN)));
+                        new Point(46, -36, Point.CARTESIAN)));
                 toSpike3Grab.setLinearHeadingInterpolation(Math.toRadians(-40), Math.toRadians(35));
                 follower.followPath(toSpike3Grab, true);
                 setPathState(11);

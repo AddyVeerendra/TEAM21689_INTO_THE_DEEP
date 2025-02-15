@@ -90,7 +90,6 @@ public class DepositAssembly {
         outtakePivotLeft.setPosition(0.83);
         outtakePivotRight.setPosition(0.83);
         outtakeClawPivot.setPosition(0.99);
-        OpenOuttakeClaw();
         RotateOuttakeClaw0();
     }
 
@@ -98,7 +97,6 @@ public class DepositAssembly {
         outtakePivotLeft.setPosition(0.85);
         outtakePivotRight.setPosition(0.85);
         outtakeClawPivot.setPosition(0.99);
-        OpenOuttakeClaw();
         RotateOuttakeClaw0();
     }
 

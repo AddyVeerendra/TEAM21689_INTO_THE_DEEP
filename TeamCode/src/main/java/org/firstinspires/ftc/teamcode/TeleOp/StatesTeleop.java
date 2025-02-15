@@ -181,20 +181,20 @@ public class StatesTeleop extends LinearOpMode {
                 intakeAssembly.LockIntake();
             }
 
-            // Toggle the outtake and intake claws
-            if (gamepad1.right_bumper && !rightBumperPressed) {
-                clawOpen = !clawOpen;
-                if (clawOpen) {
-                    depositAssembly.CloseOuttakeClaw();
-                    intakeAssembly.OpenClaw();
-                } else {
-                    depositAssembly.OpenOuttakeClaw();
-                    intakeAssembly.CloseClaw();
-                }
-                rightBumperPressed = true;
-            } else if (!gamepad1.right_bumper) {
-                rightBumperPressed = false;
-            }
+//            // Toggle the outtake and intake claws
+//            if (gamepad1.right_bumper && !rightBumperPressed) {
+//                clawOpen = !clawOpen;
+//                if (clawOpen) {
+//                    depositAssembly.CloseOuttakeClaw();
+//                    intakeAssembly.OpenClaw();
+//                } else {
+//                    depositAssembly.OpenOuttakeClaw();
+//                    intakeAssembly.CloseClaw();
+//                }
+//                rightBumperPressed = true;
+//            } else if (!gamepad1.right_bumper) {
+//                rightBumperPressed = false;
+//            }
 
             // Pivot claw down on X
             if (gamepad1.x) {
